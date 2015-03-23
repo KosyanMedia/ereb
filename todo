@@ -1,0 +1,34 @@
+http interface:
+
+get /tasks => list
+get /tasks/:name => get
+post /tasks/:name => set
+delete /tasks/:name => del
+get /tasks/:name/run => run
+get /tasks/:name/history => history ? from, to
+
+
+filesystem
+
+/var/tasks/:name/:timestamp/state
+/var/tasks/:name/:timestamp/stdout
+/var/tasks/:name/:timestamp/stderr
+/var/tasks/:name/current => link to current run
+
+
+config
+
+/etc/*.json
+{
+  'cron_schedule': "*/15 * * * *",
+  'cmd': "echo 'peep'"
+}
+
+
+flow
+
+get tasks
+schedule => closest run
+run => fort, dup2, exec, return code (!)
+GOTO "get tasks"
+

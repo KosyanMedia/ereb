@@ -1,0 +1,4 @@
+{
+  "cron_schedule": "* * * * *",
+  "cmd": "echo bar"
+}

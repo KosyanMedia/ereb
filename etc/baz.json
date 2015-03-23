@@ -1,4 +1,4 @@
 {
-  "cron_schedule": "* * * * *",
+  "cron_schedule": "*/2 * * * *",
   "cmd": "echo baz"
 }

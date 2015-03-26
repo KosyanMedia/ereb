@@ -1,11 +1,11 @@
 http interface:
 
-get /tasks => list
-get /tasks/:name => get
+get /tasks => list (!)
+get /tasks/:name => get (!)
 post /tasks/:name => set
 delete /tasks/:name => del
-get /tasks/:name/run => run
-get /tasks/:name/history => history ? from, to
+get /tasks/:name/run => run (!)
+get /tasks/:name/history => history ? (!) from, to (?)
 
 
 emergency stop and start

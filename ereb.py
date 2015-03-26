@@ -8,11 +8,6 @@ import json
 
 task_controller = TaskController()
 
-class TasksListHandler(tornado.web.RequestHandler):
-    def get(self):
-        task_list = task_controller.get_task_list()
-        self.write(task_list)
-
 class TasksHandler(tornado.web.RequestHandler):
     def get(self, task_id, action):
         result = '404'
@@ -41,23 +36,21 @@ class TasksHandler(tornado.web.RequestHandler):
         self.finish("<html><body> %s </body></html>" % message)
 
 
-
 class RunnerHandler(tornado.web.RequestHandler):
     def get(self, cmd):
-        result = '404'
-        if cmd == 'status':
-            result = task_controller.get_status()
+        if cmd == '':
+            result = json.dumps(task_controller.get_status())
+            self.write(result)
         elif cmd == 'start':
             task_controller.start_task_loop()
-            result = 'started'
+            self.redirect('/runner')
         elif cmd == 'stop':
-            tasks_controller.stop_task_loop()
-            result = 'stopped'
-        self.write(result)
+            task_controller.stop_task_loop()
+            self.redirect('/runner')
 
 application = tornado.web.Application([
     (r"/tasks/?([^/]*)/?([^/]*)$", TasksHandler),
-    (r"runner/(.+)$", RunnerHandler)
+    (r"/runner/?(.*)$", RunnerHandler)
 ])
 
 if __name__ == "__main__":

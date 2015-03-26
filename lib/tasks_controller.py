@@ -39,11 +39,19 @@ class TaskController():
         self.is_task_loop_running = False
 
     def get_status(self):
+        result = {}
         if self.is_task_loop_running:
-            r = "running"
+            result['state'] = 'running'
         else:
-            r = "stopped"
-        return r
+            result['state'] = 'stopped'
+
+        result['next_run'], result['next_tasks'] = self.get_next_tasks()
+
+        return result
+
+    def get_next_tasks(self):
+        next_run, next_tasks = self.get_next_tasks()
+        return { 'next_run': next_run, 'next_tasks': next_tasks}
 
     def get_task_list(self):
         return self.tasks_list

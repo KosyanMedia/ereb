@@ -45,6 +45,48 @@ class TaskController():
             r = "stopped"
         return r
 
+    def get_task_list(self):
+        return self.tasks_list
+
+    def get_task_by_id(self, task_id):
+        result = None
+        for task in self.tasks_list:
+            if task['name'] == task_id:
+                return task
+        return result
+
+    def get_task_runs_for_task_id(self, task_id):
+        task_run_files = glob.glob('./var/%s/*/state' % task_id)
+        result = {}
+        regexp = re.compile('./[^/]+/[^/]+/([^/]+)/state', re.IGNORECASE)
+        for f in task_run_files:
+            task_run_id = regexp.search(f).group(1)
+            with open(f) as task_run_file:
+                result[task_run_id] = json.load(task_run_file)
+
+        return result
+
+    def get_detailed_history_for_task_id(self, task_id):
+        task_run_dirs = glob.glob('./var/%s/*' % task_id)
+        result = {}
+        regexp = re.compile('./[^/]+/[^/]+/([^/]+)$', re.IGNORECASE)
+        for f in task_run_dirs:
+            task_run_id = regexp.search(f).group(1)
+            task_run = {}
+
+            with open(f + '/state') as file_content:
+                task_run['state'] = json.load(file_content)
+            for x in ['stdout', 'stderr', 'pid']:
+                with open(f + '/' + x) as file_content:
+                    task_run[x] = file_content.read()
+            result[task_run_id] = task_run
+
+        return result
+
+    def run_task_by_task_id(self, task_id):
+        task = self.get_task_by_id(task_id)
+        print('MANUAL RUN | Running %s task' % task['name'])
+        TaskRunner(task['name']).run_task(task['cmd'])
 
     @gen.engine
     def check_config(self):
@@ -54,7 +96,6 @@ class TaskController():
     def get_tasks_config(self):
         # async?
         regexp = re.compile('.+\/(.+).json', re.IGNORECASE)
-        re.search('.+\/(.+).json', './etc/foo.json').groups(0)[0]
         config = []
         for f in glob.glob('./etc/*.json'):
             task_name = regexp.search(f).group(1)

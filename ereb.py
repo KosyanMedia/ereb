@@ -30,10 +30,43 @@ class TasksHandler(tornado.web.RequestHandler):
 
         self.write(result)
 
+    def post(self, task_id, action):
+        result = '404'
+        config = json.loads(self.request.body.decode())
+        if task_id == '' and action == '':
+            self.raise_404('Unknown route')
+        elif task_id != '':
+            task = task_controller.set_task_by_id(task_id, config)
+            if not task:
+                self.raise_500('Cannot update task with config: %s' % json.dumps(config))
+            else:
+                result = 'Success'
+        self.write(result)
+
+    def delete(self, task_id, action):
+        result = '404'
+        if task_id == '' and action == '':
+            self.raise_404('Unknown route')
+        elif task_id != '':
+            task = task_controller.delete_task_by_id(task_id)
+            if not task:
+                self.raise_500('Cannot delete task with config: %s' % json.dumps(config))
+            else:
+                result = 'Success'
+        self.write(result)
+
+
+
+
     def raise_404(self, message):
         self.clear()
         self.set_status(404)
-        self.finish("<html><body> %s </body></html>" % message)
+        self.finish(message)
+
+    def raise_500(self, message):
+        self.clear()
+        self.set_status(500)
+        self.finish(message)
 
 
 class RunnerHandler(tornado.web.RequestHandler):

@@ -17,6 +17,7 @@ class TaskController():
     def __init__(self):
         self.tasks_list = {}
         self.is_task_loop_running = False
+        self.pending_tasks = []
         print("Starting")
         self.update_config()
 
@@ -63,6 +64,19 @@ class TaskController():
                 return task
         return result
 
+    def set_task_by_id(self, task_id, task_config):
+        f = open('./etc/%s.json' % task_id, 'w')
+        f.write(json.dumps(task_config))
+        f.close()
+        self.update_config()
+        return True
+
+    def delete_task_by_id(self, task_id):
+        f = './etc/%s.json' % task_id
+        os.remove(f)
+        self.update_config()
+        return True
+
     def get_task_runs_for_task_id(self, task_id):
         task_run_files = glob.glob('./var/%s/*/state' % task_id)
         result = {}
@@ -106,12 +120,21 @@ class TaskController():
         regexp = re.compile('.+\/(.+).json', re.IGNORECASE)
         config = []
         for f in glob.glob('./etc/*.json'):
-            task_name = regexp.search(f).group(1)
-            with open(f) as config_file:
-                c = json.load(config_file)
-            c['name'] = task_name
-            config.append(c)
+            try:
+                task_name = regexp.search(f).group(1)
+                with open(f) as config_file:
+                    c = json.load(config_file)
+                if self.validate_config(c):
+                    c['name'] = task_name
+                    config.append(c)
+                else:
+                    print("Something bad with %s config file" % f)
+            except Exception:
+                print("Error loading %s config file" % f)
         return config
+
+    def validate_config(self, config):
+        return isinstance(config, dict) and 'cron_schedule' in config and 'cmd' in config
 
     @gen.engine
     def schedule_next_tasks(self):

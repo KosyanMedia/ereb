@@ -55,9 +55,6 @@ class TasksHandler(tornado.web.RequestHandler):
                 result = 'Success'
         self.write(result)
 
-
-
-
     def raise_404(self, message):
         self.clear()
         self.set_status(404)
@@ -88,7 +85,8 @@ application = tornado.web.Application([
 
 if __name__ == "__main__":
 
-    # task_controller.start()
+    print("Starting EREB on http://localhost:8888")
+    task_controller.start()
     application.listen(8888)
 
     IOLoop.instance().start()

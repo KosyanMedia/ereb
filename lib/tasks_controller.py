@@ -6,60 +6,51 @@ import subprocess
 import json
 import glob
 import re
+import uuid
 from crontab import CronTab
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado import gen
 
-from lib.task_runner import TaskRunner
-
+from lib.tasks_scheduler import TasksScheduler
 
 class TaskController():
     def __init__(self):
-        self.tasks_list = {}
-        self.is_task_loop_running = False
-        self.pending_tasks = []
-        print("Starting")
-        self.update_config()
+        print("Starting TaskController")
+        self.task_scheduler = TasksScheduler()
 
     def update_config(self):
-        new_config = self.get_tasks_config()
-        result = new_config != self.tasks_list
-        self.tasks_list = new_config
-        return result
+        return self.task_scheduler.update_config()
 
     def start(self):
-        self.config_checking_loop = PeriodicCallback(self.check_config, 1000)
-        self.config_checking_loop.start()
-        self.start_task_loop()
+        self.task_scheduler.start()
 
     def start_task_loop(self):
-        self.is_task_loop_running = True
-        IOLoop.instance().add_callback(self.schedule_next_tasks)
+        self.task_scheduler.start()
 
     def stop_task_loop(self):
-        self.is_task_loop_running = False
+        self.task_scheduler.stop()
 
     def get_status(self):
         result = {}
-        if self.is_task_loop_running:
+        if self.task_scheduler.is_task_loop_running:
             result['state'] = 'running'
         else:
             result['state'] = 'stopped'
 
         result['next_run'], result['next_tasks'] = self.get_next_tasks()
+        result['planned_task_run_uuids'] = self.task_scheduler.planned_task_run_uuids
 
         return result
 
     def get_next_tasks(self):
-        next_run, next_tasks = self.get_next_tasks()
-        return { 'next_run': next_run, 'next_tasks': next_tasks}
+        return self.task_scheduler.get_next_tasks()
 
     def get_task_list(self):
-        return self.tasks_list
+        return self.task_scheduler.tasks_list
 
     def get_task_by_id(self, task_id):
         result = None
-        for task in self.tasks_list:
+        for task in self.task_scheduler.tasks_list:
             if task['name'] == task_id:
                 return task
         return result
@@ -68,13 +59,13 @@ class TaskController():
         f = open('./etc/%s.json' % task_id, 'w')
         f.write(json.dumps(task_config))
         f.close()
-        self.update_config()
+        self.task_scheduler.update_config()
         return True
 
     def delete_task_by_id(self, task_id):
         f = './etc/%s.json' % task_id
         os.remove(f)
-        self.update_config()
+        self.task_scheduler.update_config()
         return True
 
     def get_task_runs_for_task_id(self, task_id):
@@ -108,12 +99,7 @@ class TaskController():
     def run_task_by_task_id(self, task_id):
         task = self.get_task_by_id(task_id)
         print('MANUAL RUN | Running %s task' % task['name'])
-        TaskRunner(task['name']).run_task(task['cmd'])
-
-    @gen.engine
-    def check_config(self):
-        if self.update_config():
-            print("Config changed!")
+        self.task_scheduler.run_task_by_name_and_cmd(task['name'], task['cmd'])
 
     def get_tasks_config(self):
         # async?
@@ -136,29 +122,3 @@ class TaskController():
     def validate_config(self, config):
         return isinstance(config, dict) and 'cron_schedule' in config and 'cmd' in config
 
-    @gen.engine
-    def schedule_next_tasks(self):
-        if self.is_task_loop_running:
-            print("TaskRunner running")
-            next_run, next_tasks = self.get_next_tasks()
-            print('Next run in %s seconds' % str(next_run))
-            yield gen.Task(IOLoop.instance().add_timeout, time.time() + next_run)
-            print('Now running %s tasks' % len(next_tasks))
-            for task in next_tasks:
-                print('Running %s task' % task['name'])
-                TaskRunner(task['name']).run_task(task['cmd'])
-            print('is running? %s' % self.is_task_loop_running)
-            IOLoop.instance().add_callback(self.schedule_next_tasks)
-        else:
-            print("TaskRunner stopped")
-
-    def get_next_tasks(self):
-        tasks_by_schedule = {}
-        now = time.time()
-        for task in self.tasks_list:
-            next = CronTab(task['cron_schedule']).next(now)
-            if next in tasks_by_schedule:
-                tasks_by_schedule[next].append(task)
-            else:
-                tasks_by_schedule[next] = [task]
-        return sorted(tasks_by_schedule.items(), key=lambda x: x[0] )[0]

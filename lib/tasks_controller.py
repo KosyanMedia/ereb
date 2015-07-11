@@ -25,10 +25,10 @@ class TaskController():
         self.task_scheduler.start()
 
     def start_task_loop(self):
-        self.task_scheduler.start()
+        self.task_scheduler.start_task_loop()
 
     def stop_task_loop(self):
-        self.task_scheduler.stop()
+        self.task_scheduler.stop_task_loop()
 
     def get_status(self):
         result = {}

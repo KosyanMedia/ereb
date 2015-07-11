@@ -28,6 +28,7 @@ class TasksHandler(tornado.web.RequestHandler):
             elif action == 'history':
                 result = json.dumps(task_controller.get_detailed_history_for_task_id(task_id))
 
+        self.set_header('Access-Control-Allow-Origin', '*')
         self.write(result)
 
     def post(self, task_id, action):
@@ -41,6 +42,8 @@ class TasksHandler(tornado.web.RequestHandler):
                 self.raise_500('Cannot update task with config: %s' % json.dumps(config))
             else:
                 result = 'Success'
+
+        self.set_header('Access-Control-Allow-Origin', '*')
         self.write(result)
 
     def delete(self, task_id, action):
@@ -53,16 +56,19 @@ class TasksHandler(tornado.web.RequestHandler):
                 self.raise_500('Cannot delete task with config: %s' % json.dumps(config))
             else:
                 result = 'Success'
+        self.set_header('Access-Control-Allow-Origin', '*')
         self.write(result)
 
     def raise_404(self, message):
         self.clear()
         self.set_status(404)
+        self.set_header('Access-Control-Allow-Origin', '*')
         self.finish(message)
 
     def raise_500(self, message):
         self.clear()
         self.set_status(500)
+        self.set_header('Access-Control-Allow-Origin', '*')
         self.finish(message)
 
 
@@ -70,17 +76,20 @@ class RunnerHandler(tornado.web.RequestHandler):
     def get(self, cmd):
         if cmd == '':
             result = json.dumps(task_controller.get_status())
+            self.set_header('Access-Control-Allow-Origin', '*')
             self.write(result)
         elif cmd == 'start':
             task_controller.start_task_loop()
-            self.redirect('/runner')
+            self.set_header('Access-Control-Allow-Origin', '*')
+            self.write('Success')
         elif cmd == 'stop':
             task_controller.stop_task_loop()
-            self.redirect('/runner')
+            self.set_header('Access-Control-Allow-Origin', '*')
+            self.write('Success')
 
 application = tornado.web.Application([
     (r"/tasks/?([^/]*)/?([^/]*)$", TasksHandler),
-    (r"/runner/?(.*)$", RunnerHandler)
+    (r"/status/?(.*)$", RunnerHandler)
 ])
 
 if __name__ == "__main__":

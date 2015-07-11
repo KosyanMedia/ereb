@@ -78,6 +78,10 @@ class RunnerHandler(tornado.web.RequestHandler):
             result = json.dumps(task_controller.get_status())
             self.set_header('Access-Control-Allow-Origin', '*')
             self.write(result)
+        if cmd == 'recent_history':
+            result = json.dumps(task_controller.get_recent_history(20))
+            self.set_header('Access-Control-Allow-Origin', '*')
+            self.write(result)
         elif cmd == 'start':
             task_controller.start_task_loop()
             self.set_header('Access-Control-Allow-Origin', '*')
@@ -92,10 +96,15 @@ application = tornado.web.Application([
     (r"/status/?(.*)$", RunnerHandler)
 ])
 
+def pj(a):
+    print(json.dumps(a))
+
 if __name__ == "__main__":
 
     print("Starting EREB on http://localhost:8888")
     task_controller.start()
-    application.listen(8888)
 
+    t = task_controller.get_recent_history(2)
+
+    application.listen(8888)
     IOLoop.instance().start()

@@ -15,7 +15,6 @@ from lib.tasks_scheduler import TasksScheduler
 
 class TaskController():
     def __init__(self):
-        print("Starting TaskController")
         self.task_scheduler = TasksScheduler()
 
     def update_config(self):
@@ -47,6 +46,19 @@ class TaskController():
 
     def get_task_list(self):
         return self.task_scheduler.tasks_list
+
+    def get_recent_history(self, limit):
+        task_run_files = glob.glob('./var/*/*/state')
+        result = []
+        regexp = re.compile('./[^/]+/([^/]+)/[^/]+/state', re.IGNORECASE)
+        for f in task_run_files:
+            task_id = regexp.search(f).group(1)
+            with open(f) as task_run_file:
+                state = json.load(task_run_file)
+            state['task_id'] = task_id
+            result.append(state)
+
+        return sorted(result, key=lambda k: k['started_at'], reverse=True)[:limit]
 
     def get_task_by_id(self, task_id):
         result = None
@@ -102,23 +114,8 @@ class TaskController():
         self.task_scheduler.run_task_by_name_and_cmd(task['name'], task['cmd'])
 
     def get_tasks_config(self):
-        # async?
-        regexp = re.compile('.+\/(.+).json', re.IGNORECASE)
-        config = []
-        for f in glob.glob('./etc/*.json'):
-            try:
-                task_name = regexp.search(f).group(1)
-                with open(f) as config_file:
-                    c = json.load(config_file)
-                if self.validate_config(c):
-                    c['name'] = task_name
-                    config.append(c)
-                else:
-                    print("Something bad with %s config file" % f)
-            except Exception:
-                print("Error loading %s config file" % f)
-        return config
+        return tasks_scheduler.get_tasks_config()
 
     def validate_config(self, config):
-        return isinstance(config, dict) and 'cron_schedule' in config and 'cmd' in config
+        return tasks_scheduler.validate_config(config)
 

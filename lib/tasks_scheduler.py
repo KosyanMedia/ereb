@@ -18,7 +18,6 @@ class TasksScheduler():
         self.tasks_list = {}
         self.is_task_loop_running = False
         self.planned_task_run_uuids = []
-        print("Starting TaskScheduler")
         self.update_config()
 
     def update_config(self):

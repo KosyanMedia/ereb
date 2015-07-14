@@ -9,7 +9,7 @@ import json
 task_controller = TaskController()
 
 class TasksHandler(tornado.web.RequestHandler):
-    def get(self, task_id, action):
+    def get(self, task_id, action, task_run_id):
         result = '404'
         if task_id == '' and action == '':
             result = json.dumps(task_controller.get_task_list())
@@ -25,8 +25,12 @@ class TasksHandler(tornado.web.RequestHandler):
             elif action == 'run':
                 task_controller.run_task_by_task_id(task_id)
                 result = 'task_run'
-            elif action == 'history':
-                result = json.dumps(task_controller.get_detailed_history_for_task_id(task_id))
+            elif action == 'task_runs' and task_run_id != '':
+                detailed_task_run = task_controller.get_detailed_task_run_info(task_id, task_run_id)
+                if not detailed_task_run:
+                    self.raise_404('Task run %s/%s not found' % (task_id, task_run_id))
+                else:
+                    result = json.dumps(detailed_task_run)
 
         self.set_header('Access-Control-Allow-Origin', '*')
         self.write(result)
@@ -92,7 +96,7 @@ class RunnerHandler(tornado.web.RequestHandler):
             self.write('Success')
 
 application = tornado.web.Application([
-    (r"/tasks/?([^/]*)/?([^/]*)$", TasksHandler),
+    (r"/tasks/?([^/]*)/?([^/]*)/?([^/]*)$", TasksHandler),
     (r"/status/?(.*)$", RunnerHandler)
 ])
 
@@ -103,8 +107,6 @@ if __name__ == "__main__":
 
     print("Starting EREB on http://localhost:8888")
     task_controller.start()
-
-    t = task_controller.get_recent_history(2)
 
     application.listen(8888)
     IOLoop.instance().start()

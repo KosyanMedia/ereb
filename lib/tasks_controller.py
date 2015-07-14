@@ -80,33 +80,55 @@ class TaskController():
         self.task_scheduler.update_config()
         return True
 
-    def get_task_runs_for_task_id(self, task_id):
+    def get_task_runs_for_task_id(self, task_id, limit=20):
         task_run_files = glob.glob('./var/%s/*/state' % task_id)
-        result = {}
+        result = []
         regexp = re.compile('./[^/]+/[^/]+/([^/]+)/state', re.IGNORECASE)
         for f in task_run_files:
             task_run_id = regexp.search(f).group(1)
             with open(f) as task_run_file:
-                result[task_run_id] = json.load(task_run_file)
+                task_run = json.load(task_run_file)
+                task_run['id'] = task_run_id
+                result.append(task_run)
+        return sorted(result, key=lambda k: k['started_at'], reverse=True)[:limit]
 
-        return result
-
-    def get_detailed_history_for_task_id(self, task_id):
+    def get_detailed_history_for_task_id(self, task_id, limit=20):
         task_run_dirs = glob.glob('./var/%s/*' % task_id)
-        result = {}
+        result = []
         regexp = re.compile('./[^/]+/[^/]+/([^/]+)$', re.IGNORECASE)
         for f in task_run_dirs:
             task_run_id = regexp.search(f).group(1)
-            task_run = {}
+            task_run = {
+                'id': task_run_id
+            }
 
             with open(f + '/state') as file_content:
                 task_run['state'] = json.load(file_content)
             for x in ['stdout', 'stderr', 'pid']:
                 with open(f + '/' + x) as file_content:
                     task_run[x] = file_content.read()
-            result[task_run_id] = task_run
+            result.append(task_run)
 
-        return result
+        return sorted(result, key=lambda k: k['state']['started_at'], reverse=True)[:limit]
+
+    def get_detailed_task_run_info(self, task_id, task_run_id):
+        task_run_dirs = glob.glob('./var/%s/%s' % (task_id, task_run_id))
+
+        if len(task_run_dirs) == 0:
+            return None
+
+        task_run_dir = task_run_dirs[0]
+        task_run = {
+            'id': task_run_id
+        }
+
+        with open(task_run_dir + '/state') as file_content:
+            task_run['state'] = json.load(file_content)
+        for x in ['stdout', 'stderr', 'pid']:
+            with open(task_run_dir + '/' + x) as file_content:
+                task_run[x] = file_content.read()
+
+        return task_run
 
     def run_task_by_task_id(self, task_id):
         task = self.get_task_by_id(task_id)
@@ -118,4 +140,3 @@ class TaskController():
 
     def validate_config(self, config):
         return tasks_scheduler.validate_config(config)
-

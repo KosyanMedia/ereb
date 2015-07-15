@@ -35,20 +35,22 @@ class TasksHandler(tornado.web.RequestHandler):
         self.set_header('Access-Control-Allow-Origin', '*')
         self.write(result)
 
-    def post(self, task_id, action):
+    def post(self, task_id, action, task_run_id):
         result = '404'
         config = json.loads(self.request.body.decode())
+
         if task_id == '' and action == '':
             self.raise_404('Unknown route')
         elif task_id != '':
-            task = task_controller.set_task_by_id(task_id, config)
-            if not task:
+            is_valid_config = task_controller.validate_config(config)
+
+            if not is_valid_config:
                 self.raise_500('Cannot update task with config: %s' % json.dumps(config))
             else:
+                task = task_controller.set_task_by_id(task_id, config)
                 result = 'Success'
-
-        self.set_header('Access-Control-Allow-Origin', '*')
-        self.write(result)
+                self.set_header('Access-Control-Allow-Origin', '*')
+                self.write(result)
 
     def delete(self, task_id, action):
         result = '404'

@@ -50,12 +50,15 @@ class TaskController():
     def get_recent_history(self, limit):
         task_run_files = glob.glob('./var/*/*/state')
         result = []
-        regexp = re.compile('./[^/]+/([^/]+)/[^/]+/state', re.IGNORECASE)
+        regexp = re.compile('./[^/]+/([^/]+)/([^/]+)/state', re.IGNORECASE)
         for f in task_run_files:
-            task_id = regexp.search(f).group(1)
+            matched = regexp.search(f)
+            task_id, task_run_id = matched.group(1), matched.group(2)
+
+
             with open(f) as task_run_file:
                 state = json.load(task_run_file)
-            state['task_id'] = task_id
+            state['task_id'], state['task_run_id'] = task_id, task_run_id
             result.append(state)
 
         return sorted(result, key=lambda k: k['started_at'], reverse=True)[:limit]
@@ -136,7 +139,7 @@ class TaskController():
         self.task_scheduler.run_task_by_name_and_cmd(task['name'], task['cmd'])
 
     def get_tasks_config(self):
-        return tasks_scheduler.get_tasks_config()
+        return self.task_scheduler.get_tasks_config()
 
     def validate_config(self, config):
-        return tasks_scheduler.validate_config(config)
+        return self.task_scheduler.validate_config(config)

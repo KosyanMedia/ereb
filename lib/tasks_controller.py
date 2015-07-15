@@ -74,13 +74,13 @@ class TaskController():
         f = open('./etc/%s.json' % task_id, 'w')
         f.write(json.dumps(task_config))
         f.close()
-        self.task_scheduler.update_config()
+        self.task_scheduler.check_config()
         return True
 
     def delete_task_by_id(self, task_id):
         f = './etc/%s.json' % task_id
         os.remove(f)
-        self.task_scheduler.update_config()
+        self.task_scheduler.check_config()
         return True
 
     def get_task_runs_for_task_id(self, task_id, limit=20):

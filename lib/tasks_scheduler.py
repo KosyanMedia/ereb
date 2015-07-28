@@ -10,6 +10,7 @@ import uuid
 from crontab import CronTab
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado import gen
+import logging
 
 from lib.task_runner import TaskRunner
 
@@ -40,13 +41,13 @@ class TasksScheduler():
         self.planned_task_run_uuids = []
 
     def run_task_by_name_and_cmd(self, name, cmd):
-        print('MANUAL RUN | Running %s task' % name)
+        logging.info('Manual run | Running %s task' % name)
         TaskRunner(name).run_task(cmd)
 
     @gen.engine
     def check_config(self):
         if self.update_config():
-            print("Config changed!")
+            logging.info("Config changed!")
             self.planned_task_run_uuids = []
             IOLoop.instance().add_callback(self.schedule_next_tasks)
 
@@ -63,9 +64,9 @@ class TasksScheduler():
                     c['name'] = task_name
                     config.append(c)
                 else:
-                    print("Something bad with %s config file" % f)
+                    logging.info("Something bad with %s config file" % f)
             except Exception:
-                print("Error loading %s config file" % f)
+                logging.info("Error loading %s config file" % f)
         return config
 
     def validate_config(self, config):
@@ -73,7 +74,7 @@ class TasksScheduler():
             next_time = CronTab(config['cron_schedule']).next()
             result = next_time and isinstance(config, dict) and 'cron_schedule' in config and 'cmd' in config
         except:
-            print("BadConfigException: %s" % config)
+            logging.info("BadConfigException: %s" % config)
             result = False
 
         return result
@@ -81,25 +82,25 @@ class TasksScheduler():
     @gen.engine
     def schedule_next_tasks(self):
         if self.is_task_loop_running:
-            print("TaskRunner running")
+            logging.info("TaskRunner running")
             next_run, next_tasks = self.get_next_tasks()
-            print('Next run in %s seconds' % str(next_run))
+            logging.info('Next run in %s seconds' % str(next_run))
             task_run_uuid = str(uuid.uuid4())
             self.planned_task_run_uuids.append(task_run_uuid)
-            print('Planned task %s' % task_run_uuid)
+            logging.info('Planned task %s' % task_run_uuid)
             yield gen.Task(IOLoop.instance().add_timeout, time.time() + next_run)
             if task_run_uuid in self.planned_task_run_uuids:
-                print('Now running %s tasks' % len(next_tasks))
+                logging.info('Now running %s tasks' % len(next_tasks))
                 for task in next_tasks:
-                    print('Running %s task' % task['name'])
+                    logging.info('Running %s task' % task['name'])
                     TaskRunner(task['name']).run_task(task['cmd'])
                 self.planned_task_run_uuids.remove(task_run_uuid)
-                print('Run and removed task run %s' % task_run_uuid)
+                logging.info('Run and removed task run %s' % task_run_uuid)
                 IOLoop.instance().add_callback(self.schedule_next_tasks)
             else:
-                print('Task run %s was cancelled' % task_run_uuid)
+                logging.info('Task run %s was cancelled' % task_run_uuid)
         else:
-            print("TaskRunner stopped")
+            logging.info("TaskRunner stopped")
 
     def get_next_tasks(self):
         tasks_by_schedule = {}

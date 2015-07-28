@@ -10,6 +10,8 @@ import uuid
 from crontab import CronTab
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado import gen
+import logging
+
 
 from lib.tasks_scheduler import TasksScheduler
 
@@ -135,7 +137,7 @@ class TaskController():
 
     def run_task_by_task_id(self, task_id):
         task = self.get_task_by_id(task_id)
-        print('MANUAL RUN | Running %s task' % task['name'])
+        logging.info('MANUAL RUN | Running %s task' % task['name'])
         self.task_scheduler.run_task_by_name_and_cmd(task['name'], task['cmd'])
 
     def get_tasks_config(self):

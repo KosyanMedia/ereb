@@ -1,5 +1,6 @@
 /var/*
 /etc/*
 /log/*
+/tmp/*
 *.pyo
 *.pyc

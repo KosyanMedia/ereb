@@ -7,6 +7,8 @@ import json
 import glob
 import re
 from crontab import CronTab
+import logging
+
 
 class TaskRunner():
     def __init__(self, taskname):
@@ -27,8 +29,8 @@ class TaskRunner():
             f.write(str)
 
     def run_task(self, cmd):
-        print("Runner started, %s" % self.taskname)
-        print("Command: %s" % cmd)
+        logging.info("Runner started, %s" % self.taskname)
+        logging.info("Command: %s" % cmd)
 
         timestamp = self.get_human_readable_timestamp()
 

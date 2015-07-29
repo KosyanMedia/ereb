@@ -16,3 +16,22 @@ http://localhost:8888/tasks/:task_id
 ```
 rm -rf var/
 ```
+
+## Web interface
+
+It's webpack based app
+so, first make
+```
+cd ./ereb-wi
+npm install
+```
+
+For development mode:
+```
+webpack-dev-server
+```
+To make production build just
+```
+webpack
+```
+and look to *./build* folder

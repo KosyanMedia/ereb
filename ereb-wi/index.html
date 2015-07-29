@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title> ereb wi </title>
+  <script src="build/bundle.js"></script>
+</head>
+<body>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">Webcron wi</a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <a type="button" href="#/task_list" class="btn navbar-btn"> Task list </a>
+
+        <form class="navbar-form navbar-left" role="search">
+          <div class="form-group">
+            <input type="text" class="form-control wi__host_input" id="host_input" placeholder="Host" value="http://localhost:8888/">
+          </div>
+          <button type="submit" id="reconnect_button" class="btn btn-default"> Connect </button>
+        </form>
+
+        <button type="button" id="running_button" class="btn btn-primary navbar-btn" autocomplete="off">
+          Running
+        </button>
+
+
+        <p id="next_run_txt" class="navbar-text wi__next_run_text navbar-right" >
+        <p>
+      </div>
+
+    </div><!-- /.container-fluid -->
+  </nav>
+  <div id="page_content" class="well">
+  </div>
+</body>
+</html>

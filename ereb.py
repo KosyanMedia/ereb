@@ -118,9 +118,6 @@ application = tornado.web.Application([
     (r"/status/?(.*)$", RunnerHandler)
 ])
 
-def pj(a):
-    logging.info(json.dumps(a))
-
 if __name__ == "__main__":
 
     logging.info("Starting EREB on http://localhost:8888")

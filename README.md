@@ -32,6 +32,6 @@ webpack-dev-server
 ```
 To make production build just
 ```
-webpack
+webpack -p
 ```
 and look to *./build* folder

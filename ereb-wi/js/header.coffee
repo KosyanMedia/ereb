@@ -58,11 +58,16 @@ window.updateHeader = () =>
       next_run_task_links = status_response.next_tasks.map (t) ->
         "<a href='#'> #{t.name} </a>"
 
-      next_run_text = """
-        Next run of tasks
-        #{next_run_task_links}
-        in #{moment.preciseDiff(now, next_run_time)}
-      """
+      next_run_text = if next_run_task_links.length > 0
+        """
+          Next run of tasks
+          #{next_run_task_links}
+          in #{moment.preciseDiff(now, next_run_time)}
+        """
+      else
+        """
+          No tasks in future
+        """
 
       $('#next_run_txt').html(next_run_text)
 

@@ -84,21 +84,22 @@ class TasksScheduler():
         if self.is_task_loop_running:
             logging.info("TaskRunner running")
             next_run, next_tasks = self.get_next_tasks()
-            logging.info('Next run in %s seconds' % str(next_run))
-            task_run_uuid = str(uuid.uuid4())
-            self.planned_task_run_uuids.append(task_run_uuid)
-            logging.info('Planned task %s' % task_run_uuid)
-            yield gen.Task(IOLoop.instance().add_timeout, time.time() + next_run)
-            if task_run_uuid in self.planned_task_run_uuids:
-                logging.info('Now running %s tasks' % len(next_tasks))
-                for task in next_tasks:
-                    logging.info('Running %s task' % task['name'])
-                    TaskRunner(task['name']).run_task(task['cmd'])
-                self.planned_task_run_uuids.remove(task_run_uuid)
-                logging.info('Run and removed task run %s' % task_run_uuid)
-                IOLoop.instance().add_callback(self.schedule_next_tasks)
-            else:
-                logging.info('Task run %s was cancelled' % task_run_uuid)
+            if len(next_tasks) > 0:
+                logging.info('Next run in %s seconds' % str(next_run))
+                task_run_uuid = str(uuid.uuid4())
+                self.planned_task_run_uuids.append(task_run_uuid)
+                logging.info('Planned task %s' % task_run_uuid)
+                yield gen.Task(IOLoop.instance().add_timeout, time.time() + next_run)
+                if task_run_uuid in self.planned_task_run_uuids:
+                    logging.info('Now running %s tasks' % len(next_tasks))
+                    for task in next_tasks:
+                        logging.info('Running %s task' % task['name'])
+                        TaskRunner(task['name']).run_task(task['cmd'])
+                    self.planned_task_run_uuids.remove(task_run_uuid)
+                    logging.info('Run and removed task run %s' % task_run_uuid)
+                    IOLoop.instance().add_callback(self.schedule_next_tasks)
+                else:
+                    logging.info('Task run %s was cancelled' % task_run_uuid)
         else:
             logging.info("TaskRunner stopped")
 
@@ -111,4 +112,7 @@ class TasksScheduler():
                 tasks_by_schedule[next].append(task)
             else:
                 tasks_by_schedule[next] = [task]
-        return sorted(tasks_by_schedule.items(), key=lambda x: x[0] )[0]
+        if len(tasks_by_schedule) > 0:
+            return sorted(tasks_by_schedule.items(), key=lambda x: x[0] )[0]
+        else:
+            return [0, []]

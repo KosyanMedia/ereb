@@ -15,7 +15,8 @@ import logging
 from lib.task_runner import TaskRunner
 
 class TasksScheduler():
-    def __init__(self):
+    def __init__(self, tasks_dir):
+        self.tasks_dir = tasks_dir
         self.tasks_list = {}
         self.is_task_loop_running = False
         self.planned_task_run_uuids = []
@@ -55,7 +56,7 @@ class TasksScheduler():
         # async?
         regexp = re.compile('.+\/(.+).json', re.IGNORECASE)
         config = []
-        for f in glob.glob('./etc/*.json'):
+        for f in glob.glob(self.tasks_dir + '/*.json'):
             try:
                 task_name = regexp.search(f).group(1)
                 with open(f) as config_file:

@@ -16,8 +16,9 @@ import logging
 from lib.tasks_scheduler import TasksScheduler
 
 class TaskController():
-    def __init__(self):
-        self.task_scheduler = TasksScheduler()
+    def __init__(self, tasks_dir="etc"):
+        self.tasks_dir = tasks_dir
+        self.task_scheduler = TasksScheduler(tasks_dir)
 
     def update_config(self):
         return self.task_scheduler.update_config()
@@ -73,14 +74,14 @@ class TaskController():
         return result
 
     def set_task_by_id(self, task_id, task_config):
-        f = open('./etc/%s.json' % task_id, 'w')
+        f = open(self.tasks_dir + '/%s.json' % task_id, 'w')
         f.write(json.dumps(task_config))
         f.close()
         self.task_scheduler.check_config()
         return True
 
     def delete_task_by_id(self, task_id):
-        f = './etc/%s.json' % task_id
+        f = self.tasks_dir + '/%s.json' % task_id
         os.remove(f)
         self.task_scheduler.check_config()
         return True

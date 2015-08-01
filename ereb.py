@@ -7,29 +7,28 @@ import time
 import json
 import logging
 
-logging.basicConfig(filename='tmp/ereb.log', level=logging.INFO, format='%(asctime)s %(message)s')
-
-task_controller = TaskController()
-
 class TasksHandler(tornado.web.RequestHandler):
+    def initialize(self, task_controller):
+        self.task_controller = task_controller
+
     def get(self, task_id, action, task_run_id):
         result = '404'
         if task_id == '' and action == '':
-            result = json.dumps(task_controller.get_task_list())
+            result = json.dumps(self.task_controller.get_task_list())
         elif task_id != '':
-            task = task_controller.get_task_by_id(task_id)
+            task = self.task_controller.get_task_by_id(task_id)
             if not task:
                 self.raise_404('task %s not found' % task_id)
             if action == '':
                 result = json.dumps({
                     'config': task,
-                    'runs': task_controller.get_task_runs_for_task_id(task_id)
+                    'runs': self.task_controller.get_task_runs_for_task_id(task_id)
                 })
             elif action == 'run':
-                task_controller.run_task_by_task_id(task_id)
+                self.task_controller.run_task_by_task_id(task_id)
                 result = 'task_run'
             elif action == 'task_runs' and task_run_id != '':
-                detailed_task_run = task_controller.get_detailed_task_run_info(task_id, task_run_id)
+                detailed_task_run = self.task_controller.get_detailed_task_run_info(task_id, task_run_id)
                 if not detailed_task_run:
                     self.raise_404('Task run %s/%s not found' % (task_id, task_run_id))
                 else:
@@ -43,21 +42,21 @@ class TasksHandler(tornado.web.RequestHandler):
         config = json.loads(self.request.body.decode())
 
         if task_id == '' and action == '':
-            is_valid_config = task_controller.validate_config(config)
+            is_valid_config = self.task_controller.validate_config(config)
             if not is_valid_config:
                 self.raise_500('Cannot update task with config: %s' % json.dumps(config))
             else:
-                task = task_controller.set_task_by_id(config['task_id'], config)
+                task = self.task_controller.set_task_by_id(config['task_id'], config)
                 result = 'Success'
                 self.set_header('Access-Control-Allow-Origin', '*')
                 self.write(result)
         elif task_id != '':
-            is_valid_config = task_controller.validate_config(config)
+            is_valid_config = self.task_controller.validate_config(config)
 
             if not is_valid_config:
                 self.raise_500('Cannot update task with config: %s' % json.dumps(config))
             else:
-                task = task_controller.set_task_by_id(task_id, config)
+                task = self.task_controller.set_task_by_id(task_id, config)
                 result = 'Success'
                 self.set_header('Access-Control-Allow-Origin', '*')
                 self.write(result)
@@ -67,7 +66,7 @@ class TasksHandler(tornado.web.RequestHandler):
         if task_id == '' and action == '':
             self.raise_404('Unknown route')
         elif task_id != '':
-            task = task_controller.delete_task_by_id(task_id)
+            task = self.task_controller.delete_task_by_id(task_id)
             if not task:
                 self.raise_500('Cannot delete task with config: %s' % json.dumps(config))
             else:
@@ -95,33 +94,42 @@ class TasksHandler(tornado.web.RequestHandler):
 
 
 class RunnerHandler(tornado.web.RequestHandler):
+    def initialize(self, task_controller):
+        self.task_controller = task_controller
+
     def get(self, cmd):
         if cmd == '':
-            result = json.dumps(task_controller.get_status())
+            result = json.dumps(self.task_controller.get_status())
             self.set_header('Access-Control-Allow-Origin', '*')
             self.write(result)
         if cmd == 'recent_history':
-            result = json.dumps(task_controller.get_recent_history(20))
+            result = json.dumps(self.task_controller.get_recent_history(20))
             self.set_header('Access-Control-Allow-Origin', '*')
             self.write(result)
         elif cmd == 'start':
-            task_controller.start_task_loop()
+            self.task_controller.start_task_loop()
             self.set_header('Access-Control-Allow-Origin', '*')
             self.write('Success')
         elif cmd == 'stop':
-            task_controller.stop_task_loop()
+            self.task_controller.stop_task_loop()
             self.set_header('Access-Control-Allow-Origin', '*')
             self.write('Success')
 
-application = tornado.web.Application([
-    (r"/tasks/?([^/]*)/?([^/]*)/?([^/]*)$", TasksHandler),
-    (r"/status/?(.*)$", RunnerHandler)
-])
-
 if __name__ == "__main__":
+    from tornado.options import define, options
+    define("port", default=8888, type=int, help="port to listen on")
+    define("tasks_dir", default="etc", type=str, help="directory with tasks config files")
+    tornado.options.parse_command_line()
+    task_controller = TaskController(options.tasks_dir)
 
-    logging.info("Starting EREB on http://localhost:8888")
+    logging.info("Starting EREB on http://{}:{}".format('0.0.0.0', options.port))
+
+    application = tornado.web.Application([
+        (r"/tasks/?([^/]*)/?([^/]*)/?([^/]*)$", TasksHandler, dict(task_controller=task_controller)),
+        (r"/status/?(.*)$", RunnerHandler, dict(task_controller=task_controller))
+    ])
+
     task_controller.start()
 
-    application.listen(8888)
+    application.listen(options.port)
     IOLoop.instance().start()

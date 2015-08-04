@@ -1,8 +1,6 @@
 # Logs
 logs
 *.log
-bundle.js
-build/*
 
 # Runtime data
 pids

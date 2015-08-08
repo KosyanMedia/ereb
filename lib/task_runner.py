@@ -11,8 +11,9 @@ import logging
 
 
 class TaskRunner():
-    def __init__(self, taskname):
+    def __init__(self, taskname, history_storage):
         self.taskname = taskname
+        self.history_storage = history_storage
         self.state = {}
 
     def get_human_readable_timestamp(self):
@@ -31,29 +32,28 @@ class TaskRunner():
     def run_task(self, cmd):
         logging.info("Runner started, %s" % self.taskname)
         logging.info("Command: %s" % cmd)
+        if not self.history_storage.task_valid_to_run(self.taskname):
+            raise FileExistsError('%s task is in progress' % self.taskname)
 
-        timestamp = self.get_human_readable_timestamp()
+        task_run_id = self.get_human_readable_timestamp()
 
-        task_path = './var/' + self.taskname
-        if not os.path.isdir(task_path):
-            os.makedirs(task_path)
-        current_run_path = task_path + '/' + timestamp
-        if not os.path.isdir(current_run_path):
-            os.makedirs(current_run_path)
+        self.history_storage.prepare_task_run(self.taskname, task_run_id)
 
         new_pid = os.fork()
         if not new_pid  == 0:
-            self.to_file(current_run_path + '/pid', str(new_pid))
+            self.history_storage.update_pid_for_task_run_id(self.taskname, task_run_id, str(new_pid))
         else:
-            stdout = open(current_run_path + '/stdout', 'w')
-            stderr = open(current_run_path + '/stderr', 'w')
             self.state['current'] = 'running'
             self.state['started_at'] = self.get_timestamp()
-            self.to_file(current_run_path + '/state', self.get_state_as_json())
-            self.to_file(task_path + '/current', timestamp)
-            self.state['exit_code'] = subprocess.call(cmd, stdout=stdout, stderr=stderr, shell=True)
+            self.history_storage.update_state_for_task_run_id(self.taskname, task_run_id, self.state)
+            self.history_storage.update_current_task_run_for_task(self.taskname, task_run_id)
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            stdout, stderr = proc.communicate()
+            self.state['exit_code'] = proc.returncode
+            self.history_storage.update_stdout_for_task_run_id(self.taskname, task_run_id, stdout.decode())
+            self.history_storage.update_stderr_for_task_run_id(self.taskname, task_run_id, stderr.decode())
             self.state['finished_at'] = self.get_timestamp()
             self.state['current'] = 'finished'
-            self.to_file(current_run_path + '/state', self.get_state_as_json())
-            os.remove(task_path + '/current')
+            self.history_storage.update_state_for_task_run_id(self.taskname, task_run_id, self.state)
+            self.history_storage.delete_current_task_run_for_task(self.taskname, task_run_id)
             sys.exit()

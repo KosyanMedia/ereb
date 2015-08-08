@@ -119,8 +119,9 @@ if __name__ == "__main__":
     from tornado.options import define, options
     define("port", default=8888, type=int, help="port to listen on")
     define("tasks_dir", default="etc", type=str, help="directory with tasks config files")
+    define("history_dir", default="./var", type=str, help="directory for history storage")
     tornado.options.parse_command_line()
-    task_controller = TaskController(options.tasks_dir)
+    task_controller = TaskController(options.tasks_dir, options.history_dir)
 
     logging.info("Starting EREB on http://{}:{}".format('0.0.0.0', options.port))
 

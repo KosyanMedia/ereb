@@ -15,8 +15,9 @@ import logging
 from lib.task_runner import TaskRunner
 
 class TasksScheduler():
-    def __init__(self, tasks_dir):
+    def __init__(self, tasks_dir, history_storage):
         self.tasks_dir = tasks_dir
+        self.history_storage = history_storage
         self.tasks_list = {}
         self.is_task_loop_running = False
         self.planned_task_run_uuids = []
@@ -43,7 +44,10 @@ class TasksScheduler():
 
     def run_task_by_name_and_cmd(self, name, cmd):
         logging.info('Manual run | Running %s task' % name)
-        TaskRunner(name).run_task(cmd)
+        # try:
+        TaskRunner(name, self.history_storage).run_task(cmd)
+        # except Exception as e:
+            # logging.error('Manual task run error. %s' % e)
 
     @gen.engine
     def check_config(self):
@@ -94,8 +98,11 @@ class TasksScheduler():
                 if task_run_uuid in self.planned_task_run_uuids:
                     logging.info('Now running %s tasks' % len(next_tasks))
                     for task in next_tasks:
-                        logging.info('Running %s task' % task['name'])
-                        TaskRunner(task['name']).run_task(task['cmd'])
+                        try:
+                            logging.info('Running %s task' % task['name'])
+                            TaskRunner(task['name'], self.history_storage).run_task(task['cmd'])
+                        except Exception as e:
+                            logging.error('Scheduled task run error. %s' % e)
                     self.planned_task_run_uuids.remove(task_run_uuid)
                     logging.info('Run and removed task run %s' % task_run_uuid)
                     IOLoop.instance().add_callback(self.schedule_next_tasks)

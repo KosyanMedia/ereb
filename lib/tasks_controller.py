@@ -14,11 +14,13 @@ import logging
 
 
 from lib.tasks_scheduler import TasksScheduler
+from lib.file_history_storage import FileHistoryStorage
 
 class TaskController():
-    def __init__(self, tasks_dir="etc"):
+    def __init__(self, tasks_dir="etc", history_dir="./var"):
         self.tasks_dir = tasks_dir
-        self.task_scheduler = TasksScheduler(tasks_dir)
+        self.history_storage = FileHistoryStorage(history_dir)
+        self.task_scheduler = TasksScheduler(tasks_dir, self.history_storage)
 
     def update_config(self):
         return self.task_scheduler.update_config()
@@ -51,20 +53,7 @@ class TaskController():
         return self.task_scheduler.tasks_list
 
     def get_recent_history(self, limit):
-        task_run_files = glob.glob('./var/*/*/state')
-        result = []
-        regexp = re.compile('./[^/]+/([^/]+)/([^/]+)/state', re.IGNORECASE)
-        for f in task_run_files:
-            matched = regexp.search(f)
-            task_id, task_run_id = matched.group(1), matched.group(2)
-
-
-            with open(f) as task_run_file:
-                state = json.load(task_run_file)
-            state['task_id'], state['task_run_id'] = task_id, task_run_id
-            result.append(state)
-
-        return sorted(result, key=lambda k: k['started_at'], reverse=True)[:limit]
+        return self.history_storage.get_recent_history(limit)
 
     def get_task_by_id(self, task_id):
         result = None
@@ -87,54 +76,13 @@ class TaskController():
         return True
 
     def get_task_runs_for_task_id(self, task_id, limit=20):
-        task_run_files = glob.glob('./var/%s/*/state' % task_id)
-        result = []
-        regexp = re.compile('./[^/]+/[^/]+/([^/]+)/state', re.IGNORECASE)
-        for f in task_run_files:
-            task_run_id = regexp.search(f).group(1)
-            with open(f) as task_run_file:
-                task_run = json.load(task_run_file)
-                task_run['id'] = task_run_id
-                result.append(task_run)
-        return sorted(result, key=lambda k: k['started_at'], reverse=True)[:limit]
+        return self.history_storage.get_task_runs_for_task_id(task_id, limit)
 
     def get_detailed_history_for_task_id(self, task_id, limit=20):
-        task_run_dirs = glob.glob('./var/%s/*' % task_id)
-        result = []
-        regexp = re.compile('./[^/]+/[^/]+/([^/]+)$', re.IGNORECASE)
-        for f in task_run_dirs:
-            task_run_id = regexp.search(f).group(1)
-            task_run = {
-                'id': task_run_id
-            }
-
-            with open(f + '/state') as file_content:
-                task_run['state'] = json.load(file_content)
-            for x in ['stdout', 'stderr', 'pid']:
-                with open(f + '/' + x) as file_content:
-                    task_run[x] = file_content.read()
-            result.append(task_run)
-
-        return sorted(result, key=lambda k: k['state']['started_at'], reverse=True)[:limit]
+        return self.history_storage.get_detailed_history_for_task_id(task_id, limit)
 
     def get_detailed_task_run_info(self, task_id, task_run_id):
-        task_run_dirs = glob.glob('./var/%s/%s' % (task_id, task_run_id))
-
-        if len(task_run_dirs) == 0:
-            return None
-
-        task_run_dir = task_run_dirs[0]
-        task_run = {
-            'id': task_run_id
-        }
-
-        with open(task_run_dir + '/state') as file_content:
-            task_run['state'] = json.load(file_content)
-        for x in ['stdout', 'stderr', 'pid']:
-            with open(task_run_dir + '/' + x) as file_content:
-                task_run[x] = file_content.read()
-
-        return task_run
+        return self.history_storage.get_detailed_task_run_info(task_id, task_run_id)
 
     def run_task_by_task_id(self, task_id):
         task = self.get_task_by_id(task_id)

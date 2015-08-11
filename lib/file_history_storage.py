@@ -18,7 +18,7 @@ class FileHistoryStorage():
         self.storage_dir = storage_dir
 
     def get_recent_history(self, limit):
-        task_run_files = glob.glob(storage_dir + '/*/*/state')
+        task_run_files = glob.glob(self.storage_dir + '/*/*/state')
         result = []
         regexp = re.compile('./[^/]+/([^/]+)/([^/]+)/state', re.IGNORECASE)
         for f in task_run_files:

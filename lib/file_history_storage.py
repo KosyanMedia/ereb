@@ -19,11 +19,9 @@ class FileHistoryStorage():
 
     def get_recent_history(self, limit):
         task_run_files = glob.glob(self.storage_dir + '/*/*/state')
-        limited_task_run_files = sorted(task_run_files, key=lambda k: k.split('/')[-2], reverse=True)[:limit]
-
         result = []
         regexp = re.compile('./[^/]+/([^/]+)/([^/]+)/state', re.IGNORECASE)
-        for f in limited_task_run_files:
+        for f in task_run_files:
             matched = regexp.search(f)
             task_id, task_run_id = matched.group(1), matched.group(2)
 
@@ -32,7 +30,7 @@ class FileHistoryStorage():
             state['task_id'], state['task_run_id'] = task_id, task_run_id
             result.append(state)
 
-        return result
+        return sorted(result, key=lambda k: k['started_at'], reverse=True)[:limit]
 
     def get_task_runs_for_task_id(self, task_id, limit=20):
         all_task_run_files = glob.glob(self.storage_dir + '/%s/*/state' % task_id)
@@ -55,6 +53,9 @@ class FileHistoryStorage():
         result = []
         regexp = re.compile('./[^/]+/[^/]+/([^/]+)$', re.IGNORECASE)
         for f in task_run_dirs:
+            if not os.path.isfile(f + '/state'):
+                break
+
             task_run_id = regexp.search(f).group(1)
             task_run = {
                 'id': task_run_id
@@ -63,8 +64,12 @@ class FileHistoryStorage():
             with open(f + '/state') as file_content:
                 task_run['state'] = json.load(file_content)
             for x in ['stdout', 'stderr', 'pid']:
-                with open(f + '/' + x) as file_content:
-                    task_run[x] = file_content.read()
+                filename = '/'.join([f, x])
+                if os.path.isfile(filename):
+                    with open(f + '/' + x) as file_content:
+                        task_run[x] = file_content.read()
+                else:
+                    task_run[x] = 'Empty'
             result.append(task_run)
 
         return sorted(result, key=lambda k: k['state']['started_at'], reverse=True)[:limit]

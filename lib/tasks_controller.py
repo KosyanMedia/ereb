@@ -49,7 +49,7 @@ class TaskController():
     def get_next_tasks(self):
         return self.task_scheduler.get_next_tasks()
 
-    def get_task_list(self, with_history):
+    def get_task_list(self, with_history=False):
 
         def extend_data(task):
             task['runs'] = self.get_detailed_history_for_task_id(task['name'])

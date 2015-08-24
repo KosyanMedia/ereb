@@ -64,13 +64,18 @@ class TaskController():
         return self.history_storage.get_recent_history(limit)
 
     def get_task_by_id(self, task_id):
-        result = None
         for task in self.task_scheduler.tasks_list:
             if task['name'] == task_id:
                 return task
-        return result
+        return None
 
     def set_task_by_id(self, task_id, task_config):
+        # try to update task first
+        task = self.get_task_by_id(task_id)
+        if task:
+            task.update(task_config)
+            task_config = task
+
         f = open(self.tasks_dir + '/%s.json' % task_id, 'w')
         f.write(json.dumps(task_config))
         f.close()

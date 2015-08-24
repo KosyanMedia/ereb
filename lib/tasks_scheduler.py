@@ -72,12 +72,14 @@ class TasksScheduler():
                     logging.info("Something bad with %s config file" % f)
             except Exception:
                 logging.info("Error loading %s config file" % f)
+
         return config
 
     def validate_config(self, config):
         try:
-            next_time = CronTab(config['cron_schedule']).next()
-            result = next_time and isinstance(config, dict) and 'cron_schedule' in config and 'cmd' in config
+            if 'cron_schedule' in config:
+                next_time = CronTab(config['cron_schedule']).next()
+            result = isinstance(config, dict)
         except:
             logging.info("BadConfigException: %s" % config)
             result = False
@@ -114,12 +116,14 @@ class TasksScheduler():
     def get_next_tasks(self):
         tasks_by_schedule = {}
         now = time.time()
+
         for task in self.tasks_list:
-            next = CronTab(task['cron_schedule']).next(now)
-            if next in tasks_by_schedule:
-                tasks_by_schedule[next].append(task)
-            else:
-                tasks_by_schedule[next] = [task]
+            if task.get('enabled', True):
+                next = CronTab(task['cron_schedule']).next(now)
+                if next in tasks_by_schedule:
+                    tasks_by_schedule[next].append(task)
+                else:
+                    tasks_by_schedule[next] = [task]
         if len(tasks_by_schedule) > 0:
             return sorted(tasks_by_schedule.items(), key=lambda x: x[0] )[0]
         else:

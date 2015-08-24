@@ -14,7 +14,22 @@ class TaskForm
       data =
         cron_schedule: $('#cron_schedule').val()
         cmd: $('#cmd').val()
-      @updateTask(@taskId, data)
+      @updateTask @taskId, data, (update_status) =>
+        html = if update_status
+          """
+          <div class="col-md-4 col-md-offset-4 alert alert-success fade in">
+            <a href="#" class="close" data-dismiss="alert">×</a>
+            Saved
+          </div>
+          """
+        else
+          """
+          <div class="col-md-4 col-md-offset-4 alert alert-danger fade in">
+            <a href="#" class="close" data-dismiss="alert">×</a>
+            Error! Check schedule and cmd
+          </div>
+          """
+        $(@wrapper).prepend(html)
 
     $('#task_form__delete').click (e) =>
       e.preventDefault()
@@ -26,26 +41,18 @@ class TaskForm
       @runTask @taskId, =>
         @render(@taskId)
 
-  updateTask: (taskId, data) ->
+    $('#task_form__enabled_button').click (e) =>
+      e.preventDefault()
+      data =
+        enabled: ! ( $('#enabled').val() == 'true' ) # toggle enabled state
+      @updateTask @taskId, data, =>
+        @render(@taskId)
+
+  updateTask: (taskId, data, callback) ->
     url = [window.SERVER_HOST, 'tasks', taskId].join('/')
     promise = $.post url, JSON.stringify(data)
-    promise.done (response) =>
-      html = """
-      <div class="col-md-4 col-md-offset-4 alert alert-success fade in">
-        <a href="#" class="close" data-dismiss="alert">×</a>
-        Saved
-      </div>
-      """
-      $(@wrapper).prepend(html)
-
-    promise.fail (response) =>
-      html = """
-      <div class="col-md-4 col-md-offset-4 alert alert-danger fade in">
-        <a href="#" class="close" data-dismiss="alert">×</a>
-        Error! Check schedule and cmd
-      </div>
-      """
-      $(@wrapper).prepend(html)
+    promise.done (response) => callback(true)
+    promise.fail (response) => callback(false)
 
   deleteTask: (taskId, callback) ->
     url = [window.SERVER_HOST, 'tasks', taskId].join('/')
@@ -65,12 +72,30 @@ class TaskForm
       callback()
 
   updateTemplate: (data) ->
-    console.log(data)
+    enabled_button = if data.config.enabled
+      """
+        <button type="button" id="task_form__enabled_button" class="btn btn-warning navbar-btn" autocomplete="off">
+          Disable!
+        </button>
+      """
+    else
+      """
+        <button type="button" id="task_form__enabled_button" class="btn btn-success navbar-btn" autocomplete="off">
+          Enable!
+        </button>
+      """
+
+    enabled_state = if data.config.enabled
+      'Running'
+    else
+      'Stopped'
+
     form =
       """
         <div class="row">
           <div class="col-md-6 col-md-offset-3">
             <form id='task_form'>
+              <h4> Current task state: #{enabled_state} <h4>
               <div class="form-group">
                 <input type="hidden" id="task_id" value="#{data.config.name}">
                 <label for="schedule">Schedule</label>
@@ -79,10 +104,14 @@ class TaskForm
                 <label for="cmd">Cmd</label>
                 <input type="text" class="form-control" id="cmd"
                   value="#{data.config.cmd}" placeholder="Cmd">
+                <input type="hidden" id="enabled" value="#{data.config.enabled}">
               </div>
               <button id="task_form__submit" type="submit" class="btn btn-default">Update</button>
               <button id="task_form__manual_run" class="btn btn-default"> Run now! </button>
               <button id="task_form__delete" class="btn btn-danger">Delete</button>
+
+              #{enabled_button}
+
             </form>
           </div>
         </div>
@@ -116,7 +145,8 @@ class TaskForm
         config:
           cron_schedule: '* * * * *'
           cmd: 'echo foo'
-          name: 'foo'
+          name: 'foo',
+          enabled: false
         runs: [
           task_id: 'bar'
           exit_code: 0

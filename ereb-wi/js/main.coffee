@@ -12,7 +12,7 @@ window.helpers =
 window.current_status = 'no_connection'
 
 $(document).ready ->
-  defaultHost = 'http://localhost:8888';
+  defaultHost = "http://#{document.location.hostname}:8888";
   window.SERVER_HOST = Cookies.get('host') or defaultHost
 
   recentHistory = new RecentHistory('#page_content')

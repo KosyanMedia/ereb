@@ -39,21 +39,17 @@ class TaskRunner():
 
         self.history_storage.prepare_task_run(self.taskname, task_run_id)
 
-        new_pid = os.fork()
-        if not new_pid  == 0:
-            self.history_storage.update_pid_for_task_run_id(self.taskname, task_run_id, str(new_pid))
-        else:
-            self.state['current'] = 'running'
-            self.state['started_at'] = self.get_timestamp()
-            self.history_storage.update_state_for_task_run_id(self.taskname, task_run_id, self.state)
-            self.history_storage.update_current_task_run_for_task(self.taskname, task_run_id)
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-            stdout, stderr = proc.communicate()
-            self.state['exit_code'] = proc.returncode
-            self.history_storage.update_stdout_for_task_run_id(self.taskname, task_run_id, stdout.decode())
-            self.history_storage.update_stderr_for_task_run_id(self.taskname, task_run_id, stderr.decode())
-            self.state['finished_at'] = self.get_timestamp()
-            self.state['current'] = 'finished'
-            self.history_storage.update_state_for_task_run_id(self.taskname, task_run_id, self.state)
-            self.history_storage.delete_current_task_run_for_task(self.taskname, task_run_id)
-            sys.exit()
+        self.state['current'] = 'running'
+        self.state['started_at'] = self.get_timestamp()
+        self.history_storage.update_state_for_task_run_id(self.taskname, task_run_id, self.state)
+        self.history_storage.update_current_task_run_for_task(self.taskname, task_run_id)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        self.history_storage.update_pid_for_task_run_id(self.taskname, task_run_id, str(proc.pid))
+        stdout, stderr = proc.communicate()
+        self.state['exit_code'] = proc.returncode
+        self.history_storage.update_stdout_for_task_run_id(self.taskname, task_run_id, stdout.decode())
+        self.history_storage.update_stderr_for_task_run_id(self.taskname, task_run_id, stderr.decode())
+        self.state['finished_at'] = self.get_timestamp()
+        self.state['current'] = 'finished'
+        self.history_storage.update_state_for_task_run_id(self.taskname, task_run_id, self.state)
+        self.history_storage.delete_current_task_run_for_task(self.taskname)

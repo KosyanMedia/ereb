@@ -114,9 +114,10 @@ class FileHistoryStorage():
         file_path = '/'.join([self.storage_dir, task_id, 'current'])
         self.write_to_file(file_path, task_run_id)
 
-    def delete_current_task_run_for_task(self, task_id, task_run_id):
+    def delete_current_task_run_for_task(self, task_id):
         file_path = '/'.join([self.storage_dir, task_id, 'current'])
-        os.remove(file_path)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 
     def task_valid_to_run(self, task_id):
         file_path = '/'.join([self.storage_dir, task_id, 'current'])

@@ -104,7 +104,7 @@ class TasksScheduler():
                             logging.info('Running %s task' % task['name'])
                             TaskRunner(task['name'], self.history_storage).run_task(task['cmd'])
                         except Exception as e:
-                            logging.error('Scheduled task run error. %s' % e)
+                            logging.exception('Scheduled task run error')
                     self.planned_task_run_uuids.remove(task_run_uuid)
                     logging.info('Run and removed task run %s' % task_run_uuid)
                     IOLoop.instance().add_callback(self.schedule_next_tasks)

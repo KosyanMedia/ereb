@@ -1,10 +1,3 @@
-# 4 interfaces for HistoryStorage:
-#
-# get_recent_history
-# get_task_runs_for_task_id
-# get_detailed_history_for_task_id
-# get_detailed_task_run_info
-
 import os
 import sys
 import json
@@ -31,6 +24,32 @@ class FileHistoryStorage():
             result.append(state)
 
         return sorted(result, key=lambda k: k['started_at'], reverse=True)[:limit]
+
+    def get_currently_running_tasks(self):
+        current_runs = glob.glob(self.storage_dir + '/*/current')
+        result = []
+        for f in current_runs:
+            path_arr = f.split('/')
+            task_id = path_arr[-2]
+
+
+            with open(f) as current_run_file:
+                task_run_id = current_run_file.read()
+                path_arr[-1] = task_run_id
+            file_path = '/'.join(path_arr)
+
+            with open(file_path + '/state') as task_run_file:
+                running_task = json.load(task_run_file)
+
+            running_task['task_id'] = task_id
+            running_task['task_run_id'] = task_run_id
+
+            with open(file_path + '/pid') as task_pid_file:
+                running_task['pid'] = json.load(task_pid_file)
+
+            result.append(running_task)
+
+        return result
 
     def get_task_runs_for_task_id(self, task_id, limit=20):
         all_task_run_files = glob.glob(self.storage_dir + '/%s/*/state' % task_id)
@@ -88,11 +107,21 @@ class FileHistoryStorage():
         with open(task_run_dir + '/state') as file_content:
             task_run['state'] = json.load(file_content)
         for x in ['stdout', 'stderr', 'pid']:
-            with open(task_run_dir + '/' + x) as file_content:
-                task_run[x] = file_content.read()
+            file_path = '/'.join([task_run_dir, x])
+            if os.path.isfile(file_path):
+                with open(task_run_dir + '/' + x) as file_content:
+                    task_run[x] = file_content.read()
+            else:
+                task_run[x] = ''
 
         return task_run
 
+    def finalize_task_run(self, task_id, task_run_id):
+        self.delete_current_task_run_for_task(task_id)
+        state = self.get_detailed_task_run_info(task_id, task_run_id)['state']
+        state['current'] = 'finished'
+        state['exit_code'] = '-1'
+        self.update_state_for_task_run_id(task_id, task_run_id, state)
 
     def update_state_for_task_run_id(self, task_id, task_run_id, state):
         state_file_path = '/'.join([self.storage_dir, task_id, task_run_id, 'state'])

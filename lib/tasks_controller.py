@@ -7,6 +7,7 @@ import json
 import glob
 import re
 import uuid
+import psutil
 from crontab import CronTab
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado import gen
@@ -21,6 +22,9 @@ class TaskController():
         self.tasks_dir = tasks_dir
         self.history_storage = FileHistoryStorage(history_dir)
         self.task_scheduler = TasksScheduler(tasks_dir, self.history_storage)
+        self.process_checking_loop = PeriodicCallback(self.check_dead_processes, 1000)
+        self.process_checking_loop.start()
+
 
     def update_config(self):
         return self.task_scheduler.update_config()
@@ -45,6 +49,19 @@ class TaskController():
         result['planned_task_run_uuids'] = self.task_scheduler.planned_task_run_uuids
 
         return result
+
+    def check_dead_processes(self):
+        for currently_running_task in self.history_storage.get_currently_running_tasks():
+            task_id, task_run_id = currently_running_task['task_id'], currently_running_task['task_run_id']
+
+            if psutil.pid_exists(currently_running_task['pid']):
+                proc = psutil.Process(currently_running_task['pid'])
+                if proc.status() == psutil.STATUS_ZOMBIE:
+                    logging.info('Task %s with run %s is a zombie; finalized', task_id, task_run_id)
+                    self.history_storage.finalize_task_run(task_id, task_run_id)
+            else:
+                logging.info('Task %s with run %s is dead already; finalized', task_id, task_run_id)
+                self.history_storage.finalize_task_run(task_id, task_run_id)
 
     def get_next_tasks(self):
         return self.task_scheduler.get_next_tasks()

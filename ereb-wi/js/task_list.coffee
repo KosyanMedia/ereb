@@ -37,7 +37,7 @@ class TaskList
         else
           errors++
       )
-      "<div>#{success} <i class='glyphicon glyphicon-ok-circle'></i> #{errors} <i class='glyphicon glyphicon-remove-circle'></i></div>"
+      "<div class='tasks-status'>#{success} <i class='glyphicon glyphicon-ok-circle'></i> #{errors} <i class='glyphicon glyphicon-remove-circle'></i></div>"
 
     runs_to_bar = (runs)->
       one_width = 100 / runs.length

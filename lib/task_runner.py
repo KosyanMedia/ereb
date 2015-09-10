@@ -1,13 +1,9 @@
-import os
 import time
 import datetime
-import sys
 import subprocess
 import json
-import glob
-import re
-from crontab import CronTab
 import logging
+import threading
 
 class TaskRunner():
     def __init__(self, taskname, history_storage):
@@ -28,31 +24,31 @@ class TaskRunner():
         with open(path, 'w') as f:
             f.write(str)
 
+    def _run_task_in_thread(self, cmd):
+        print('running', cmd)
+        task_run_id = self.get_human_readable_timestamp()
+        self.history_storage.prepare_task_run(self.taskname, task_run_id)
+        self.state['current'] = 'running'
+        self.state['started_at'] = self.get_timestamp()
+        self.history_storage.update_state_for_task_run_id(self.taskname, task_run_id, self.state)
+        self.history_storage.update_current_task_run_for_task(self.taskname, task_run_id)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        self.history_storage.update_pid_for_task_run_id(self.taskname, task_run_id, str(proc.pid))
+        stdout, stderr = proc.communicate()
+        self.state['exit_code'] = proc.returncode
+        self.history_storage.update_stdout_for_task_run_id(self.taskname, task_run_id, stdout.decode())
+        self.history_storage.update_stderr_for_task_run_id(self.taskname, task_run_id, stderr.decode())
+        self.state['finished_at'] = self.get_timestamp()
+        self.state['current'] = 'finished'
+        self.history_storage.update_state_for_task_run_id(self.taskname, task_run_id, self.state)
+        self.history_storage.delete_current_task_run_for_task(self.taskname)
+
     def run_task(self, cmd):
         logging.info("Runner started, %s" % self.taskname)
         logging.info("Command: %s" % cmd)
         if not self.history_storage.task_valid_to_run(self.taskname):
             raise FileExistsError('%s task is in progress' % self.taskname)
-        child_pid = os.fork()
-        if child_pid == 0:
-            # child process
-            os.setsid()
-            task_run_id = self.get_human_readable_timestamp()
 
-            self.history_storage.prepare_task_run(self.taskname, task_run_id)
-
-            self.state['current'] = 'running'
-            self.state['started_at'] = self.get_timestamp()
-            self.history_storage.update_state_for_task_run_id(self.taskname, task_run_id, self.state)
-            self.history_storage.update_current_task_run_for_task(self.taskname, task_run_id)
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-            self.history_storage.update_pid_for_task_run_id(self.taskname, task_run_id, str(proc.pid))
-            stdout, stderr = proc.communicate()
-            self.state['exit_code'] = proc.returncode
-            self.history_storage.update_stdout_for_task_run_id(self.taskname, task_run_id, stdout.decode())
-            self.history_storage.update_stderr_for_task_run_id(self.taskname, task_run_id, stderr.decode())
-            self.state['finished_at'] = self.get_timestamp()
-            self.state['current'] = 'finished'
-            self.history_storage.update_state_for_task_run_id(self.taskname, task_run_id, self.state)
-            self.history_storage.delete_current_task_run_for_task(self.taskname)
-            sys.exit(0)
+        thread = threading.Thread(target=self._run_task_in_thread, args=(cmd,))
+        thread.start()
+        thread.join()

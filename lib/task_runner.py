@@ -55,4 +55,5 @@ class TaskRunner():
             self.state['current'] = 'finished'
             self.history_storage.update_state_for_task_run_id(self.taskname, task_run_id, self.state)
             self.history_storage.delete_current_task_run_for_task(self.taskname)
-            sys.exit(0)
+            os._exit(0)
+

@@ -19,7 +19,11 @@ class FileHistoryStorage():
             task_id, task_run_id = matched.group(1), matched.group(2)
 
             with open(f) as task_run_file:
-                state = json.load(task_run_file)
+                try:
+                    state = json.load(task_run_file)
+                except Exception as e:
+                    logging.exception('Error reading state json')
+                    continue
             state['task_id'], state['task_run_id'] = task_id, task_run_id
             result.append(state)
 
@@ -81,7 +85,11 @@ class FileHistoryStorage():
             }
 
             with open(f + '/state') as file_content:
-                task_run['state'] = json.load(file_content)
+                try:
+                    task_run['state'] = json.load(file_content)
+                except Exception as e:
+                    logging.exception('Error reading state json')
+                    continue
             for x in ['stdout', 'stderr', 'pid']:
                 filename = '/'.join([f, x])
                 if os.path.isfile(filename):

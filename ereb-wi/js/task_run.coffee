@@ -8,8 +8,8 @@ class TaskRun
       @updateTemplate data
 
   updateTemplate: (data) ->
-    formatted_stdout = data.stdout.replace("\n", "<br>")
-    formatted_stderr = data.stderr.replace("\n", "<br>")
+    formatted_stdout = data.stdout
+    formatted_stderr = data.stderr
 
     html =
       """
@@ -27,10 +27,10 @@ class TaskRun
         <div class="row">
           <div class="col-md-6 col-md-offset-3">
             <h4> STDOUT </h4>
-            <div class="wi__formatted_stdout"> #{formatted_stdout} </div>
+            <pre class="wi__formatted_stdout">#{formatted_stdout}</pre>
 
             <h4> STDERR </h4>
-            <div class="wi__formatted_stderr"> #{formatted_stderr} </div>
+            <pre class="wi__formatted_stderr">#{formatted_stderr}</pre>
           </div>
         </div>
       """

@@ -6,6 +6,7 @@ import subprocess
 import json
 import glob
 import re
+import signal
 from crontab import CronTab
 import logging
 
@@ -33,6 +34,9 @@ class TaskRunner():
         logging.info("Command: %s" % cmd)
         if not self.history_storage.task_valid_to_run(self.taskname):
             raise FileExistsError('%s task is in progress' % self.taskname)
+
+        handler = signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+        
         child_pid = os.fork()
         if child_pid == 0:
             # child process

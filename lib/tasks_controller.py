@@ -16,13 +16,15 @@ import logging
 
 from lib.tasks_scheduler import TasksScheduler
 from lib.file_history_storage import FileHistoryStorage
+from lib.task_run import TaskRun
 
 class TaskController():
     def __init__(self, tasks_dir="etc", history_dir="./var"):
         self.tasks_dir = tasks_dir
         self.history_storage = FileHistoryStorage(history_dir)
         self.task_scheduler = TasksScheduler(tasks_dir, self.history_storage)
-        self.process_checking_loop = PeriodicCallback(self.check_dead_processes, 1000)
+        self.check_dead_processes()
+        self.process_checking_loop = PeriodicCallback(self.check_dead_processes, 10000)
         self.process_checking_loop.start()
 
 
@@ -51,17 +53,16 @@ class TaskController():
         return result
 
     def check_dead_processes(self):
+        logging.info('Checking dead processes')
         for currently_running_task in self.history_storage.get_currently_running_tasks():
-            task_id, task_run_id = currently_running_task['task_id'], currently_running_task['task_run_id']
+            task_run = TaskRun.from_state(currently_running_task)
 
-            if psutil.pid_exists(currently_running_task['pid']):
-                proc = psutil.Process(currently_running_task['pid'])
-                if proc.status() == psutil.STATUS_ZOMBIE:
-                    logging.info('Task %s with run %s is a zombie; finalized', task_id, task_run_id)
-                    self.history_storage.finalize_task_run(task_id, task_run_id)
+            if psutil.pid_exists(task_run.state['pid']):
+                proc = psutil.Process(task_run.state['pid'])
+                logging.info('Task %s with run %s is alive', task_run.task_id, task_run.id)
             else:
-                logging.info('Task %s with run %s is dead already; finalized', task_id, task_run_id)
-                self.history_storage.finalize_task_run(task_id, task_run_id)
+                logging.info('Task %s with run %s is dead already; finalized', task_run.task_id, task_run.id)
+                self.history_storage.finalize_task_run(task_run)
 
     def get_next_tasks(self):
         return self.task_scheduler.get_next_tasks()

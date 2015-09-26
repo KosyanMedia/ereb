@@ -43,12 +43,21 @@ class FileHistoryStorage():
 
         return result
 
-    def get_task_runs_for_task_id(self, task_id, limit=20):
+    def get_last_day_for_task_id(self, task_id):
         days = list(map(lambda x: x.split('/')[-1], glob.glob(self.storage_dir + '/%s/*' % task_id)))
         days.sort(reverse=True)
+        if len(days) == 0:
+            return None
         last_day = days.pop(0)
         if last_day == 'current':
             last_day = days.pop(0)
+        return last_day
+
+
+    def get_task_runs_for_task_id(self, task_id, limit=20):
+        last_day = self.get_last_day_for_task_id(task_id)
+        if not last_day:
+            return []
 
         all_task_run_files = glob.glob(self.storage_dir + '/%s/%s/*/state' % (task_id, last_day))
         all_task_run_files.sort(reverse=True)
@@ -66,14 +75,9 @@ class FileHistoryStorage():
 
 
     def get_detailed_history_for_task_id(self, task_id, limit=20):
-        days = list(map(lambda x: x.split('/')[-1], glob.glob(self.storage_dir + '/%s/*' % task_id)))
-        days.sort(reverse=True)
-
-        if len(days) == 0:
+        last_day = self.get_last_day_for_task_id(task_id)
+        if not last_day:
             return []
-        last_day = days.pop(0)
-        if last_day == 'current':
-            last_day = days.pop(0)
 
         task_run_dirs = glob.glob(self.storage_dir + '/%s/%s/*' % (task_id, last_day))
         task_run_dirs.sort(reverse=True)

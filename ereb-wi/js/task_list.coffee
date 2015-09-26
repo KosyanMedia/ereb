@@ -52,6 +52,7 @@ class TaskList
     rows = data.map (task) =>
       """
         <tr>
+          <td> <span class="glyphicon glyphicon-#{ if task.enabled then 'ok' else 'remove' }"></span </td>
           <td> <a href="#/tasks/#{task.name}"> #{task.name} </a> </td>
           <td> #{runs_to_bar(task.runs)} </td>
           <td> #{statistics(task.runs)} </td>
@@ -63,12 +64,12 @@ class TaskList
     html =
       """
         <div class="row">
-          <div class="col-md-8 col-md-offset-2">
+          <div class="col-md-10 col-md-offset-1">
             <h4> Task list </h4>
             <table class="table">
             <thead>
               <tr>
-                <th> Name </th>
+                <th colspan="2"> Name </th>
                 <th> Status </th>
                 <th> Statistics </th>
                 <th> Schedule </th>
@@ -101,10 +102,12 @@ class TaskList
         cron_schedule: '* * * * *'
         cmd: 'echo foo'
         name: 'foo'
+        enabled: false
       ,
         cron_schedule: '* * * * *'
         cmd: 'echo bar'
         name: 'bar'
+        enabled: false
       ]
       callback(stub)
     else
@@ -123,6 +126,7 @@ class TaskList
       task_id: name
       cmd: [@defaultCmd, name].join(' ')
       cron_schedule: @defaultSchedule
+      enabled: false
 
     promise.done (response) ->
       callback()

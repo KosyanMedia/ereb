@@ -19,20 +19,6 @@ class TaskRunner():
         self.taskname = taskname
         self.history_storage = history_storage
         self.notifier = notifier
-        self.state = {}
-
-    def get_human_readable_timestamp(self):
-        return datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S_%f')
-
-    def get_timestamp(self):
-        return datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-
-    def get_state_as_json(self):
-        return json.dumps(self.state)
-
-    def to_file(self, path, str):
-        with open(path, 'w') as f:
-            f.write(str)
 
     def run_task(self, cmd):
         logging.info("Runner started, %s" % self.taskname)

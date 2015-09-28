@@ -29,3 +29,9 @@ class TaskRun():
         finished_at = datetime.datetime.fromtimestamp(time.time())
         self.state['finished_at'] = finished_at.strftime('%Y-%m-%d %H:%M:%S')
         self.state['current'] = 'finished'
+
+    def get_error_message(self):
+        return "Task [{0}]/{1} failed".format(self.task_id, self.id)
+
+    def get_found_dead_message(self):
+        return "Task [{0}]/{1} was found dead and finalized".format(self.task_id, self.id)

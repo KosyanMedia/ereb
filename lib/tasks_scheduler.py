@@ -15,9 +15,10 @@ import logging
 from lib.task_runner import TaskRunner
 
 class TasksScheduler():
-    def __init__(self, tasks_dir, history_storage):
+    def __init__(self, tasks_dir, history_storage, notifier):
         self.tasks_dir = tasks_dir
         self.history_storage = history_storage
+        self.notifier = notifier
         self.tasks_list = {}
         self.is_task_loop_running = False
         self.planned_task_run_uuids = []
@@ -45,7 +46,7 @@ class TasksScheduler():
     def run_task_by_name_and_cmd(self, name, cmd):
         logging.info('Manual run | Running %s task' % name)
         # try:
-        TaskRunner(name, self.history_storage).run_task(cmd)
+        TaskRunner(name, self.history_storage, self.notifier).run_task(cmd)
         # except Exception as e:
             # logging.error('Manual task run error. %s' % e)
 
@@ -102,7 +103,7 @@ class TasksScheduler():
                     for task in next_tasks:
                         try:
                             logging.info('Running %s task' % task['name'])
-                            TaskRunner(task['name'], self.history_storage).run_task(task['cmd'])
+                            TaskRunner(task['name'], self.history_storage, self.notifier).run_task(task['cmd'])
                         except Exception as e:
                             logging.exception('Scheduled task run error')
                     self.planned_task_run_uuids.remove(task_run_uuid)

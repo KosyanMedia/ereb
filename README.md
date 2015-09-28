@@ -5,7 +5,16 @@ pip3 install -r requirements.txt
 python3 ereb.py
 ```
 
-## Routes
+## Notifications
+
+To turn on notifications
+```
+cp notifier.json.example notifier.json
+```
+and make proper shell commands.
+Then use *--notify-to* parameter for running ereb.py
+
+## HTTP API
 
 http://localhost:8888/runner
 http://localhost:8888/tasks

@@ -10,12 +10,14 @@ import signal
 from crontab import CronTab
 import logging
 
+
 from lib.task_run import TaskRun
 
 class TaskRunner():
-    def __init__(self, taskname, history_storage):
+    def __init__(self, taskname, history_storage, notifier):
         self.taskname = taskname
         self.history_storage = history_storage
+        self.notifier = notifier
         self.state = {}
 
     def get_human_readable_timestamp(self):
@@ -68,5 +70,8 @@ class TaskRunner():
 
             self.history_storage.update_state_for_task_run(task_run)
             self.history_storage.delete_current_task_run_for_task(task_run)
+
+            if int(proc.returncode) != 0:
+                self.notifier.error(task_run.get_error_message())
 
             os._exit(0)

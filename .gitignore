@@ -4,3 +4,4 @@
 /tmp/*
 *.pyo
 *.pyc
+notifier.json

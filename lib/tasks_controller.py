@@ -17,12 +17,14 @@ import logging
 from lib.tasks_scheduler import TasksScheduler
 from lib.file_history_storage import FileHistoryStorage
 from lib.task_run import TaskRun
+from lib.notifier import Notifier
 
 class TaskController():
-    def __init__(self, tasks_dir="etc", history_dir="./var"):
+    def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger'):
         self.tasks_dir = tasks_dir
         self.history_storage = FileHistoryStorage(history_dir)
-        self.task_scheduler = TasksScheduler(tasks_dir, self.history_storage)
+        self.notifier = Notifier(notifier_config, notify_to)
+        self.task_scheduler = TasksScheduler(tasks_dir, self.history_storage, self.notifier)
         self.check_dead_processes()
         self.process_checking_loop = PeriodicCallback(self.check_dead_processes, 10000)
         self.process_checking_loop.start()
@@ -63,6 +65,7 @@ class TaskController():
             else:
                 logging.info('Task %s with run %s is dead already; finalized', task_run.task_id, task_run.id)
                 self.history_storage.finalize_task_run(task_run)
+                self.notifier.error(task_run.get_found_dead_message())
 
     def get_next_tasks(self):
         return self.task_scheduler.get_next_tasks()

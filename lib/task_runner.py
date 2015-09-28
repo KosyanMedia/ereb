@@ -9,6 +9,7 @@ import re
 import signal
 from crontab import CronTab
 import logging
+import tornado.process
 
 
 from lib.task_run import TaskRun
@@ -39,39 +40,32 @@ class TaskRunner():
         if not self.history_storage.task_valid_to_run(self.taskname):
             raise FileExistsError('%s task is in progress' % self.taskname)
 
-        handler = signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+        self.task_run = TaskRun(self.taskname)
+        self.history_storage.prepare_task_run(self.task_run)
+        self.history_storage.update_state_for_task_run(self.task_run)
+        self.history_storage.update_current_task_run_for_task(self.task_run)
 
-        child_pid = os.fork()
-        if child_pid == 0:
-            # child process
-            # os.setsid()
+        self.proc = tornado.process.Subprocess(cmd, stdout=tornado.process.Subprocess.STREAM, stderr=tornado.process.Subprocess.STREAM, shell=True)
+        self.task_run.state['pid'] = self.proc.pid
+        self.history_storage.update_state_for_task_run(self.task_run)
 
-            task_run = TaskRun(self.taskname)
+        self.proc.set_exit_callback(self.exit_callback)
 
-            self.history_storage.prepare_task_run(task_run)
+    def exit_callback(self, returncode):
+        stdout = self.proc.stdout.read_from_fd()
+        if stdout:
+            self.task_run.stdout = stdout.decode()
+            self.history_storage.update_stdout_for_task_run_id(self.task_run)
 
-            self.history_storage.update_state_for_task_run(task_run)
-            self.history_storage.update_current_task_run_for_task(task_run)
+        stderr = self.proc.stderr.read_from_fd()
+        if stderr:
+            self.task_run.stderr = stderr.decode()
+            self.history_storage.update_stderr_for_task_run_id(self.task_run)
 
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        self.task_run.state['exit_code'] = returncode
+        self.task_run.finalize()
+        self.history_storage.update_state_for_task_run(self.task_run)
+        self.history_storage.delete_current_task_run_for_task(self.task_run)
 
-            task_run.state['pid'] = proc.pid
-            self.history_storage.update_state_for_task_run(task_run)
-            stdout, stderr = proc.communicate()
-
-            task_run.state['exit_code'] = proc.returncode
-            task_run.stdout = stdout.decode()
-            self.history_storage.update_stdout_for_task_run_id(task_run)
-
-            task_run.stderr = stderr.decode()
-            self.history_storage.update_stderr_for_task_run_id(task_run)
-
-            task_run.finalize()
-
-            self.history_storage.update_state_for_task_run(task_run)
-            self.history_storage.delete_current_task_run_for_task(task_run)
-
-            if int(proc.returncode) != 0:
-                self.notifier.error(task_run.get_error_message())
-
-            os._exit(0)
+        if returncode != 0:
+            self.notifier.error(self.task_run.get_error_message())

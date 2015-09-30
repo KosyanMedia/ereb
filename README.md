@@ -28,6 +28,7 @@ rm -rf var/
 
 ## Web interface
 
+### Development
 It's webpack based app
 so, first make
 ```
@@ -39,8 +40,12 @@ For development mode:
 ```
 webpack-dev-server
 ```
-To make production build just
+Don't to make production build after. Just
 ```
 webpack -p
 ```
 and look to *./build* folder
+
+### Production
+
+ereb-wi is served by tornado by default at */* route

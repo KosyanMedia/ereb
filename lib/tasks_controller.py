@@ -22,6 +22,9 @@ from lib.notifier import Notifier
 class TaskController():
     def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger'):
         self.tasks_dir = tasks_dir
+        if not os.path.exists(self.tasks_dir):
+             os.makedirs(self.tasks_dir)
+
         self.history_storage = FileHistoryStorage(history_dir)
         self.notifier = Notifier(notifier_config, notify_to)
         self.task_scheduler = TasksScheduler(tasks_dir, self.history_storage, self.notifier)

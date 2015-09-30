@@ -135,7 +135,8 @@ if __name__ == "__main__":
 
     application = tornado.web.Application([
         (r"/tasks/?([^/]*)/?([^/]*)/?([^/]*)$", TasksHandler, dict(task_controller=task_controller)),
-        (r"/status/?(.*)$", RunnerHandler, dict(task_controller=task_controller))
+        (r"/status/?(.*)$", RunnerHandler, dict(task_controller=task_controller)),
+        (r"/(.*)", tornado.web.StaticFileHandler, {"path": "./ereb-wi", "default_filename": "index.html"})
     ])
 
     task_controller.start()

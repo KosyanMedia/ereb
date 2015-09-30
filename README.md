@@ -14,12 +14,6 @@ cp notifier.json.example notifier.json
 and make proper shell commands.
 Then use *--notify-to* parameter for running ereb.py
 
-## HTTP API
-
-http://localhost:8888/runner
-http://localhost:8888/tasks
-http://localhost:8888/tasks/:task_id
-
 ## Clean history
 
 ```

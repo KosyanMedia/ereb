@@ -39,11 +39,13 @@ class TaskRunner():
 
     def exit_callback(self, returncode):
         stdout = self.proc.stdout.read_from_fd()
+        self.proc.stdout.close()
         if stdout:
             self.task_run.stdout = stdout.decode()
             self.history_storage.update_stdout_for_task_run_id(self.task_run)
 
         stderr = self.proc.stderr.read_from_fd()
+        self.proc.stderr.close()
         if stderr:
             self.task_run.stderr = stderr.decode()
             self.history_storage.update_stderr_for_task_run_id(self.task_run)

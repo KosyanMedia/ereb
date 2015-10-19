@@ -62,13 +62,13 @@ class TaskController():
         for currently_running_task in self.history_storage.get_currently_running_tasks():
             task_run = TaskRun.from_state(currently_running_task)
 
-            if psutil.pid_exists(task_run.state['pid']):
-                proc = psutil.Process(task_run.state['pid'])
-                logging.info('Task %s with run %s is alive', task_run.task_id, task_run.id)
-            else:
-                logging.info('Task %s with run %s is dead already; finalized', task_run.task_id, task_run.id)
-                self.history_storage.finalize_task_run(task_run)
-                self.notifier.error(task_run.get_found_dead_message())
+            if 'pid' in task_run.state:
+                if psutil.pid_exists(task_run.state['pid']):
+                    logging.info('Task %s with run %s is alive', task_run.task_id, task_run.id)
+                else:
+                    logging.info('Task %s with run %s is dead already; finalized', task_run.task_id, task_run.id)
+                    self.history_storage.finalize_task_run(task_run)
+                    self.notifier.error(task_run.get_found_dead_message())
 
     def get_next_tasks(self):
         return self.task_scheduler.get_next_tasks()

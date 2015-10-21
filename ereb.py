@@ -120,8 +120,19 @@ if __name__ == "__main__":
     define("history_dir", default="./var", type=str, help="directory for history storage")
     define("notifier_config", default="./notifier.json", type=str, help="notifier json config")
     define("notify_to", default="logger", type=str, help="notifications channel")
-
     tornado.options.parse_command_line()
+
+    default_wi_config = """
+        window.DEFAULT_CONFIG = {}
+    """.format({
+        'port': options.port
+    })
+
+    default_wi_config_path = './ereb-wi/default_config.js'
+
+    with open(default_wi_config_path, 'w') as f:
+        f.write(default_wi_config)
+
     try:
         with open(options.notifier_config) as notifier_config_file:
             notifier_config = json.load(notifier_config_file)

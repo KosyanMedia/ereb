@@ -12,7 +12,10 @@ To turn on notifications
 cp notifier.json.example notifier.json
 ```
 and make proper shell commands.
-Then use *--notify-to* parameter for running ereb.py
+Then use *--notify-to* parameter for running ereb.py, for example to use slack do:
+```
+python3 ereb.py --notify-to=slack
+```
 
 ## Clean history
 

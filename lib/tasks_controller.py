@@ -69,6 +69,11 @@ class TaskController():
                     logging.info('Task %s with run %s is dead already; finalized', task_run.task_id, task_run.id)
                     self.history_storage.finalize_task_run(task_run)
                     self.notifier.error(task_run.get_found_dead_message())
+            else:
+                logging.info('Task %s with run %s is in unknown state, no pid; finalized', task_run.task_id, task_run.id)
+                self.history_storage.finalize_task_run(task_run)
+                self.notifier.error(task_run.get_found_dead_message())
+
 
     def get_next_tasks(self):
         return self.task_scheduler.get_next_tasks()

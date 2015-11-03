@@ -13,6 +13,7 @@ import logging
 from lib.task_run import TaskRun
 from lib.aa_subprocess import AASubprocess
 
+
 class TaskRunner():
     def __init__(self, taskname, history_storage, notifier):
         self.taskname = taskname
@@ -35,17 +36,20 @@ class TaskRunner():
         self.history_storage.update_state_for_task_run(self.task_run)
 
     def chunk_stdout(self, data):
+        if self.task_run.stdout is None:
+            self.task_run.stdout = ''
+
         self.task_run.stdout += data.decode()
         self.history_storage.update_stdout_for_task_run_id(self.task_run)
 
     def chunk_stderr(self, data):
+        if self.task_run.stderr is None:
+            self.task_run.stderr = ''
+
         self.task_run.stderr += data.decode()
         self.history_storage.update_stderr_for_task_run_id(self.task_run)
 
     def done_callback(self, returncode, expired):
-        self.proc.stdout.close()
-        self.proc.stderr.close()
-
         self.task_run.state['exit_code'] = returncode
         self.task_run.finalize()
         self.history_storage.update_state_for_task_run(self.task_run)

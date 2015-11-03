@@ -34,8 +34,6 @@ class TaskRunner():
         self.task_run.state['pid'] = self.proc.pid
         self.history_storage.update_state_for_task_run(self.task_run)
 
-        self.proc.set_exit_callback(self.exit_callback)
-
     def chunk_stdout(self, data):
         self.task_run.stdout += data.decode()
         self.history_storage.update_stdout_for_task_run_id(self.task_run)

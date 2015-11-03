@@ -1,9 +1,9 @@
 from tornado.ioloop import IOLoop
 import tornado.web
 from lib.tasks_controller import TaskController
-import time
 import json
 import logging
+
 
 class TasksHandler(tornado.web.RequestHandler):
     def initialize(self, task_controller):

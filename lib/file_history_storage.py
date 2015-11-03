@@ -1,10 +1,8 @@
 import os
-import sys
 import json
 import glob
 import re
 import logging
-import time
 import shutil
 
 
@@ -23,7 +21,7 @@ class FileHistoryStorage():
             with open(f) as task_run_file:
                 try:
                     state = json.load(task_run_file)
-                except Exception as e:
+                except:
                     logging.exception('Error reading state json')
                     continue
             result.append(state)
@@ -53,7 +51,6 @@ class FileHistoryStorage():
             last_day = days.pop(0)
         return last_day
 
-
     def get_task_runs_for_task_id(self, task_id, limit=20):
         last_day = self.get_last_day_for_task_id(task_id)
         if not last_day:
@@ -72,7 +69,6 @@ class FileHistoryStorage():
                 task_run['id'] = task_run_id
                 result.append(task_run)
         return result
-
 
     def get_detailed_history_for_task_id(self, task_id, limit=20):
         last_day = self.get_last_day_for_task_id(task_id)

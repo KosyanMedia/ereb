@@ -1,16 +1,7 @@
 import os
-import time
-import datetime
-import sys
-import subprocess
 import json
-import glob
-import re
-import uuid
 import psutil
-from crontab import CronTab
-from tornado.ioloop import IOLoop, PeriodicCallback
-from tornado import gen
+from tornado.ioloop import PeriodicCallback
 import logging
 
 
@@ -19,11 +10,12 @@ from lib.file_history_storage import FileHistoryStorage
 from lib.task_run import TaskRun
 from lib.notifier import Notifier
 
+
 class TaskController():
     def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger'):
         self.tasks_dir = tasks_dir
         if not os.path.exists(self.tasks_dir):
-             os.makedirs(self.tasks_dir)
+            os.makedirs(self.tasks_dir)
 
         self.history_storage = FileHistoryStorage(history_dir)
         self.notifier = Notifier(notifier_config, notify_to)
@@ -31,7 +23,6 @@ class TaskController():
         self.check_dead_processes()
         self.process_checking_loop = PeriodicCallback(self.check_dead_processes, 10000)
         self.process_checking_loop.start()
-
 
     def update_config(self):
         return self.task_scheduler.update_config()
@@ -73,7 +64,6 @@ class TaskController():
                 logging.info('Task %s with run %s is in unknown state, no pid; finalized', task_run.task_id, task_run.id)
                 self.history_storage.finalize_task_run(task_run)
                 self.notifier.error(task_run.get_found_dead_message())
-
 
     def get_next_tasks(self):
         return self.task_scheduler.get_next_tasks()

@@ -1,8 +1,4 @@
-import os
 import time
-import datetime
-import sys
-import subprocess
 import json
 import glob
 import re
@@ -13,6 +9,7 @@ from tornado import gen
 import logging
 
 from lib.task_runner import TaskRunner
+
 
 class TasksScheduler():
     def __init__(self, tasks_dir, history_storage, notifier):
@@ -48,7 +45,7 @@ class TasksScheduler():
         # try:
         TaskRunner(name, self.history_storage, self.notifier).run_task(cmd)
         # except Exception as e:
-            # logging.error('Manual task run error. %s' % e)
+        # logging.error('Manual task run error. %s' % e)
 
     @gen.engine
     def check_config(self):

@@ -1,8 +1,7 @@
 import logging
-import tornado.process
-
 
 from lib.task_run import TaskRun
+from lib.aa_subprocess import AASubprocess
 
 
 class TaskRunner():
@@ -22,24 +21,23 @@ class TaskRunner():
         self.history_storage.update_state_for_task_run(self.task_run)
         self.history_storage.update_current_task_run_for_task(self.task_run)
 
-        self.proc = tornado.process.Subprocess(cmd, stdout=tornado.process.Subprocess.STREAM, stderr=tornado.process.Subprocess.STREAM, shell=True)
+        self.proc = AASubprocess(cmd, 5, self.chunk_stdout, self.chunk_stderr, self.done_callback)
         self.task_run.state['pid'] = self.proc.pid
         self.history_storage.update_state_for_task_run(self.task_run)
 
         self.proc.set_exit_callback(self.exit_callback)
 
-    def exit_callback(self, returncode):
-        stdout = self.proc.stdout.read_from_fd()
-        self.proc.stdout.close()
-        if stdout:
-            self.task_run.stdout = stdout.decode()
-            self.history_storage.update_stdout_for_task_run_id(self.task_run)
+    def chunk_stdout(self, data):
+        self.task_run.stdout += data.decode()
+        self.history_storage.update_stdout_for_task_run_id(self.task_run)
 
-        stderr = self.proc.stderr.read_from_fd()
+    def chunk_stderr(self, data):
+        self.task_run.stderr = data.decode()
+        self.history_storage.update_stderr_for_task_run_id(self.task_run)
+
+    def done_callback(self, returncode, expired):
+        self.proc.stdout.close()
         self.proc.stderr.close()
-        if stderr:
-            self.task_run.stderr = stderr.decode()
-            self.history_storage.update_stderr_for_task_run_id(self.task_run)
 
         self.task_run.state['exit_code'] = returncode
         self.task_run.finalize()

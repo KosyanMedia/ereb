@@ -26,16 +26,10 @@ class TaskRunner():
         self.history_storage.update_state_for_task_run(self.task_run)
 
     def chunk_stdout(self, data):
-        if self.task_run.stdout is None:
-            self.task_run.stdout = ''
-
         self.task_run.stdout += data.decode()
         self.history_storage.update_stdout_for_task_run_id(self.task_run)
 
     def chunk_stderr(self, data):
-        if self.task_run.stderr is None:
-            self.task_run.stderr = ''
-
         self.task_run.stderr += data.decode()
         self.history_storage.update_stderr_for_task_run_id(self.task_run)
 

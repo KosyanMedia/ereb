@@ -15,8 +15,8 @@ class TaskRun():
             'task_run_id': self.id,
             'day_of_start': started_at.strftime('%Y_%m_%d')
         }
-        self.stdout = None
-        self.stderr = None
+        self.stdout = ''
+        self.stderr = ''
 
     @classmethod
     def from_state(klass, state):

@@ -31,7 +31,7 @@ class TaskRunner():
         self.history_storage.update_state_for_task_run(self.task_run)
         self.history_storage.update_current_task_run_for_task(self.task_run)
 
-        self.proc = AASubprocess(cmd, 5, self.chunk_stdout, self.chunk_stderr, self.done_callback)
+        self.proc = AASubprocess(cmd, -1, self.chunk_stdout, self.chunk_stderr, self.done_callback)
         self.task_run.state['pid'] = self.proc.pid
         self.history_storage.update_state_for_task_run(self.task_run)
 

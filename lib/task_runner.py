@@ -32,7 +32,7 @@ class TaskRunner():
         self.history_storage.update_stdout_for_task_run_id(self.task_run)
 
     def chunk_stderr(self, data):
-        self.task_run.stderr = data.decode()
+        self.task_run.stderr += data.decode()
         self.history_storage.update_stderr_for_task_run_id(self.task_run)
 
     def done_callback(self, returncode, expired):

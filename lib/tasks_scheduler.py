@@ -1,8 +1,4 @@
-import os
 import time
-import datetime
-import sys
-import subprocess
 import json
 import glob
 import re
@@ -13,6 +9,7 @@ from tornado import gen
 import logging
 
 from lib.task_runner import TaskRunner
+
 
 class TasksScheduler():
     def __init__(self, tasks_dir, history_storage, notifier):
@@ -48,7 +45,7 @@ class TasksScheduler():
         # try:
         TaskRunner(name, self.history_storage, self.notifier).run_task(cmd)
         # except Exception as e:
-            # logging.error('Manual task run error. %s' % e)
+        # logging.error('Manual task run error. %s' % e)
 
     @gen.engine
     def check_config(self):
@@ -79,7 +76,7 @@ class TasksScheduler():
     def validate_config(self, config):
         try:
             if 'cron_schedule' in config:
-                next_time = CronTab(config['cron_schedule']).next()
+                CronTab(config['cron_schedule']).next()
             result = isinstance(config, dict)
         except:
             logging.info("BadConfigException: %s" % config)
@@ -104,7 +101,7 @@ class TasksScheduler():
                         try:
                             logging.info('Running %s task' % task['name'])
                             TaskRunner(task['name'], self.history_storage, self.notifier).run_task(task['cmd'])
-                        except Exception as e:
+                        except:
                             logging.exception('Scheduled task run error')
                     self.planned_task_run_uuids.remove(task_run_uuid)
                     logging.info('Run and removed task run %s' % task_run_uuid)
@@ -126,6 +123,6 @@ class TasksScheduler():
                 else:
                     tasks_by_schedule[next] = [task]
         if len(tasks_by_schedule) > 0:
-            return sorted(tasks_by_schedule.items(), key=lambda x: x[0] )[0]
+            return sorted(tasks_by_schedule.items(), key=lambda x: x[0])[0]
         else:
             return [0, []]

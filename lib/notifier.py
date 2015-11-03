@@ -1,8 +1,7 @@
-import time
-import datetime
 import subprocess
 import urllib.parse
 import logging
+
 
 class Notifier():
     def __init__(self, notifier_config, output='logger'):
@@ -13,10 +12,9 @@ class Notifier():
                 self.cmd = notifier_config[output]
             else:
                 raise Exception("Missed notifier config for %s" % output)
-        except Exception as e:
+        except:
             logging.exception("Notifier error:")
             self.cmd = None
-
 
     def error(self, message):
         if self.cmd:
@@ -30,4 +28,4 @@ class Notifier():
             logging.warning("Notifications are turned off")
 
     def get_hostname(self):
-        return subprocess.Popen("hostname", shell=True, stdout=subprocess.PIPE).stdout.read().decode().replace('\n','')
+        return subprocess.Popen("hostname", shell=True, stdout=subprocess.PIPE).stdout.read().decode().replace('\n', '')

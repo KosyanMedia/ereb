@@ -1,8 +1,10 @@
 import os
+import sys
 import json
 import glob
 import re
 import logging
+import time
 import shutil
 
 
@@ -21,7 +23,7 @@ class FileHistoryStorage():
             with open(f) as task_run_file:
                 try:
                     state = json.load(task_run_file)
-                except:
+                except Exception as e:
                     logging.exception('Error reading state json')
                     continue
             result.append(state)
@@ -51,6 +53,7 @@ class FileHistoryStorage():
             last_day = days.pop(0)
         return last_day
 
+
     def get_task_runs_for_task_id(self, task_id, limit=20):
         last_day = self.get_last_day_for_task_id(task_id)
         if not last_day:
@@ -70,6 +73,7 @@ class FileHistoryStorage():
                 result.append(task_run)
         return result
 
+
     def get_detailed_history_for_task_id(self, task_id, limit=20):
         last_day = self.get_last_day_for_task_id(task_id)
         if not last_day:
@@ -77,7 +81,7 @@ class FileHistoryStorage():
 
         task_run_dirs = glob.glob(self.storage_dir + '/%s/%s/*' % (task_id, last_day))
         task_run_dirs.sort(reverse=True)
-        # limited_task_run_dirs = task_run_dirs[:limit]
+        limited_task_run_dirs = task_run_dirs[:limit]
 
         result = []
         for f in task_run_dirs:
@@ -89,7 +93,7 @@ class FileHistoryStorage():
             with open(f + '/state') as file_content:
                 try:
                     task_run['state'] = json.load(file_content)
-                except:
+                except Exception as e:
                     logging.exception('Error reading state json')
                     continue
             for x in ['stdout', 'stderr']:

@@ -1,9 +1,9 @@
 from tornado.ioloop import IOLoop
 import tornado.web
 from lib.tasks_controller import TaskController
+import time
 import json
 import logging
-
 
 class TasksHandler(tornado.web.RequestHandler):
     def initialize(self, task_controller):
@@ -44,7 +44,7 @@ class TasksHandler(tornado.web.RequestHandler):
             if not is_valid_config:
                 self.raise_500('Cannot update task with config: %s' % json.dumps(config))
             else:
-                # task = self.task_controller.set_task_by_id(config['task_id'], config)
+                task = self.task_controller.set_task_by_id(config['task_id'], config)
                 result = 'Success'
                 self.set_header('Access-Control-Allow-Origin', '*')
                 self.write(result)
@@ -54,15 +54,13 @@ class TasksHandler(tornado.web.RequestHandler):
             if not is_valid_config:
                 self.raise_500('Cannot update task with config: %s' % json.dumps(config))
             else:
-                # task = self.task_controller.set_task_by_id(task_id, config)
+                task = self.task_controller.set_task_by_id(task_id, config)
                 result = 'Success'
                 self.set_header('Access-Control-Allow-Origin', '*')
                 self.write(result)
 
     def delete(self, task_id, action, task_run_id):
         result = '404'
-        config = json.loads(self.request.body.decode())
-
         if task_id == '' and action == '':
             self.raise_404('Unknown route')
         elif task_id != '':

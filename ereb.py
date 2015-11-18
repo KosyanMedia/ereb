@@ -13,7 +13,7 @@ class TasksHandler(tornado.web.RequestHandler):
         result = '404'
         if task_id == '' and action == '':
             tasks = self.task_controller.get_task_list(with_history=True)
-            result = json.dumps(list(map(lambda x: x if x.update({'runs': [x['runs'][0]] + list(map(lambda y: {'state':{'exit_code': y['state']['exit_code']}}, x['runs'][1:]))}) is None else x, tasks)))
+            result = json.dumps(list(map(lambda x: x if x.update({'runs': [x['runs'][0:1]] + list(map(lambda y: {'state':{'exit_code': y['state']['exit_code']}}, x['runs'][1:]))}) is None else x, tasks)))
         elif task_id != '':
             task = self.task_controller.get_task_by_id(task_id)
             if not task:

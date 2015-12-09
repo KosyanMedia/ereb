@@ -5,8 +5,6 @@ director = require("director");
 require("bootstrap-webpack");
 require("./css/main.scss");
 
-ReconnectingWebSocket = require("reconnecting-websocket");
-
 Cookies = require("./js/cookies.coffee");
 require("./js/main.coffee");
 

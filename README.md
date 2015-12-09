@@ -46,3 +46,14 @@ and look to *./build* folder
 ### Production
 
 ereb-wi is served by tornado by default at */* route
+
+### Monit
+
+Example monit config
+
+```
+check process ereb pidfile /PATH/TO/EREB/tmp/ereb.pid
+    start program = "/bin/bash -c 'cd /PATH/TO/EREB && (python3.4 ereb.py --log_file_prefix=./tmp/ereb.log & echo $! > /PATH/TO/EREB/tmp/ereb.pid)'"
+    stop program = "/bin/bash -c '/bin/kill `cat /PATH/TO/EREB/tmp/ereb.pid`'" with timeout 65 seconds
+    group system
+```

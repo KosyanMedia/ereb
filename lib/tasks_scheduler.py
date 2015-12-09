@@ -84,10 +84,23 @@ class TasksScheduler():
 
         return result
 
+    def get_status(self, ):
+        result = {}
+        if self.is_task_loop_running:
+            result['state'] = 'running'
+        else:
+            result['state'] = 'stopped'
+
+        result['next_run'], result['next_tasks'] = self.get_next_tasks()
+        result['planned_task_run_uuids'] = self.planned_task_run_uuids
+
+        return result
+
     @gen.engine
     def schedule_next_tasks(self):
         if self.is_task_loop_running:
             logging.info("TaskRunner running")
+            self.notifier.websocket_send_status(self.get_status())
             next_run, next_tasks = self.get_next_tasks()
             if len(next_tasks) > 0:
                 logging.info('Next run in %s seconds' % str(next_run))

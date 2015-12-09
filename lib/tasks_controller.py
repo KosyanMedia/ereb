@@ -12,14 +12,19 @@ from lib.notifier import Notifier
 
 
 class TaskController():
-    def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger'):
+    def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger', websocket_clients=[]):
         self.tasks_dir = tasks_dir
         if not os.path.exists(self.tasks_dir):
             os.makedirs(self.tasks_dir)
 
+        self.websocket_clients = websocket_clients
         self.history_storage = FileHistoryStorage(history_dir)
-        self.notifier = Notifier(notifier_config, notify_to)
-        self.task_scheduler = TasksScheduler(tasks_dir, self.history_storage, self.notifier)
+        self.notifier = Notifier(notifier_config=notifier_config,
+            notify_to=notify_to,
+            websocket_clients=websocket_clients)
+        self.task_scheduler = TasksScheduler(tasks_dir=tasks_dir,
+            history_storage=self.history_storage,
+            notifier=self.notifier)
         self.check_dead_processes()
         self.process_checking_loop = PeriodicCallback(self.check_dead_processes, 10000)
         self.process_checking_loop.start()
@@ -37,16 +42,7 @@ class TaskController():
         self.task_scheduler.stop_task_loop()
 
     def get_status(self):
-        result = {}
-        if self.task_scheduler.is_task_loop_running:
-            result['state'] = 'running'
-        else:
-            result['state'] = 'stopped'
-
-        result['next_run'], result['next_tasks'] = self.get_next_tasks()
-        result['planned_task_run_uuids'] = self.task_scheduler.planned_task_run_uuids
-
-        return result
+        return self.task_scheduler.get_status()
 
     def check_dead_processes(self):
         logging.info('Checking dead processes')

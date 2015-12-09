@@ -3,7 +3,24 @@ import tornado.web
 from lib.tasks_controller import TaskController
 import json
 import logging
+from tornado import websocket
 
+class SocketHandler(websocket.WebSocketHandler):
+    def initialize(self, task_controller, websocket_clients):
+        self.task_controller = task_controller
+        self.websocket_clients = websocket_clients
+
+    def check_origin(self, origin):
+        return True
+
+    def open(self):
+        websocket_clients.append(self)
+        logging.info('WebSocket opened, clients: %s' % len(self.websocket_clients))
+        self.write_message(self.task_controller.get_status())
+
+    def on_close(self):
+        websocket_clients.remove(self)
+        logging.info('WebSocket closed, clients: %s' % len(self.websocket_clients))
 
 class TasksHandler(tornado.web.RequestHandler):
     def initialize(self, task_controller):
@@ -143,17 +160,28 @@ if __name__ == "__main__":
         logging.exception('Error reading notifier config')
         notifier_config = {}
 
-    task_controller = TaskController(options.tasks_dir, options.history_dir, notifier_config, options.notify_to)
+
+    websocket_clients = []
+
+    task_controller = TaskController(
+        tasks_dir=options.tasks_dir,
+        history_dir=options.history_dir,
+        notifier_config=notifier_config,
+        notify_to=options.notify_to,
+        websocket_clients=websocket_clients
+    )
 
     logging.info("Starting EREB on http://{}:{}".format('0.0.0.0', options.port))
+
+    task_controller.start()
 
     application = tornado.web.Application([
         (r"/tasks/?([^/]*)/?([^/]*)/?([^/]*)$", TasksHandler, dict(task_controller=task_controller)),
         (r"/status/?(.*)$", RunnerHandler, dict(task_controller=task_controller)),
+        (r'/ws', SocketHandler, dict(task_controller=task_controller, websocket_clients=websocket_clients)),
         (r"/(.*)", tornado.web.StaticFileHandler, {"path": "./ereb-wi", "default_filename": "index.html"})
     ])
 
-    task_controller.start()
 
     application.listen(options.port)
     IOLoop.instance().start()

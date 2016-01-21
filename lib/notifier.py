@@ -11,8 +11,6 @@ class Notifier():
         try:
             if notify_to in notifier_config:
                 self.cmd = notifier_config[notify_to]
-            else:
-                raise Exception("Missed notifier config for %s" % notify_to)
         except:
             logging.exception("Notifier error:")
             self.cmd = None

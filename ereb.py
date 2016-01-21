@@ -1,3 +1,4 @@
+import os.path
 from tornado.ioloop import IOLoop
 import tornado.web
 from lib.tasks_controller import TaskController
@@ -157,7 +158,7 @@ if __name__ == "__main__":
         with open(options.notifier_config) as notifier_config_file:
             notifier_config = json.load(notifier_config_file)
     except Exception as e:
-        logging.exception('Error reading notifier config')
+        logging.info('You can use Slack notifier by create notifier.json')
         notifier_config = {}
 
 

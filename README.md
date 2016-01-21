@@ -1,6 +1,6 @@
 ## How to
 
-```
+```sh
 pip3 install -r requirements.txt
 python3 ereb.py
 ```
@@ -8,18 +8,18 @@ python3 ereb.py
 ## Notifications
 
 To turn on notifications
-```
+```sh
 cp notifier.json.example notifier.json
 ```
 and make proper shell commands.
 Then use *--notify-to* parameter for running ereb.py, for example to use slack do:
-```
+```sh
 python3 ereb.py --notify-to=slack
 ```
 
 ## Clean history
 
-```
+```sh
 rm -rf var/
 ```
 
@@ -28,17 +28,17 @@ rm -rf var/
 ### Development
 It's webpack based app
 so, first make
-```
+```sh
 cd ./ereb-wi
 npm install
 ```
 
 For development mode:
-```
+```sh
 webpack-dev-server
 ```
 Don't to make production build after. Just
-```
+```sh
 webpack -p
 ```
 and look to *./build* folder

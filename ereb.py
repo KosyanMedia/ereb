@@ -181,7 +181,7 @@ if __name__ == "__main__":
         (r"/status/?(.*)$", RunnerHandler, dict(task_controller=task_controller)),
         (r'/ws', SocketHandler, dict(task_controller=task_controller, websocket_clients=websocket_clients)),
         (r"/(.*)", tornado.web.StaticFileHandler, {"path": "./ereb-wi", "default_filename": "index.html"})
-    ])
+    ], gzip=True)
 
 
     application.listen(options.port)

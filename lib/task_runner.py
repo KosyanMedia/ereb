@@ -40,4 +40,4 @@ class TaskRunner():
         self.history_storage.delete_current_task_run_for_task(self.task_run)
 
         if returncode != 0:
-            self.notifier.error(self.task_run.get_error_message())
+            self.notifier.send_failed_task_run(self.task_run)

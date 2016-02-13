@@ -170,6 +170,7 @@ if __name__ == "__main__":
         history_dir=options.history_dir,
         notifier_config=notifier_config,
         notify_to=options.notify_to,
+        port=options.port,
         websocket_clients=websocket_clients
     )
 

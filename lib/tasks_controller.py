@@ -14,7 +14,7 @@ from lib.notifier import Notifier
 class TaskController():
     SHELL_SCRIPT_RE = r'(.+\.sh)'
 
-    def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger', websocket_clients=[]):
+    def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger', websocket_clients=[], port=8888):
         self.tasks_dir = tasks_dir
         if not os.path.exists(self.tasks_dir):
             os.makedirs(self.tasks_dir)
@@ -23,7 +23,8 @@ class TaskController():
         self.history_storage = FileHistoryStorage(history_dir)
         self.notifier = Notifier(notifier_config=notifier_config,
             notify_to=notify_to,
-            websocket_clients=websocket_clients)
+            websocket_clients=websocket_clients,
+            port=port)
         self.task_scheduler = TasksScheduler(tasks_dir=tasks_dir,
             history_storage=self.history_storage,
             notifier=self.notifier)
@@ -57,11 +58,11 @@ class TaskController():
                 else:
                     logging.info('Task %s with run %s is dead already; finalized', task_run.task_id, task_run.id)
                     self.history_storage.finalize_task_run(task_run)
-                    self.notifier.error(task_run.get_found_dead_message())
+                    # FIXME: Prolly it's now working. DO SOMETHING
             else:
                 logging.info('Task %s with run %s is in unknown state, no pid; finalized', task_run.task_id, task_run.id)
                 self.history_storage.finalize_task_run(task_run)
-                self.notifier.error(task_run.get_found_dead_message())
+                # FIXME: Prolly it's now working. DO SOMETHING
 
     def get_next_tasks(self):
         return self.task_scheduler.get_next_tasks()

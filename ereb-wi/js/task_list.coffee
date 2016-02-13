@@ -127,6 +127,7 @@ class TaskList
       cmd: [@defaultCmd, name].join(' ')
       cron_schedule: @defaultSchedule
       enabled: false
+      description: ''
 
     promise.done (response) ->
       callback()

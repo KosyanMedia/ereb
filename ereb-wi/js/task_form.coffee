@@ -14,6 +14,7 @@ class TaskForm
       data =
         cron_schedule: $('#cron_schedule').val()
         cmd: $('#cmd').val()
+        description: $('#description').val()
       @updateTask @taskId, data, (update_status) =>
         html = if update_status
           """
@@ -104,6 +105,8 @@ class TaskForm
                 <label for="cmd">Cmd</label>
                 <textarea class="form-control" id="cmd">#{data.config.cmd}</textarea>
                 <input type="hidden" id="enabled" value="#{data.config.enabled}">
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description">#{data.config.description || ''}</textarea>
               </div>
               <button id="task_form__submit" type="submit" class="btn btn-default">Update</button>
               <button id="task_form__manual_run" class="btn btn-default"> Run now! </button>
@@ -145,7 +148,8 @@ class TaskForm
           cron_schedule: '* * * * *'
           cmd: 'echo foo'
           name: 'foo',
-          enabled: false
+          enabled: false,
+          description: ''
         runs: [
           task_id: 'bar'
           exit_code: 0

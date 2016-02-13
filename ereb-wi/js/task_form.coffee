@@ -96,20 +96,30 @@ class TaskForm
         <div class="row">
           <div class="col-md-6 col-md-offset-3">
             <form id='task_form'>
-              <h4> Current task state: #{enabled_state} <h4>
+              <h2>
+                Current task state: #{enabled_state}
+              </h2>
               <div class="form-group">
-                <input type="hidden" id="task_id" value="#{data.config.name}">
-                <label for="schedule">Schedule</label>
-                <input type="text" class="form-control" id="cron_schedule"
-                  value="#{data.config.cron_schedule}" placeholder="Cron schedule">
-                <label for="cmd">Cmd</label>
-                <textarea class="form-control" id="cmd">#{data.config.cmd}</textarea>
-                <input type="hidden" id="enabled" value="#{data.config.enabled}">
-                <label for="description">Description</label>
-                <textarea class="form-control" id="description">#{data.config.description || ''}</textarea>
+                <div>
+                  <input type="hidden" id="task_id" value="#{data.config.name}">
+                  <input type="hidden" id="enabled" value="#{data.config.enabled}">
+                </div>
+                <p>
+                  <label for="schedule">Schedule</label>
+                  <input type="text" class="form-control" id="cron_schedule"
+                    value="#{data.config.cron_schedule}" placeholder="Cron schedule">
+                </p>
+                <p>
+                  <label for="cmd">Cmd</label>
+                  <textarea class="form-control" id="cmd">#{data.config.cmd}</textarea>
+                </p>
+                <p>
+                  <label for="description">Description</label>
+                  <textarea class="form-control" id="description">#{data.config.description || ''}</textarea>
+                </p>
               </div>
               <button id="task_form__submit" type="submit" class="btn btn-default">Update</button>
-              <button id="task_form__manual_run" class="btn btn-default"> Run now! </button>
+              <button id="task_form__manual_run" class="btn btn-default">Run now!</button>
               <button id="task_form__delete" class="btn btn-danger">Delete</button>
 
               #{enabled_button}

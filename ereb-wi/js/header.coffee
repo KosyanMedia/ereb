@@ -61,7 +61,7 @@ window.updateHeader = (status_response) =>
       """
         Next run of tasks
         #{next_run_task_links}
-        in #{moment.preciseDiff(now, next_run_time)}
+        <span class='nobr'>in #{moment.preciseDiff(now, next_run_time)}</span>
       """
     else
       """

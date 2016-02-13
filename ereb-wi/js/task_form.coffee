@@ -102,8 +102,7 @@ class TaskForm
                 <input type="text" class="form-control" id="cron_schedule"
                   value="#{data.config.cron_schedule}" placeholder="Cron schedule">
                 <label for="cmd">Cmd</label>
-                <input type="text" class="form-control" id="cmd"
-                  value="#{data.config.cmd}" placeholder="Cmd">
+                <textarea class="form-control" id="cmd">#{data.config.cmd}</textarea>
                 <input type="hidden" id="enabled" value="#{data.config.enabled}">
               </div>
               <button id="task_form__submit" type="submit" class="btn btn-default">Update</button>

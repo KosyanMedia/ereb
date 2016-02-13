@@ -93,7 +93,7 @@ class TaskController():
             try:
                 shell_script = match.group(1)
                 with open(shell_script) as content:
-                    return(content.read())
+                    return { 'filename': shell_script, 'content': content.read() }
             except Exception:
                 return None
 

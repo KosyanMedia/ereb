@@ -133,7 +133,8 @@ class TaskForm
       """
       <div class="row">
         <div class="col-md-6 col-md-offset-3">
-          <textarea class="form-control" rows="10" readonly>#{data.config.shell_script_content}</textarea>
+          <label for="shell_script">Contents for file: #{data.config.shell_script_content.filename}</label>
+          <textarea id="shell_script" class="form-control" rows="10" readonly>#{data.config.shell_script_content.content}</textarea>
         </div>
       </div>
       """

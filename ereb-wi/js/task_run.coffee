@@ -14,7 +14,7 @@ class TaskRun
     html =
       """
         <div class="row">
-          <div class="col-md-6 col-md-offset-3">
+          <div class="col-md-8 col-md-offset-2">
             <p> Task run for <b> #{data.state.task_id} </b> </p>
             <p> <b> Started at: </b> #{data.state.started_at} </p>
             <p> <b> Finished at: </b> #{data.state.finished_at} </p>
@@ -25,7 +25,7 @@ class TaskRun
         </div>
 
         <div class="row">
-          <div class="col-md-6 col-md-offset-3">
+          <div class="col-md-8 col-md-offset-2">
             <h4> STDOUT </h4>
             <pre class="wi__formatted_stdout">#{formatted_stdout}</pre>
 

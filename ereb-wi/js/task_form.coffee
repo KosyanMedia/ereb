@@ -94,7 +94,7 @@ class TaskForm
     form =
       """
         <div class="row">
-          <div class="col-md-6 col-md-offset-3">
+          <div class="col-md-8 col-md-offset-2">
             <form id='task_form'>
               <h2>
                 Current task state: #{enabled_state}
@@ -132,7 +132,7 @@ class TaskForm
     shell_script_content = if data.config.shell_script_content
       """
       <div class="row">
-        <div class="col-md-6 col-md-offset-3">
+        <div class="col-md-8 col-md-offset-2">
           <p>
             <label for="shell_script">Contents for file: #{data.config.shell_script_content.filename}</label>
             <textarea id="shell_script" class="form-control" rows="10" readonly>#{data.config.shell_script_content.content}</textarea>
@@ -158,7 +158,7 @@ class TaskForm
       shell_script_content,
       "<div class='row'>",
       "<br>",
-      "<div class='col-md-6 col-md-offset-3'> <table class='table'>",
+      "<div class='col-md-8 col-md-offset-2'> <table class='table'>",
       rows.join(''),
       "</table></div>",
       "</div>"

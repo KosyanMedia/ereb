@@ -15,7 +15,7 @@ class TaskRun
       """
         <div class="row">
           <div class="col-md-6 col-md-offset-3">
-            <h3> Task run #{data.id} </h3>
+            <p> Task run for <b> #{data.state.task_id} </b> </p>
             <p> <b> Started at: </b> #{data.state.started_at} </p>
             <p> <b> Finished at: </b> #{data.state.finished_at} </p>
             <p> <b> Exit code: </b> #{data.state.exit_code} </p>

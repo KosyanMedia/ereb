@@ -118,12 +118,12 @@ class TaskForm
                   <textarea class="form-control" id="description">#{data.config.description || ''}</textarea>
                 </p>
               </div>
-              <button id="task_form__submit" type="submit" class="btn btn-default">Update</button>
-              <button id="task_form__manual_run" class="btn btn-default">Run now!</button>
-              <button id="task_form__delete" class="btn btn-danger">Delete</button>
-
-              #{enabled_button}
-
+              <p>
+                <button id="task_form__submit" type="submit" class="btn btn-default">Update</button>
+                <button id="task_form__manual_run" class="btn btn-default">Run now!</button>
+                <button id="task_form__delete" class="btn btn-danger">Delete</button>
+                #{enabled_button}
+              </p>
             </form>
           </div>
         </div>
@@ -133,8 +133,10 @@ class TaskForm
       """
       <div class="row">
         <div class="col-md-6 col-md-offset-3">
-          <label for="shell_script">Contents for file: #{data.config.shell_script_content.filename}</label>
-          <textarea id="shell_script" class="form-control" rows="10" readonly>#{data.config.shell_script_content.content}</textarea>
+          <p>
+            <label for="shell_script">Contents for file: #{data.config.shell_script_content.filename}</label>
+            <textarea id="shell_script" class="form-control" rows="10" readonly>#{data.config.shell_script_content.content}</textarea>
+          </p>
         </div>
       </div>
       """
@@ -163,6 +165,18 @@ class TaskForm
     ].join('')
 
     $(@wrapper).html html
+
+    if shell_script_content
+      require("../node_modules/codemirror/lib/codemirror.css")
+      require("../node_modules/codemirror/theme/3024-night.css")
+      CodeMirror = require("codemirror")
+
+      textarea = $(@wrapper).find('#shell_script')[0]
+      PrettyPrint = CodeMirror.fromTextArea(textarea, {
+        mode: 'shell'
+        theme: '3024-night'
+        readOnly: "nocursor"
+      })
 
   fetch: (taskId, callback, useStub=false) ->
     if useStub

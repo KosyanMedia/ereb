@@ -65,7 +65,8 @@ class TasksHandler(tornado.web.RequestHandler):
             if not is_valid_config:
                 self.raise_500('Cannot update task with config: %s' % json.dumps(config))
             else:
-                task = self.task_controller.set_task_by_id(config['task_id'], config)
+                task_id = config['task_id'].replace(' ', '_')
+                task = self.task_controller.set_task_by_id(task_id, config)
                 result = 'Success'
                 self.set_header('Access-Control-Allow-Origin', '*')
                 self.write(result)

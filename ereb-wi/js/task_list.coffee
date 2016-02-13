@@ -14,7 +14,7 @@ class TaskList
     $('#new_task_form__submit').click (e) =>
       console.log(@)
       e.preventDefault()
-      newTaskName = $('#new_task_name').val()
+      newTaskName = $('#new_task_name').val().replace(/ /g, '_')
       unless newTaskName == ''
         @createTask newTaskName, =>
           document.location.hash = ['#/tasks', newTaskName].join('/')

@@ -1,6 +1,9 @@
 ## How to
 
+First off, you need fresh node and npm. Go to [nodejs.org](nodejs.org) and follow installation instructions.
+Also you need python3. Assuming you have [brew](http://brew.sh/),
 ```sh
+brew install python3
 pip3 install -r requirements.txt
 python3 ereb.py
 ```

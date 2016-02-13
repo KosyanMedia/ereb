@@ -129,6 +129,17 @@ class TaskForm
         </div>
       """
 
+    shell_script_content = if data.config.shell_script_content
+      """
+      <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+          <textarea class="form-control" rows="10" readonly>#{data.config.shell_script_content}</textarea>
+        </div>
+      </div>
+      """
+    else
+      ''
+
     rows = data.runs.map (run) =>
       """
         <tr>
@@ -141,6 +152,7 @@ class TaskForm
 
     html = [
       form,
+      shell_script_content,
       "<div class='row'>",
       "<br>",
       "<div class='col-md-6 col-md-offset-3'> <table class='table'>",

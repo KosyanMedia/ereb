@@ -3,7 +3,7 @@ import json
 import psutil
 from tornado.ioloop import PeriodicCallback
 import logging
-
+import re
 
 from lib.tasks_scheduler import TasksScheduler
 from lib.file_history_storage import FileHistoryStorage
@@ -12,6 +12,8 @@ from lib.notifier import Notifier
 
 
 class TaskController():
+    SHELL_SCRIPT_RE = r'(.+\.sh)'
+
     def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger', websocket_clients=[]):
         self.tasks_dir = tasks_dir
         if not os.path.exists(self.tasks_dir):
@@ -81,7 +83,20 @@ class TaskController():
     def get_task_by_id(self, task_id):
         for task in self.task_scheduler.tasks_list:
             if task['name'] == task_id:
+                task['shell_script_content'] = self.try_to_parse_task_shell_script(task['cmd'])
                 return task
+        return None
+
+    def try_to_parse_task_shell_script(self, cmd):
+        match = re.search(self.SHELL_SCRIPT_RE, cmd)
+        if match:
+            try:
+                shell_script = match.group(1)
+                with open(shell_script) as content:
+                    return(content.read())
+            except Exception:
+                return None
+
         return None
 
     def set_task_by_id(self, task_id, task_config):

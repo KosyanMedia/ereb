@@ -12,7 +12,7 @@ from lib.notifier import Notifier
 
 
 class TaskController():
-    SHELL_SCRIPT_RE = r'(.+\.sh)'
+    SHELL_SCRIPT_RE = r'(\S+\.sh)'
 
     def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger', websocket_clients=[], port=8888):
         self.tasks_dir = tasks_dir

@@ -22,7 +22,8 @@ class Notifier():
                 link = urllib.parse.quote(link)
                 message = urllib.parse.quote(message)
 
-            subprocess.Popen(self.cmd % "{0}\n{1}".format(link, message), shell=True, stdout=subprocess.PIPE)
+            notifier_cmd = self.cmd.replace('REPLACE_MESSAGE_HERE', "{0}\n{1}".format(link, message))
+            subprocess.Popen(notifier_cmd, shell=True, stdout=subprocess.PIPE)
         else:
             logging.warning("Notifications are turned off")
 

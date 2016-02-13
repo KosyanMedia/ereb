@@ -15,7 +15,7 @@ To turn on notifications
 cp notifier.json.example notifier.json
 ```
 and make proper shell commands.
-Token REPLACE_MESSAGE_HERE will be replaced with your real error message.
+Token ```%s``` in config will be replaced with your real error message.
 
 Then use *--notify-to* parameter for running ereb.py, for example to use slack do:
 ```sh

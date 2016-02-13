@@ -1,4 +1,4 @@
 {
-  "logger": "echo 'REPLACE_MESSAGE_HERE'",
-  "slack": "curl -X POST https://slack.com/api/chat.postMessage -d 'token=TOKEN&channel=CHANNEL_TO&username=ereb_bot&parse=full&link_names=1&icon_emoji=:kanye:&attachments=[{\"text\": \"REPLACE_MESSAGE_HERE :piska: \",\"fallback\": \"REPLACE_MESSAGE_HERE\",\"short\":true,\"color\":\"danger\"}]' --silent > /dev/null"
+  "logger": "echo '%s'",
+  "slack": "curl -X POST https://slack.com/api/chat.postMessage -d 'token=TOKEN&channel=CHANNEL_TO&username=ereb_bot&parse=full&link_names=1&icon_emoji=:kanye:&attachments=[{\"text\": \"%s :piska: \",\"fallback\": \"%s\",\"short\":true,\"color\":\"danger\"}]' --silent > /dev/null"
 }

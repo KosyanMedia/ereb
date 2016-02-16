@@ -15,8 +15,9 @@ defaultHost = "http://#{document.location.hostname}"
 defaultPort = if window.DEFAULT_CONFIG then window.DEFAULT_CONFIG.port else 8888
 window.SERVER_HOST = Cookies.get('host') or "#{defaultHost}:#{defaultPort}"
 
-
 $(document).ready ->
+  $('#header_info').html("Ereb for great future! #{window.DEFAULT_CONFIG.version}")
+
   recentHistory = new RecentHistory('#page_content')
   taskList = new TaskList('#page_content')
   taskForm = new TaskForm('#page_content')

@@ -5,6 +5,7 @@ from lib.tasks_controller import TaskController
 import json
 import logging
 from tornado import websocket
+import subprocess
 
 class SocketHandler(websocket.WebSocketHandler):
     def initialize(self, task_controller, websocket_clients):
@@ -143,11 +144,13 @@ if __name__ == "__main__":
     define("notifier_config", default="./notifier.json", type=str, help="notifier json config")
     define("notify_to", default="logger", type=str, help="notifications channel")
     tornado.options.parse_command_line()
+    ereb_version = subprocess.check_output(["git", "describe"]).decode('utf-8').replace('\n','')
 
     default_wi_config = """
         window.DEFAULT_CONFIG = {}
     """.format({
-        'port': options.port
+        'port': options.port,
+        'version': ereb_version
     })
 
     default_wi_config_path = './ereb-wi/default_config.js'

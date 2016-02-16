@@ -32,6 +32,7 @@ class TaskForm
           """
         $(@wrapper).prepend(html)
 
+
     $('#task_form__delete').click (e) =>
       e.preventDefault()
       @deleteTask @taskId, =>
@@ -48,6 +49,14 @@ class TaskForm
         enabled: ! ( $('#enabled').val() == 'true' ) # toggle enabled state
       @updateTask @taskId, data, =>
         @render(@taskId)
+
+    $('#cron_schedule').change (e) =>
+      schedule = $('#cron_schedule').val()
+      prettySchedule = if schedule.split(' ').length == 5 # small validation of cron schedule
+        prettyCron.toString(schedule)
+      else
+        "Cron syntax error"
+      $('#pretty_schedule').html(prettySchedule)
 
   updateTask: (taskId, data, callback) ->
     url = [window.SERVER_HOST, 'tasks', taskId].join('/')
@@ -91,6 +100,8 @@ class TaskForm
     else
       'Stopped'
 
+    prettySchedule = prettyCron.toString(data.config.cron_schedule)
+
     form =
       """
         <div class="row">
@@ -108,6 +119,7 @@ class TaskForm
                   <label for="schedule">Schedule</label>
                   <input type="text" class="form-control" id="cron_schedule"
                     value="#{data.config.cron_schedule}" placeholder="Cron schedule">
+                  <code id="pretty_schedule">#{prettySchedule}</code>
                 </p>
                 <p>
                   <label for="cmd">Cmd</label>

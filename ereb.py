@@ -144,7 +144,12 @@ if __name__ == "__main__":
     define("notifier_config", default="./notifier.json", type=str, help="notifier json config")
     define("notify_to", default="logger", type=str, help="notifications channel")
     tornado.options.parse_command_line()
-    ereb_version = subprocess.check_output(["git", "describe"]).decode('utf-8').replace('\n','')
+
+    try:
+        ereb_version = subprocess.check_output(["git", "describe"]).decode('utf-8').replace('\n','')
+    except Exception:
+        ereb_version = 'Unknown version'
+        logging.error("Error fetching ereb version from git describe")
 
     default_wi_config = """
         window.DEFAULT_CONFIG = {}

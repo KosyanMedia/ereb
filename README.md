@@ -62,3 +62,4 @@ check process ereb pidfile /PATH/TO/EREB/tmp/ereb.pid
     stop program = "/bin/bash -c '/bin/kill `cat /PATH/TO/EREB/tmp/ereb.pid`'" with timeout 65 seconds
     group system
 ```
+w

@@ -81,10 +81,11 @@ class TaskController():
     def get_recent_history(self, limit):
         return self.history_storage.get_recent_history(limit)
 
-    def get_task_by_id(self, task_id):
+    def get_task_by_id(self, task_id, with_extra_info=False):
         for task in self.task_scheduler.tasks_list:
             if task['name'] == task_id:
-                task['shell_script_content'] = self.try_to_parse_task_shell_script(task['cmd'])
+                if with_extra_info:
+                    task['shell_script_content'] = self.try_to_parse_task_shell_script(task['cmd'])
                 return task
         return None
 

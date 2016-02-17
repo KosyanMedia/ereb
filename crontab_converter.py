@@ -15,7 +15,7 @@ define("output_dir", default="./new_tasks", type=str, help="output directory for
 options.parse_command_line()
 
 def generate_random_name():
-    return '_'.join(['task', ''.join(random.choice(string.ascii_lowercase) for _ in range(10))])
+    return ''.join(random.choice(string.ascii_lowercase) for _ in range(10))
 
 if not os.path.exists(options.output_dir):
     logging.info('Creating directory: %s' % options.output_dir)
@@ -37,7 +37,7 @@ for line in sys.stdin.readlines():
                         task_name = script_name_match.group(1)
                         logging.info('Got task name from command: %s' % task_name)
                     else:
-                        task_name = generate_random_name()
+                        task_name = '_'.join('task', generate_random_name())
                         logging.info('Generated task name: %s' % task_name)
 
                     task_config = {
@@ -47,9 +47,15 @@ for line in sys.stdin.readlines():
                     'name': task_name
                     }
 
+                    path = options.output_dir + '/%s.json' % task_name
+
+                    if os.path.isfile(path):
+                        task_name = '_'.join([task_name, generate_random_name()])
+                        path = options.output_dir + '/%s.json' % task_name
+
                     f = open(options.output_dir + '/%s.json' % task_name, 'w')
                     f.write(json.dumps(task_config))
                     f.close()
                     logging.warn('Successfully generated  %s/%s.json' % (options.output_dir,task_name))
         except Exception as e:
-            logging.error('Something went wrong')
+            logging.exception('Something went wrong')

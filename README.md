@@ -8,6 +8,18 @@ pip3 install -r requirements.txt
 python3 ereb.py
 ```
 
+## Migration from  crontab
+
+Use utility crontab_converter.py
+
+```
+crontan -l | python3 crontab_converter.py --output_dir=./etc
+```
+
+to generate tasks from your crontab file.
+**Important!** Check new tasks after that!
+
+
 ## Notifications
 
 To turn on notifications

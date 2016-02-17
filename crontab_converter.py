@@ -10,7 +10,7 @@ from tornado.options import define, options
 REGEXP = r'(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+([^#]+)'
 NAME_REGEXP = r'\/([^\/]+).(sh|py|rb)'
 
-define("output_dir", default="./new_tasks", type=str, help="output directory for new tasks")
+define("output_dir", default="./etc", type=str, help="output directory for new tasks")
 
 options.parse_command_line()
 

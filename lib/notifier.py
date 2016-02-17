@@ -4,9 +4,12 @@ import logging
 
 
 class Notifier():
-    def __init__(self, notifier_config, notify_to='logger', websocket_clients=[], port=8888):
+    def __init__(self, notifier_config, notify_to='logger', websocket_clients=[], host='hostname', port=8888):
         self.notify_to = notify_to
-        self.hostname = self.get_hostname()
+        if host == 'hostname':
+            self.hostname = self.get_hostname()
+        else:
+            self.hostname = host
         self.port = port
         self.websocket_clients = websocket_clients
         try:

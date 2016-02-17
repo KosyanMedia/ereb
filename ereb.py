@@ -143,6 +143,8 @@ if __name__ == "__main__":
     define("history_dir", default="./var", type=str, help="directory for history storage")
     define("notifier_config", default="./notifier.json", type=str, help="notifier json config")
     define("notify_to", default="logger", type=str, help="notifications channel")
+    define("notifier_host", default="hostname", type=str, help="host for links in notifications")
+
     tornado.options.parse_command_line()
 
     try:
@@ -178,6 +180,7 @@ if __name__ == "__main__":
         history_dir=options.history_dir,
         notifier_config=notifier_config,
         notify_to=options.notify_to,
+        notifier_host=options.notifier_host,
         port=options.port,
         websocket_clients=websocket_clients
     )

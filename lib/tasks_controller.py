@@ -14,7 +14,7 @@ from lib.notifier import Notifier
 class TaskController():
     SHELL_SCRIPT_RE = r'(\S+\.sh)'
 
-    def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger', websocket_clients=[], port=8888):
+    def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger', notifier_host='hostname', websocket_clients=[], port=8888):
         self.tasks_dir = tasks_dir
         if not os.path.exists(self.tasks_dir):
             os.makedirs(self.tasks_dir)
@@ -24,6 +24,7 @@ class TaskController():
         self.notifier = Notifier(notifier_config=notifier_config,
             notify_to=notify_to,
             websocket_clients=websocket_clients,
+            host=notifier_host,
             port=port)
         self.task_scheduler = TasksScheduler(tasks_dir=tasks_dir,
             history_storage=self.history_storage,

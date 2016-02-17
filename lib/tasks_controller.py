@@ -77,7 +77,8 @@ class TaskController():
         result = self.task_scheduler.tasks_list
         if with_history:
             result = [extend_data(task) for task in result]
-        return result
+
+        return sorted(result, key=lambda x: x['name'] )
 
     def get_recent_history(self, limit):
         return self.history_storage.get_recent_history(limit)

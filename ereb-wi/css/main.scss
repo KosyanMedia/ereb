@@ -41,3 +41,11 @@
 .glyphicon-ok-circle {
   margin-right: 15px;
 }
+
+.ereb_wi--comma_sepated_word::after {
+  content: ', ';
+}
+
+.ereb_wi--comma_sepated_word:last-child::after {
+  content: '';
+}

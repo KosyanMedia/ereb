@@ -18,19 +18,13 @@ window.SERVER_HOST = Cookies.get('host') or "#{defaultHost}:#{defaultPort}"
 $(document).ready ->
   $('#header_info').html("Ereb for great future! #{window.DEFAULT_CONFIG.version}")
 
+  header = new Header(document.getElementById('header'))
   recentHistory = new RecentHistory('#page_content')
   taskList = new TaskList('#page_content')
   taskForm = new TaskForm('#page_content')
   taskRun = new TaskRun('#page_content')
 
   $('#host_input').val(window.SERVER_HOST)
-
-  $('#reconnect_button').click ->
-    Cookies.set('host', $('#host_input').val())
-    window.SERVER_HOST = $('#host_input').val()
-    $('#page_content').html('')
-    window.current_status = 'no_connection'
-    document.location.hash = '#/'
 
   routes =
     '/': () ->

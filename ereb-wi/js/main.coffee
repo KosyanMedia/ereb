@@ -37,6 +37,7 @@ $(document).ready ->
       $('#page_content').html('')
       taskForm.render(taskId)
     '/tasks/:taskId/runs/:taskRunId': (taskId, taskRunId) ->
+      $('#page_content').html('')
       taskRun.render(taskId, taskRunId)
 
   director.Router(routes).init()

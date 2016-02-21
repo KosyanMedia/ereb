@@ -2,9 +2,9 @@ $ = jQuery = require("jquery");
 require("./node_modules/codemirror/lib/codemirror.css")
 require("./node_modules/codemirror/theme/3024-night.css")
 CodeMirror = require("codemirror")
-Cookies = require("./js/cookies.coffee");
+Cookies = require("./js/vendor/cookies.coffee");
 moment = require("moment");
-moment_range = require("./js/readable_range.coffee");
+moment_range = require("./js/vendor/readable_range.coffee");
 director = require("director");
 prettyCron = require("prettycron");
 require("bootstrap-webpack");

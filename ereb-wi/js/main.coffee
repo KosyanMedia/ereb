@@ -9,8 +9,6 @@ window.helpers =
     return 'Success' if state == 0
     'Fail'
 
-window.current_status = 'no_connection'
-
 defaultHost = "http://#{document.location.hostname}"
 defaultPort = if window.DEFAULT_CONFIG then window.DEFAULT_CONFIG.port else 8888
 window.SERVER_HOST = Cookies.get('host') or "#{defaultHost}:#{defaultPort}"

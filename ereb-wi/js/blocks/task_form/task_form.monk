@@ -1,0 +1,90 @@
+<div class="row">
+  {% if notification %}
+    {% if notification.success %}
+      <div class="col-md-4 col-md-offset-4 alert alert-success fade in">
+        Saved
+      </div>
+    {% else %}
+      <div class="col-md-4 col-md-offset-4 alert alert-danger fade in">
+        Error! Check schedule and cmd
+      </div>
+    {% endif %}
+  {% endif %}
+  <div class="col-md-8 col-md-offset-2">
+    <form id="task_form">
+      <h2>
+        Current task state: {{ enabled_state }}
+      </h2>
+      <div class="form-group">
+        <div>
+          <input type="hidden" id="task_id" value="{{ config.name }}">
+          <input type="hidden" id="enabled" value="{{ config.enabled }}">
+        </div>
+        <p>
+          <label for="schedule"> Schedule </label>
+          <input type="text" class="form-control" id="cron_schedule"
+            value="{{ config.cron_schedule }}" placeholder="Cron schedule">
+          <code id="pretty_schedule"> {{ config.cron_schedule | pretty_cron }}</code>
+        </p>
+        <p>
+          <label for="cmd"> Cmd </label>
+          <textarea class="form-control" id="cmd"> {{ config.cmd }} </textarea>
+        </p>
+        <p>
+          <label for="description"> Description </label>
+          <textarea class="form-control" id="description"> {{ data.config.description }} </textarea>
+        </p>
+      </div>
+      <p>
+        <button id="task_form__submit" type="submit" class="btn btn-default"> Update </button>
+        <button id="task_form__manual_run" class="btn btn-default"> Run now! </button>
+        <button id="task_form__delete" class="btn btn-danger"> Delete </button>
+        {% if config.enabled %}
+          <button type="button" id="task_form__enabled_button" class="btn btn-warning navbar-btn"
+            autocomplete="off"> Disable! </button>
+        {% else %}
+          <button type="button" id="task_form__enabled_button" class="btn btn-success navbar-btn"
+            autocomplete="off"> Enable! </button>
+        {% endif %}
+      </p>
+
+    </form>
+
+    {% if config.shell_script_content %}
+      <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+          <p>
+            <label for="shell_script">Contents for file: {{ config.shell_script_content.filename }} </label>
+            <textarea id="shell_script" class="form-control" rows="10" readonly>
+              {{ config.shell_script_content.content }}
+            </textarea>
+          </p>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="row">
+      <br>
+      <div class="col-md-8 col-md-offset-2">
+        <table class="table">
+          <tbody>
+            {% for runs %}
+              <tr>
+                <td> {{ started_at }} </td>
+                <td>
+                  {% if finished_at %}
+                    {{ finished_at }}
+                  {% else %}
+                    {{ current }}
+                  {% endif %}
+                </td>
+                <td> {{  exit_code | humanize_exit_code }} </td>
+                <td> <a href="#/tasks/{{ task_id }}/runs/{{ task_run_id }}"> More </a> </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

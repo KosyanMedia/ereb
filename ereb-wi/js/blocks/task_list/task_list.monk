@@ -15,7 +15,7 @@
         {% for tasks %}
           <tr>
             <td> <span class="glyphicon glyphicon-{{ enabled | enabled_icon }}"> </span> </td>
-            <td> <a href="#/tasks/{{ task }}"> {{ name }} </a> </td>
+            <td> <a href="#/tasks/{{ name }}"> {{ name }} </a> </td>
             <td>
               <div class="progress">
                 {% for barPoints %}

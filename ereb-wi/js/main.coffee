@@ -34,6 +34,7 @@ $(document).ready ->
       $('#page_content').html('')
       taskList.render()
     '/tasks/:taskId': (taskId) ->
+      $('#page_content').html('')
       taskForm.render(taskId)
     '/tasks/:taskId/runs/:taskRunId': (taskId, taskRunId) ->
       taskRun.render(taskId, taskRunId)

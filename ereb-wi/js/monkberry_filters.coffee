@@ -11,3 +11,9 @@ monkberry.filters.task_exit_code_to_class = (exit_code) =>
     'progress-bar-success'
   else
     'progress-bar-danger'
+
+monkberry.filters.pretty_cron = (schedule) =>
+  if schedule.split(' ').length == 5 # small validation of cron schedule
+    prettyCron.toString(schedule)
+  else
+    "Cron syntax error"

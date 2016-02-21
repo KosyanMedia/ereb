@@ -13,10 +13,12 @@ class TaskRun
 
   initCodeMirror: ->
     for textarea_id in ['stdout', 'stderr']
-      CodeMirror.fromTextArea document.getElementById(textarea_id),
-        mode: 'shell'
-        theme: '3024-night'
-        readOnly: "nocursor"
+      textarea = document.getElementById(textarea_id)
+      if textarea
+        CodeMirror.fromTextArea textarea,
+          mode: 'shell'
+          theme: '3024-night'
+          readOnly: "nocursor"
 
   fetch: (taskId, taskRunId, callback, useStub=false) ->
     if useStub

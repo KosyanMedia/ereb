@@ -15,11 +15,12 @@ class TaskForm
 
   initCodeMirror: ->
     textarea = document.getElementById('shell_script')
-    @codeMirror = CodeMirror.fromTextArea(textarea, {
-      mode: 'shell'
-      theme: '3024-night'
-      readOnly: "nocursor"
-    })
+    if textarea
+      @codeMirror = CodeMirror.fromTextArea(textarea, {
+        mode: 'shell'
+        theme: '3024-night'
+        readOnly: "nocursor"
+      })
 
   initEvents: () ->
     @template.on 'submit', '#task_form', (e) =>

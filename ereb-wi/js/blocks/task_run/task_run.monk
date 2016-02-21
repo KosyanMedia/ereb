@@ -1,0 +1,33 @@
+<div class="row">
+  <div class="col-md-8 col-md-offset-2">
+    <p> Task run for <b>  {{ state.task_id }}  </b> </p>
+    <p> <b> Started at: </b>  {{ state.started_at }}  </p>
+    <p> <b> Finished at: </b>  {{ state.finished_at }}  </p>
+    <p> <b> Exit code: </b>  {{ state.exit_code }}  </p>
+    <p> <b> Current state: </b>  {{ state.current }}  </p>
+  </div>
+
+</div>
+
+<div class="row">
+  <div class="col-md-8 col-md-offset-2">
+    {% if stdout %}
+      <h4> STDOUT </h4>
+      <textarea id="stdout" class="form-control" rows="10" readonly>
+        {{ stdout }}
+      </textarea>
+    {% else %}
+      <h4> STDOUT is empty </h4>
+    {% endif %}
+
+    {% if stderr %}
+      <h4> STDERR </h4>
+      <textarea id="stderr" class="form-control" rows="10" readonly>
+        {{ stderr }}
+      </textarea>
+    {% else %}
+      <h4> STDERR is empty </h4>
+    {% endif %}
+
+  </div>
+</div>

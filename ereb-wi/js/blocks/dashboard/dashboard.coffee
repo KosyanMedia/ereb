@@ -3,7 +3,6 @@ class Dashboard
   constructor: (wrapper) ->
     @wrapper = wrapper
     monkberry.mount(require('./dashboard.monk'))
-    require('./dashboard.monk')
     @template = monkberry.render('dashboard')
 
   render: () ->

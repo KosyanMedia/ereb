@@ -14,6 +14,6 @@ require("./js/main.coffee");
 
 Header = require("./js/blocks/header/header.coffee");
 Dashboard = require("./js/blocks/dashboard/dashboard.coffee");
-TaskForm = require("./js/task_form.coffee");
+TaskList = require("./js/blocks/task_list/task_list.coffee");
 TaskRun = require("./js/task_run.coffee");
-TaskList = require("./js/task_list.coffee");
+TaskForm = require("./js/task_form.coffee");

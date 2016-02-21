@@ -31,6 +31,7 @@ $(document).ready ->
       $('#page_content').html('')
       dashboard.render()
     '/task_list': ->
+      $('#page_content').html('')
       taskList.render()
     '/tasks/:taskId': (taskId) ->
       taskForm.render(taskId)

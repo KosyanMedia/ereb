@@ -21,8 +21,13 @@
 .navbar-form .wi__host_input {
   width: 200px;
 }
-.tasks-status {
+
+.ereb_wi--tasks-status {
   white-space: nowrap;
+
+  i {
+    margin-left: 5px;
+  }
 }
 
 .navbar-collapse {

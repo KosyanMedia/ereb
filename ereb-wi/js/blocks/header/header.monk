@@ -24,7 +24,7 @@
         <span>
         {% for next_tasks %}
           <a class="ereb_wi--comma_sepated_word" href="/#/tasks/{{name}}"> {{ name }} </a>
-        {% endfor%}
+        {% endfor %}
         </span>
         <span class="nobr"> in {{ next_run_time }} </span>
       {% else %}

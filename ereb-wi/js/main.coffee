@@ -19,16 +19,17 @@ $(document).ready ->
   $('#header_info').html("Ereb for great future! #{window.DEFAULT_CONFIG.version}")
 
   header = new Header(document.getElementById('header'))
-  recentHistory = new RecentHistory('#page_content')
-  taskList = new TaskList('#page_content')
-  taskForm = new TaskForm('#page_content')
-  taskRun = new TaskRun('#page_content')
+  dashboard = new Dashboard(document.getElementById('page_content'))
+  taskList = new TaskList(document.getElementById('page_content'))
+  taskForm = new TaskForm(document.getElementById('page_content'))
+  taskRun = new TaskRun(document.getElementById('page_content'))
 
   $('#host_input').val(window.SERVER_HOST)
 
   routes =
     '/': () ->
-      recentHistory.render()
+      $('#page_content').html('')
+      dashboard.render()
     '/task_list': ->
       taskList.render()
     '/tasks/:taskId': (taskId) ->

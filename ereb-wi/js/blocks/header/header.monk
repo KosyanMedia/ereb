@@ -1,0 +1,38 @@
+<div class="container-fluid">
+  <div class="collapse navbar-collapse" id="running_button_container">
+    <a type="button" href="#/" class="btn navbar-btn"> Home </a>
+    <a type="button" href="#/task_list" class="btn navbar-btn"> Task list </a>
+
+    {% if state == 'running' %}
+      <button type="button" id="running_button" class="btn btn-primary navbar-btn btn-success"
+        autocomplete="off"> Running. Click to stop </button>
+    {% endif %}
+
+    {% if state == 'stopped' %}
+      <button type="button" id="running_button" class="btn btn-primary navbar-btn btn-warning"
+        autocomplete="off"> Stopped. Click to start </button>
+    {% endif %}
+
+    {% if state == 'no_connection' %}
+      <button type="button" disabled class="btn btn-primary navbar-btn btn-warning"
+        autocomplete="off"> No connection. Retry every second </button>
+    {% endif %}
+
+    <p class="navbar-text wi__next_run_text navbar-right">
+      {% if next_run > 0 %}
+        Next run of tasks:
+        <span>
+        {% for next_tasks %}
+          <a class="ereb_wi--comma_sepated_word" href="/#/tasks/{{name}}"> {{ name }} </a>
+        {% endfor %}
+        </span>
+        <span class="nobr"> in {{ next_run_time }} </span>
+      {% else %}
+        No tasks in future.
+      {% endif %}
+    </p>
+
+    <a class="navbar-brand" href="#"> {{ info }} </a>
+  </div>
+
+</div>

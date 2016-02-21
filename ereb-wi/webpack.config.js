@@ -14,7 +14,8 @@ module.exports = {
             { test: /\.eot$/,    loader: "file-loader" },
             { test: /\.svg$/,    loader: "file-loader" },
             { test: /\.coffee$/, loader: "coffee-loader" },
-            { test: /\.scss$/, loader: "style!css!sass?sourceMap" }
+            { test: /\.scss$/, loader: "style!css!sass?sourceMap" },
+            { test: /\.monk$/, loader: 'monkberry-loader' }
         ]
     }
 };

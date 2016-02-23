@@ -49,42 +49,44 @@
       </p>
 
     </form>
+  </div>
+</div>
 
-    {% if config.shell_script_content %}
-      <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-          <p>
-            <label for="shell_script">Contents for file: {{ config.shell_script_content.filename }} </label>
-            <textarea id="shell_script" class="form-control" rows="10" readonly>
-              {{ config.shell_script_content.content }}
-            </textarea>
-          </p>
-        </div>
-      </div>
-    {% endif %}
-
+<div>
+  {% if config.shell_script_content %}
     <div class="row">
-      <br>
       <div class="col-md-8 col-md-offset-2">
-        <table class="table">
-          <tbody>
-            {% for runs %}
-              <tr>
-                <td> {{ started_at }} </td>
-                <td>
-                  {% if finished_at %}
-                    {{ finished_at }}
-                  {% else %}
-                    {{ current }}
-                  {% endif %}
-                </td>
-                <td> {{  exit_code | humanize_exit_code }} </td>
-                <td> <a href="#/tasks/{{ task_id }}/runs/{{ task_run_id }}"> More </a> </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <p>
+          <label for="shell_script">Contents for file: {{ config.shell_script_content.filename }} </label>
+          <textarea id="shell_script" class="form-control" rows="10" readonly>
+            {{ config.shell_script_content.content }}
+          </textarea>
+        </p>
       </div>
     </div>
+  {% endif %}
+</div>
+
+<div class="row">
+  <br>
+  <div class="col-md-8 col-md-offset-2">
+    <table class="table">
+      <tbody>
+        {% for runs %}
+          <tr>
+            <td> {{ started_at }} </td>
+            <td>
+              {% if finished_at %}
+                {{ finished_at }}
+              {% else %}
+                {{ current }}
+              {% endif %}
+            </td>
+            <td> {{  exit_code | humanize_exit_code }} </td>
+            <td> <a href="#/tasks/{{ task_id }}/runs/{{ task_run_id }}"> More </a> </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>

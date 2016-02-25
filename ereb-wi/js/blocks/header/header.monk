@@ -20,13 +20,17 @@
 
     <p class="navbar-text wi__next_run_text navbar-right">
       {% if next_run > 0 %}
-        Next run of tasks:
-        <span>
-        {% for next_tasks %}
-          <a class="ereb_wi--comma_sepated_word" href="/#/tasks/{{name}}"> {{ name }} </a>
-        {% endfor %}
-        </span>
-        <span class="nobr"> in {{ next_run_time }} </span>
+        {% if next_tasks.length > 5 %}
+          Next run of {{ next_tasks.length }} tasks in {{ next_run_time }}
+        {% else %}
+          Next run of tasks:
+          <span>
+            {% for next_tasks %}
+            <a class="ereb_wi--comma_sepated_word" href="/#/tasks/{{name}}"> {{ name }} </a>
+            {% endfor %}
+          </span>
+          <span class="nobr"> in {{ next_run_time }} </span>
+        {% endif %}
       {% else %}
         No tasks in future.
       {% endif %}

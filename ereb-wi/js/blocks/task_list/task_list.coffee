@@ -42,10 +42,10 @@ class TaskList
         m2 = parseInt(moment(task_run.state.finished_at).format('X'))
         durations.push(m2 - m1)
 
-    if task_runs.length > 0
+    if durations.length > 0
       sum = durations.reduce ((result, x) ->
         result + x), 0
-      statistics.average_duration = (sum / durations.length).round(1)
+      statistics.average_duration = Math.round((sum / durations.length) * 10) / 10
       # avg_in_seconds = sum / durations.length
       # hack to make human readable interval
       # statistics.average_duration = moment.preciseDiff(moment(), moment().add(avg_in_seconds, 'seconds'))

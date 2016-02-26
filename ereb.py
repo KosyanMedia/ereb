@@ -31,9 +31,9 @@ class TasksHandler(tornado.web.RequestHandler):
     def get(self, task_id, action, task_run_id):
         result = '404'
         if task_id == '' and action == '':
-            tasks = self.task_controller.get_task_list(with_history=True)
-            for task in tasks:
-                task.update({'runs': [task['runs'][0]] + list(map(lambda y: {'state':{'exit_code': y['state']['exit_code']}}, task['runs'][1:])) if len(task['runs']) > 0 else []})
+            tasks = self.task_controller.get_task_list(with_history=True, task_run_limit=20)
+            # for task in tasks:
+                # task.update({'runs': [task['runs'][0]] + list(map(lambda y: {'state':{'exit_code': y['state']['exit_code']}}, task['runs'][1:])) if len(task['runs']) > 0 else []})
             result = json.dumps(tasks)
         elif task_id != '':
             task = self.task_controller.get_task_by_id(task_id, with_extra_info=True)

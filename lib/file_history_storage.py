@@ -70,7 +70,7 @@ class FileHistoryStorage():
                 result.append(task_run)
         return result
 
-    def get_detailed_history_for_task_id(self, task_id, limit=20):
+    def get_detailed_history_for_task_id(self, task_id, limit=20, state_only=True):
         last_day = self.get_last_day_for_task_id(task_id)
         if not last_day:
             return []
@@ -92,13 +92,14 @@ class FileHistoryStorage():
                 except Exception as e:
                     logging.exception('Error reading state json')
                     continue
-            for x in ['stdout', 'stderr']:
-                filename = '/'.join([f, x])
-                if os.path.isfile(filename):
-                    with open(f + '/' + x) as file_content:
-                        task_run[x] = file_content.read()
-                else:
-                    task_run[x] = 'Empty'
+            if not state_only:
+                for x in ['stdout', 'stderr']:
+                    filename = '/'.join([f, x])
+                    if os.path.isfile(filename):
+                        with open(f + '/' + x) as file_content:
+                            task_run[x] = file_content.read()
+                    else:
+                        task_run[x] = 'Empty'
             result.append(task_run)
 
         return result

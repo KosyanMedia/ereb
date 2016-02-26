@@ -68,15 +68,11 @@ class TaskController():
     def get_next_tasks(self):
         return self.task_scheduler.get_next_tasks()
 
-    def get_task_list(self, with_history=False):
-
-        def extend_data(task):
-            task['runs'] = self.get_detailed_history_for_task_id(task['name'])
-            return task
-
+    def get_task_list(self, with_history=False, task_run_limit=20):
         result = self.task_scheduler.tasks_list
         if with_history:
-            result = [extend_data(task) for task in result]
+            for task in result:
+                task['runs'] = self.get_detailed_history_for_task_id(task['name'], 20)
 
         return sorted(result, key=lambda x: x['name'] )
 

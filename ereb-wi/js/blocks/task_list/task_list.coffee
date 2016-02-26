@@ -29,11 +29,27 @@ class TaskList
     statistics =
       success: 0
       error: 0
+
+    durations = []
     for task_run in task_runs
       if task_run.state.exit_code == 0
         statistics.success += 1
       else
         statistics.error += 1
+
+      if task_run.state.finished_at
+        m1 = parseInt(moment(task_run.state.started_at).format('X'))
+        m2 = parseInt(moment(task_run.state.finished_at).format('X'))
+        durations.push(m2 - m1)
+
+    if task_runs.length > 0
+      sum = durations.reduce ((result, x) ->
+        result + x), 0
+      statistics.average_duration = sum / durations.length
+      # avg_in_seconds = sum / durations.length
+      # hack to make human readable interval
+      # statistics.average_duration = moment.preciseDiff(moment(), moment().add(avg_in_seconds, 'seconds'))
+
     statistics
 
   initEvents: ->

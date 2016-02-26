@@ -7,6 +7,7 @@
           <th colspan="2"> Name </th>
           <th> Status </th>
           <th> Statistics </th>
+          <th> Avg </th>
           <th> Schedule </th>
           <th> Cmd </th>
         </tr>
@@ -30,6 +31,7 @@
                 <span> {{ statistics.error }} </span> <i class="glyphicon glyphicon-remove-circle"></i>
               </div>
             </td>
+            <td> <strong> {{ statistics.average_duration }}s</strong> </td>
             <td> {{ cron_schedule }} </td>
             <td> {{ cmd }} </td>
           </tr>

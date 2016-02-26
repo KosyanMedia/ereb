@@ -11,15 +11,15 @@ class TaskList
   render: (taskId, taskRunId) ->
     @fetch taskId, taskRunId, (tasks) =>
       for task in tasks
-        task.barPoints = @taskBarPoints(task.runs.slice(-20))
-        task.statistics = @taskStatistics(task.runs.slice(-20))
+        task.barPoints = @taskBarPoints(task.runs.slice(0, 20))
+        task.statistics = @taskStatistics(task.runs.slice(0, 20))
 
       @template.appendTo(@wrapper)
       @template.update
         tasks: tasks
 
   taskBarPoints: (task_runs) =>
-    task_runs = task_runs.slice(-20)
+    task_runs = task_runs.slice(0, 20)
     width = 100 / task_runs.length
     task_runs.map (task_run) ->
       width: width

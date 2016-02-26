@@ -71,6 +71,15 @@
   <br>
   <div class="col-md-8 col-md-offset-2">
     <table class="table">
+      <thead>
+        <tr>
+          <th> Started </th>
+          <th> Finished </th>
+          <th> Duration </th>
+          <th> Status </th>
+          <th> </th>
+        </tr>
+      </thead>
       <tbody>
         {% for runs %}
           <tr>
@@ -82,6 +91,7 @@
                 {{ current }}
               {% endif %}
             </td>
+            <td> {{ duration }}  </td>
             <td> {{  exit_code | humanize_exit_code }} </td>
             <td> <a href="#/tasks/{{ task_id }}/runs/{{ task_run_id }}"> More </a> </td>
           </tr>

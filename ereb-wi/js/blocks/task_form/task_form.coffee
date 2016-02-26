@@ -9,6 +9,11 @@ class TaskForm
   render: (@taskId) ->
     @fetch @taskId, (data) =>
       @data = data
+      for run in @data.runs
+        m1 = moment(run.started_at)
+        m2 = moment(run.finished_at)
+        run['duration'] = moment.preciseDiff(m1, m2)
+
       @template.appendTo(@wrapper)
       @template.update @data
       @initCodeMirror() unless @codeMirror

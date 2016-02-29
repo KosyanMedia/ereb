@@ -180,8 +180,6 @@ class FusionHistoryStorage():
 
         task_run.id = task_run_id
 
-        logging.error(self.select_to_dict('select * from task_runs'))
-
         task_path = '/'.join([self.storage_dir, task_run.task_id])
         task_path = self.get_task_run_path(task_run)
         if not os.path.isdir(task_path):

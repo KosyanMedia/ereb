@@ -7,6 +7,7 @@ class TaskRun
 
   render: (taskId, taskRunId) ->
     @fetch taskId, taskRunId, (data) =>
+      console.log(data)
       @template.appendTo(@wrapper)
       @template.update data
       @initCodeMirror()

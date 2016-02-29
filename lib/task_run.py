@@ -4,16 +4,17 @@ import datetime
 
 class TaskRun():
     def __init__(self, task_id):
-        started_at = datetime.datetime.fromtimestamp(time.time())
+        started_at = datetime.datetime.utcnow()
         self.task_id = task_id
-        self.id = started_at.strftime('%Y_%m_%d_%H_%M_%S_%f')
+        self.id = None
 
         self.state = {
             'current': 'running',
             'started_at': started_at.strftime('%Y-%m-%d %H:%M:%S'),
-            'task_id': self.task_id,
-            'task_run_id': self.id,
-            'day_of_start': started_at.strftime('%Y_%m_%d')
+            'finished_at': None,
+            'pid': None,
+            'exit_code': None,
+            'task_id': self.task_id
         }
         self.stdout = ''
         self.stderr = ''
@@ -27,6 +28,6 @@ class TaskRun():
         return task_run
 
     def finalize(self):
-        finished_at = datetime.datetime.fromtimestamp(time.time())
+        finished_at = datetime.datetime.utcnow()
         self.state['finished_at'] = finished_at.strftime('%Y-%m-%d %H:%M:%S')
         self.state['current'] = 'finished'

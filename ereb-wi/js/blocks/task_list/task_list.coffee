@@ -11,46 +11,18 @@ class TaskList
   render: (taskId, taskRunId) ->
     @fetch taskId, taskRunId, (tasks) =>
       for task in tasks
-        task.barPoints = @taskBarPoints(task.runs.slice(0, 20))
-        task.statistics = @taskStatistics(task.runs.slice(0, 20))
+        if task.stats
+          task.bar_points = @taskBarPoints(task.stats.exit_codes)
 
       @template.appendTo(@wrapper)
       @template.update
         tasks: tasks
 
-  taskBarPoints: (task_runs) =>
-    task_runs = task_runs.slice(0, 20)
-    width = 100 / task_runs.length
-    task_runs.map (task_run) ->
+  taskBarPoints: (exit_codes) =>
+    width = 100 / exit_codes.length
+    exit_codes.map (exit_code) ->
       width: width
-      exit_code: task_run.state.exit_code
-
-  taskStatistics: (task_runs) =>
-    statistics =
-      success: 0
-      error: 0
-
-    durations = []
-    for task_run in task_runs
-      if task_run.state.exit_code == 0
-        statistics.success += 1
-      else
-        statistics.error += 1
-
-      if task_run.state.finished_at
-        m1 = parseInt(moment(task_run.state.started_at).format('X'))
-        m2 = parseInt(moment(task_run.state.finished_at).format('X'))
-        durations.push(m2 - m1)
-
-    if durations.length > 0
-      sum = durations.reduce ((result, x) ->
-        result + x), 0
-      statistics.average_duration = Math.round((sum / durations.length) * 10) / 10
-      # avg_in_seconds = sum / durations.length
-      # hack to make human readable interval
-      # statistics.average_duration = moment.preciseDiff(moment(), moment().add(avg_in_seconds, 'seconds'))
-
-    statistics
+      exit_code: parseInt(exit_code)
 
   initEvents: ->
     @template.on 'click', '#new_task_form__submit', (e) =>

@@ -13,6 +13,7 @@ class TaskRunner():
     def run_task(self, cmd):
         logging.info("Runner started, %s" % self.taskname)
         logging.info("Command: %s" % cmd)
+
         if not self.history_storage.task_valid_to_run(self.taskname):
             raise FileExistsError('%s task is in progress' % self.taskname)
 

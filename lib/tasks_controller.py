@@ -7,6 +7,7 @@ import re
 
 from lib.tasks_scheduler import TasksScheduler
 from lib.file_history_storage import FileHistoryStorage
+from lib.fusion_history_storage import FusionHistoryStorage
 from lib.task_run import TaskRun
 from lib.notifier import Notifier
 
@@ -20,7 +21,7 @@ class TaskController():
             os.makedirs(self.tasks_dir)
 
         self.websocket_clients = websocket_clients
-        self.history_storage = FileHistoryStorage(history_dir)
+        self.history_storage = FusionHistoryStorage(history_dir)
         self.notifier = Notifier(notifier_config=notifier_config,
             notify_to=notify_to,
             websocket_clients=websocket_clients,
@@ -29,9 +30,9 @@ class TaskController():
         self.task_scheduler = TasksScheduler(tasks_dir=tasks_dir,
             history_storage=self.history_storage,
             notifier=self.notifier)
-        self.check_dead_processes()
+        # self.check_dead_processes()
         self.process_checking_loop = PeriodicCallback(self.check_dead_processes, 10000)
-        self.process_checking_loop.start()
+        # self.process_checking_loop.start()
 
     def update_config(self):
         return self.task_scheduler.update_config()
@@ -69,12 +70,16 @@ class TaskController():
         return self.task_scheduler.get_next_tasks()
 
     def get_task_list(self, with_history=False, task_run_limit=20):
-        result = self.task_scheduler.tasks_list
-        if with_history:
-            for task in result:
-                task['runs'] = self.get_detailed_history_for_task_id(task['name'], 20)
+        task_list = self.task_scheduler.tasks_list
 
-        return sorted(result, key=lambda x: x['name'] )
+        task_stats = self.history_storage.get_task_list_stats()
+
+        for task in task_list:
+            if with_history:
+                if task['name'] in task_stats:
+                    task['stats'] = task_stats.get(task['name'])
+
+        return sorted(task_list, key=lambda x: x['name'] )
 
     def get_recent_history(self, limit):
         return self.history_storage.get_recent_history(limit)

@@ -161,6 +161,7 @@ class FileHistoryStorage():
         return not os.path.isfile(file_path)
 
     def prepare_task_run(self, task_run):
+        task_run.id = task_run.state['started_at'].strftime('%Y_%m_%d_%H_%M_%S_%f')
         task_path = '/'.join([self.storage_dir, task_run.task_id])
         task_path = self.get_task_run_path(task_run)
         if not os.path.isdir(task_path):

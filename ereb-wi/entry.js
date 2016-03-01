@@ -1,7 +1,5 @@
 $ = jQuery = require("jquery");
-require("./node_modules/codemirror/lib/codemirror.css")
-require("./node_modules/codemirror/theme/3024-night.css")
-CodeMirror = require("codemirror")
+HightlighJS = require("highlight.js");
 Cookies = require("./js/vendor/cookies.coffee");
 moment = require("moment");
 moment_range = require("./js/vendor/readable_range.coffee");
@@ -12,6 +10,7 @@ monkberry = require('monkberry');
 require('monkberry-events');
 
 require("./css/main.scss");
+require("./css/highlightjs_tomorrow_night.css");
 require('./js/monkberry_filters.coffee');
 require("./js/main.coffee");
 

@@ -7,19 +7,14 @@ class TaskRun
 
   render: (taskId, taskRunId) ->
     @fetch taskId, taskRunId, (data) =>
-      console.log(data)
       @template.appendTo(@wrapper)
       @template.update data
-      @initCodeMirror()
+      @highlight()
 
-  initCodeMirror: ->
-    for textarea_id in ['stdout', 'stderr']
-      textarea = document.getElementById(textarea_id)
-      if textarea
-        CodeMirror.fromTextArea textarea,
-          mode: 'shell'
-          theme: '3024-night'
-          readOnly: "nocursor"
+  highlight: ->
+    for block_id in ['stdout', 'stderr']
+      block = document.getElementById(textarea_id)
+      HightlighJS.highlightBlock(document.getElementById(block_id));
 
   fetch: (taskId, taskRunId, callback, useStub=false) ->
     if useStub

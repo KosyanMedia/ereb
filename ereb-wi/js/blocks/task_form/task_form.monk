@@ -58,9 +58,11 @@
       <div class="col-md-8 col-md-offset-2">
         <p>
           <label for="shell_script">Contents for file: {{ config.shell_script_content.filename }} </label>
-          <textarea id="shell_script" class="form-control" rows="10" readonly>
-            {{ config.shell_script_content.content }}
-          </textarea>
+          <pre>
+            <code id="shell_script">
+              {{ config.shell_script_content.content }}
+            </code>
+          </pre>
         </p>
       </div>
     </div>
@@ -91,7 +93,7 @@
                 Running
               {% endif %}
             </td>
-            <td> {{ duration }}  </td>
+            <td> {{ duration || 'Instant' }}  </td>
             <td>
               {% if finished_at != 'None' %}
                 {{ exit_code == 0 ? 'Success' : 'Fail' }}

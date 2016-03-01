@@ -17,19 +17,12 @@ class TaskForm
           m2 = moment(run.finished_at)
         run['duration'] = moment.preciseDiff(m1, m2)
 
-      console.log(@data.runs)
       @template.appendTo(@wrapper)
       @template.update @data
-      @initCodeMirror() unless @codeMirror
+      @highlight()
 
-  initCodeMirror: ->
-    textarea = document.getElementById('shell_script')
-    if textarea
-      @codeMirror = CodeMirror.fromTextArea(textarea, {
-        mode: 'shell'
-        theme: '3024-night'
-        readOnly: "nocursor"
-      })
+  highlight: ->
+    HightlighJS.highlightBlock(document.getElementById('shell_script'));
 
   initEvents: () ->
     @template.on 'submit', '#task_form', (e) =>

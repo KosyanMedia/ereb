@@ -17,12 +17,12 @@
       <tbody>
         {% for tasks %}
           <tr>
-            <td> <span class="glyphicon glyphicon-{{ enabled | enabled_icon }}"> </span> </td>
+            <td> <span class="glyphicon glyphicon-{{ enabled ? 'ok' : 'remove' }}"> </span> </td>
             <td> <a href="#/tasks/{{ name }}"> {{ name }} </a> </td>
             <td>
               <div class="progress">
                 {% for bar_points %}
-                  <div style="width: {{ width }}%" class="progress-bar {{ exit_code | task_exit_code_to_class }}">
+                  <div style="width: {{ width }}%" class="progress-bar progress-bar-{{ exit_code == 0 ? 'success' : 'danger' }}">
                   </div>
                 {% endfor %}
               </div>

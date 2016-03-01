@@ -6,7 +6,7 @@ class Header
       version: @version()
       next_run: -1
       next_tasks: []
-      server_time: moment.utc().format('H:m')
+      server_time: moment.utc().format('HH:mm')
 
     monkberry.mount(require('./header.monk'))
     @template = monkberry.render('header')
@@ -31,7 +31,7 @@ class Header
   initTimer: =>
     @timer = setInterval =>
       @state.next_run -= 1 if @state.next_run > 0
-      @state.server_time = moment.utc().format('H:m')
+      @state.server_time = moment.utc().format('HH:mm')
       @update @state
     , 1000
 

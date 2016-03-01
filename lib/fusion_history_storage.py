@@ -43,7 +43,7 @@ class FusionHistoryStorage():
         result = self.select_to_dict('''
             select *
             from task_runs
-            where finished_at is null
+            where finished_at = 'None'
         ''')
 
         return result
@@ -165,7 +165,7 @@ class FusionHistoryStorage():
         currently_running = self.select_to_dict('''
             select *
             from task_runs
-            where task_id = '%s' and finished_at is null
+            where task_id = '%s' and finished_at = 'None'
         ''' % task_id)
         return len(currently_running) == 0
 

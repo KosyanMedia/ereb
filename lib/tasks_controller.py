@@ -30,9 +30,9 @@ class TaskController():
         self.task_scheduler = TasksScheduler(tasks_dir=tasks_dir,
             history_storage=self.history_storage,
             notifier=self.notifier)
-        # self.check_dead_processes()
+        self.check_dead_processes()
         self.process_checking_loop = PeriodicCallback(self.check_dead_processes, 10000)
-        # self.process_checking_loop.start()
+        self.process_checking_loop.start()
 
     def update_config(self):
         return self.task_scheduler.update_config()
@@ -55,16 +55,17 @@ class TaskController():
             task_run = TaskRun.from_state(currently_running_task)
 
             if 'pid' in task_run.state:
-                if psutil.pid_exists(task_run.state['pid']):
-                    logging.info('Task %s with run %s is alive', task_run.task_id, task_run.id)
+                if task_run.state['pid'] != 'None':
+                    if psutil.pid_exists(task_run.state['pid']):
+                        logging.info('Task %s with run %s is alive', task_run.task_id, task_run.id)
+                    else:
+                        logging.info('Task %s with run %s is dead already; finalized', task_run.task_id, task_run.id)
+                        self.history_storage.finalize_task_run(task_run)
+                        # FIXME: Prolly it's now working. DO SOMETHING
                 else:
-                    logging.info('Task %s with run %s is dead already; finalized', task_run.task_id, task_run.id)
+                    logging.info('Task %s with run %s is in unknown state, no pid; finalized', task_run.task_id, task_run.id)
                     self.history_storage.finalize_task_run(task_run)
                     # FIXME: Prolly it's now working. DO SOMETHING
-            else:
-                logging.info('Task %s with run %s is in unknown state, no pid; finalized', task_run.task_id, task_run.id)
-                self.history_storage.finalize_task_run(task_run)
-                # FIXME: Prolly it's now working. DO SOMETHING
 
     def get_next_tasks(self):
         return self.task_scheduler.get_next_tasks()

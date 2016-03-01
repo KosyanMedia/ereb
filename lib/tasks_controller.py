@@ -6,7 +6,6 @@ import logging
 import re
 
 from lib.tasks_scheduler import TasksScheduler
-from lib.file_history_storage import FileHistoryStorage
 from lib.fusion_history_storage import FusionHistoryStorage
 from lib.task_run import TaskRun
 from lib.notifier import Notifier

@@ -1,3 +1,5 @@
+body { padding-top: 70px; }
+
 .nobr {
   white-space: nowrap;
 }
@@ -57,4 +59,10 @@
 
 .ereb_wi--task_form_button {
   margin: 5px;
+}
+
+.ereb-wi--logo {
+  width: 45px;
+  float: left;
+  margin-right: 10px;
 }

@@ -11,21 +11,18 @@ class TaskForm
       @data = data
       for run in @data.runs
         m1 = moment(run.started_at)
-        m2 = moment(run.finished_at)
+        if run.finished_at == 'None'
+          m2 = moment.utc()
+        else
+          m2 = moment(run.finished_at)
         run['duration'] = moment.preciseDiff(m1, m2)
 
       @template.appendTo(@wrapper)
       @template.update @data
-      @initCodeMirror() unless @codeMirror
+      @highlight()
 
-  initCodeMirror: ->
-    textarea = document.getElementById('shell_script')
-    if textarea
-      @codeMirror = CodeMirror.fromTextArea(textarea, {
-        mode: 'shell'
-        theme: '3024-night'
-        readOnly: "nocursor"
-      })
+  highlight: ->
+    HightlighJS.highlightBlock(document.getElementById('shell_script'));
 
   initEvents: () ->
     @template.on 'submit', '#task_form', (e) =>

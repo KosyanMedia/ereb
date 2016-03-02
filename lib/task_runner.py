@@ -13,13 +13,13 @@ class TaskRunner():
     def run_task(self, cmd):
         logging.info("Runner started, %s" % self.taskname)
         logging.info("Command: %s" % cmd)
+
         if not self.history_storage.task_valid_to_run(self.taskname):
             raise FileExistsError('%s task is in progress' % self.taskname)
 
         self.task_run = TaskRun(self.taskname)
         self.history_storage.prepare_task_run(self.task_run)
         self.history_storage.update_state_for_task_run(self.task_run)
-        self.history_storage.update_current_task_run_for_task(self.task_run)
 
         self.proc = AASubprocess(cmd, -1, self.chunk_stdout, self.chunk_stderr, self.done_callback)
         self.task_run.state['pid'] = self.proc.pid
@@ -37,7 +37,6 @@ class TaskRunner():
         self.task_run.state['exit_code'] = returncode
         self.task_run.finalize()
         self.history_storage.update_state_for_task_run(self.task_run)
-        self.history_storage.delete_current_task_run_for_task(self.task_run)
 
         if returncode != 0:
             self.notifier.send_failed_task_run(self.task_run)

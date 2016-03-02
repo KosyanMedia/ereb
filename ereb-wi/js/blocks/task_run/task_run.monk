@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-md-8 col-md-offset-2">
-    <p> Task run for <b>  {{ state.task_id }}  </b> </p>
+    <p> Task run for <a href="/#/tasks/{{ state.task_id }}"> {{ state.task_id }} </a> </p>
     <p> <b> Started at: </b>  {{ state.started_at }}  </p>
     <p> <b> Finished at: </b>  {{ state.finished_at }}  </p>
     <p> <b> Exit code: </b>  {{ state.exit_code }}  </p>
@@ -12,21 +12,25 @@
 <div class="row">
   <div class="col-md-8 col-md-offset-2">
     {% if stdout %}
-      <h4> STDOUT </h4>
-      <textarea id="stdout" class="form-control" rows="10" readonly>
-        {{ stdout }}
-      </textarea>
+      <label> stdout: </label>
+      <pre>
+        <code id="stdout">
+          {{ stdout }}
+        </code>
+      </pre>
     {% else %}
-      <h4> STDOUT is empty </h4>
+      <label> stdout is empty </label>
     {% endif %}
 
     {% if stderr %}
-      <h4> STDERR </h4>
-      <textarea id="stderr" class="form-control" rows="10" readonly>
-        {{ stderr }}
-      </textarea>
+      <label> stderr: </label>
+      <pre>
+        <code id="stderr">
+          {{ stderr }}
+        </code>
+      </pre>
     {% else %}
-      <h4> STDERR is empty </h4>
+      <label> stderr is empty </label>
     {% endif %}
 
   </div>

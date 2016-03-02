@@ -6,7 +6,7 @@ import logging
 import re
 
 from lib.tasks_scheduler import TasksScheduler
-from lib.file_history_storage import FileHistoryStorage
+from lib.fusion_history_storage import FusionHistoryStorage
 from lib.task_run import TaskRun
 from lib.notifier import Notifier
 
@@ -20,7 +20,7 @@ class TaskController():
             os.makedirs(self.tasks_dir)
 
         self.websocket_clients = websocket_clients
-        self.history_storage = FileHistoryStorage(history_dir)
+        self.history_storage = FusionHistoryStorage(history_dir)
         self.notifier = Notifier(notifier_config=notifier_config,
             notify_to=notify_to,
             websocket_clients=websocket_clients,
@@ -54,27 +54,32 @@ class TaskController():
             task_run = TaskRun.from_state(currently_running_task)
 
             if 'pid' in task_run.state:
-                if psutil.pid_exists(task_run.state['pid']):
-                    logging.info('Task %s with run %s is alive', task_run.task_id, task_run.id)
+                if task_run.state['pid'] != 'None':
+                    if psutil.pid_exists(task_run.state['pid']):
+                        logging.info('Task %s with run %s is alive', task_run.task_id, task_run.id)
+                    else:
+                        logging.info('Task %s with run %s is dead already; finalized', task_run.task_id, task_run.id)
+                        self.history_storage.finalize_task_run(task_run)
+                        # FIXME: Prolly it's now working. DO SOMETHING
                 else:
-                    logging.info('Task %s with run %s is dead already; finalized', task_run.task_id, task_run.id)
+                    logging.info('Task %s with run %s is in unknown state, no pid; finalized', task_run.task_id, task_run.id)
                     self.history_storage.finalize_task_run(task_run)
                     # FIXME: Prolly it's now working. DO SOMETHING
-            else:
-                logging.info('Task %s with run %s is in unknown state, no pid; finalized', task_run.task_id, task_run.id)
-                self.history_storage.finalize_task_run(task_run)
-                # FIXME: Prolly it's now working. DO SOMETHING
 
     def get_next_tasks(self):
         return self.task_scheduler.get_next_tasks()
 
     def get_task_list(self, with_history=False, task_run_limit=20):
-        result = self.task_scheduler.tasks_list
-        if with_history:
-            for task in result:
-                task['runs'] = self.get_detailed_history_for_task_id(task['name'], 20)
+        task_list = self.task_scheduler.tasks_list
 
-        return sorted(result, key=lambda x: x['name'] )
+        task_stats = self.history_storage.get_task_list_stats()
+
+        for task in task_list:
+            if with_history:
+                if task['name'] in task_stats:
+                    task['stats'] = task_stats.get(task['name'])
+
+        return sorted(task_list, key=lambda x: x['name'] )
 
     def get_recent_history(self, limit):
         return self.history_storage.get_recent_history(limit)

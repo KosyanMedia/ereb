@@ -18,6 +18,8 @@
         autocomplete="off"> No connection. Retry every second </button>
     {% endif %}
 
+    <a type="button" href="#" class="btn navbar-btn"> UTC time: {{ server_time }} </a>
+
     <p class="navbar-text wi__next_run_text navbar-right">
       {% if next_run > 0 %}
         {% if next_tasks.length > 5 %}
@@ -36,7 +38,8 @@
       {% endif %}
     </p>
 
-    <a class="navbar-brand" href="#"> {{ info }} </a>
+    <img class="ereb-wi--logo" src="/build/logo.png" alt="" />
+    <a class="navbar-brand" href="#"> {{ version }} </a>
   </div>
 
 </div>

@@ -8,6 +8,8 @@
           <th> Status </th>
           <th> Statistics </th>
           <th> Avg </th>
+          <th> Min </th>
+          <th> Max </th>
           <th> Schedule </th>
           <th> Cmd </th>
         </tr>
@@ -15,23 +17,25 @@
       <tbody>
         {% for tasks %}
           <tr>
-            <td> <span class="glyphicon glyphicon-{{ enabled | enabled_icon }}"> </span> </td>
+            <td> <span class="glyphicon glyphicon-{{ enabled ? 'ok' : 'remove' }}"> </span> </td>
             <td> <a href="#/tasks/{{ name }}"> {{ name }} </a> </td>
             <td>
               <div class="progress">
-                {% for barPoints %}
-                  <div style="width: {{ width }}%" class="progress-bar {{ exit_code | task_exit_code_to_class }}">
+                {% for bar_points %}
+                  <div style="width: {{ width }}%" class="progress-bar progress-bar-{{ exit_code == 0 ? 'success' : 'danger' }}">
                   </div>
                 {% endfor %}
               </div>
             </td>
             <td>
               <div class="ereb_wi--tasks-status">
-                <span> {{ statistics.success }} </span> <i class="glyphicon glyphicon-ok-circle"></i>
-                <span> {{ statistics.error }} </span> <i class="glyphicon glyphicon-remove-circle"></i>
+                <span> {{ stats.success }} </span> <i class="glyphicon glyphicon-ok-circle"></i>
+                <span> {{ stats.error }} </span> <i class="glyphicon glyphicon-remove-circle"></i>
               </div>
             </td>
-            <td> <strong> {{ statistics.average_duration }}s</strong> </td>
+            <td> <strong> {{ stats.duration_avg }}s</strong> </td>
+            <td> <strong> {{ stats.duration_min }}s</strong> </td>
+            <td> <strong> {{ stats.duration_max }}s</strong> </td>
             <td> {{ cron_schedule }} </td>
             <td> {{ cmd }} </td>
           </tr>

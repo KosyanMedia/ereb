@@ -3,9 +3,10 @@ class Header
     @wrapper = wrapper
     @state =
       state: 'no_connection'
-      info: @version()
+      version: @version()
       next_run: -1
       next_tasks: []
+      server_time: moment.utc().format('HH:mm')
 
     monkberry.mount(require('./header.monk'))
     @template = monkberry.render('header')
@@ -30,6 +31,7 @@ class Header
   initTimer: =>
     @timer = setInterval =>
       @state.next_run -= 1 if @state.next_run > 0
+      @state.server_time = moment.utc().format('HH:mm')
       @update @state
     , 1000
 
@@ -66,7 +68,7 @@ class Header
           next_tasks: []
 
   version: =>
-    "Ereb for great future! #{window.DEFAULT_CONFIG.version}"
+    window.DEFAULT_CONFIG.version
 
   update: (state) =>
     @state.state = state.state

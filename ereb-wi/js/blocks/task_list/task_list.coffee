@@ -1,5 +1,5 @@
 class TaskList
-  defaultSchedule: '* */1 * * *'
+  defaultSchedule: '* * * * *'
   defaultCmd: 'echo'
 
   constructor: (wrapper) ->

@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-md-8 col-md-offset-2">
-    <p> Task run for <b>  {{ state.task_id }}  </b> </p>
+    <p> Task run for <a href="/#/tasks/{{ state.task_id }}"> {{ state.task_id }} </a> </p>
     <p> <b> Started at: </b>  {{ state.started_at }}  </p>
     <p> <b> Finished at: </b>  {{ state.finished_at }}  </p>
     <p> <b> Exit code: </b>  {{ state.exit_code }}  </p>

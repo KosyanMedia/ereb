@@ -6,6 +6,10 @@ import json
 import logging
 from tornado import websocket
 import subprocess
+from functools import partial
+import signal
+import sys
+import psutil
 
 class SocketHandler(websocket.WebSocketHandler):
     def initialize(self, task_controller, websocket_clients):
@@ -136,6 +140,29 @@ class RunnerHandler(tornado.web.RequestHandler):
             self.set_header('Access-Control-Allow-Origin', '*')
             self.write('Success')
 
+
+def kill_pid(pid, sig=signal.SIGTERM):
+    try:
+      parent = psutil.Process(pid)
+    except psutil.NoSuchProcess:
+      return
+    children = parent.children(recursive=True)
+    for process in children:
+      process.send_signal(sig)
+      try:
+          process.send_signal(sig)
+      except ProcessLookupError:
+          continue
+      logging.info("couldn't kill process by TERM signal, let's start use KILL")
+      process.send_signal(signal.SIGKILL)
+
+def shutdown(get_pids_fn, *args):
+    logging.info("shutting down...")
+    for pid in get_pids_fn():
+        kill_pid(pid)
+    IOLoop.current().stop()
+    sys.exit(0)
+
 if __name__ == "__main__":
     from tornado.options import define, options
     define("port", default=8888, type=int, help="port to listen on")
@@ -196,6 +223,9 @@ if __name__ == "__main__":
         (r"/(.*)", tornado.web.StaticFileHandler, {"path": "./ereb-wi", "default_filename": "index.html"})
     ], gzip=True)
 
+    signal.signal(signal.SIGTERM, partial(shutdown, task_controller.running_pids))
+    signal.signal(signal.SIGHUP, partial(shutdown, task_controller.running_pids))
+    signal.signal(signal.SIGINT, partial(shutdown, task_controller.running_pids))
 
     application.listen(options.port)
     IOLoop.instance().start()

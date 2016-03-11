@@ -24,6 +24,8 @@ class FusionHistoryStorage():
 
     def __init__(self, storage_dir="./var"):
         self.storage_dir = storage_dir
+        if not os.path.isdir(self.storage_dir):
+            os.makedirs(self.storage_dir)
         self.sqlite_connection = sqlite3.connect(self.storage_dir + '/ereb.db')
         logging.info('FusionHistoryStorage => Database connected')
         self.sqlite_connection.execute(self.CREATE_TABLES_SQL)

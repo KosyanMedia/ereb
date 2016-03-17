@@ -7,6 +7,13 @@ brew install python3
 pip3 install -r requirements.txt
 python3 ereb.py
 ```
+or on server
+
+```sh
+yum install sqlite3 sqlite-devel python3
+pip3 install -r requirements.txt
+python3 ereb.py
+```
 
 ## Migration from  crontab
 

@@ -9,7 +9,7 @@ from lib.tasks_scheduler import TasksScheduler
 from lib.fusion_history_storage import FusionHistoryStorage
 from lib.task_run import TaskRun
 from lib.notifier import Notifier
-
+from os.path import isfile
 
 class TaskController():
     SHELL_SCRIPT_RE = r'(\S+\.sh)'
@@ -88,21 +88,20 @@ class TaskController():
         for task in self.task_scheduler.tasks_list:
             if task['name'] == task_id:
                 if with_extra_info:
-                    task['shell_script_content'] = self.try_to_parse_task_shell_script(task['cmd'])
+                    task['shell_scripts'] = self.try_to_parse_task_shell_script(task['cmd'])
                 return task
         return None
 
     def try_to_parse_task_shell_script(self, cmd):
-        match = re.search(self.SHELL_SCRIPT_RE, cmd)
-        if match:
-            try:
-                shell_script = match.group(1)
-                with open(shell_script) as content:
-                    return { 'filename': shell_script, 'content': content.read() }
-            except Exception:
-                return None
-
-        return None
+        scripts = re.findall(self.SHELL_SCRIPT_RE, cmd)
+        def read_file(shell_script):
+            with open(shell_script) as content:
+                return { 'filename': shell_script, 'content': content.read() }
+        return_data = []
+        for script in scripts:
+            if isfile(script):
+                return_data.append(read_file(script))
+        return return_data
 
     def set_task_by_id(self, task_id, task_config):
         # try to update task first

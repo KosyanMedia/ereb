@@ -12,7 +12,7 @@ from lib.notifier import Notifier
 from os.path import isfile
 
 class TaskController():
-    SHELL_SCRIPT_RE = r'(\S+\.sh)'
+    SHELL_SCRIPT_RE = r'(\S+\.(sh|rb|py))'
 
     def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger', notifier_host='hostname', websocket_clients=[], port=8888):
         self.tasks_dir = tasks_dir
@@ -93,7 +93,7 @@ class TaskController():
         return None
 
     def try_to_parse_task_shell_script(self, cmd):
-        scripts = re.findall(self.SHELL_SCRIPT_RE, cmd)
+        scripts = list(map(lambda x: x[0], re.findall(self.SHELL_SCRIPT_RE, cmd)))
         def read_file(shell_script):
             with open(shell_script) as content:
                 return { 'filename': shell_script, 'content': content.read() }

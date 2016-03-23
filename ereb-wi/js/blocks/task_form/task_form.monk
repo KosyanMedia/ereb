@@ -53,20 +53,20 @@
 </div>
 
 <div>
-  {% if config.shell_script_content %}
+  {% for config.shell_scripts %}
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
         <p>
-          <label for="shell_script">Contents for file: {{ config.shell_script_content.filename }} </label>
+          <label for="shell_script">Contents for file: {{ filename }} </label>
           <pre>
-            <code id="shell_script">
-              {{ config.shell_script_content.content }}
+            <code data-role="shell_script">
+              {{ content }}
             </code>
           </pre>
         </p>
       </div>
     </div>
-  {% endif %}
+  {% endfor %}
 </div>
 
 <div class="row">

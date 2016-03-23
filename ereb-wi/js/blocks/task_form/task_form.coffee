@@ -22,7 +22,8 @@ class TaskForm
       @highlight()
 
   highlight: ->
-    HightlighJS.highlightBlock(document.getElementById('shell_script'));
+    for el in document.querySelectorAll('[data-role="shell_script"]')
+      HightlighJS.highlightBlock(el)
 
   initEvents: () ->
     @template.on 'submit', '#task_form', (e) =>

@@ -19,7 +19,8 @@ class TaskForm
 
       @template.appendTo(@wrapper)
       @template.update @data
-      @highlight()
+      # FIXME
+      # @highlight()
 
   highlight: ->
     for el in document.querySelectorAll('[data-role="shell_script"]')

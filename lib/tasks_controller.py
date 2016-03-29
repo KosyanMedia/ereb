@@ -98,7 +98,7 @@ class TaskController():
     def try_to_parse_task_shell_script(self, cmd):
         scripts = list(map(lambda x: x[0], re.findall(self.SHELL_SCRIPT_RE, cmd)))
         def read_file(shell_script):
-            with open(shell_script) as content:
+            with open(shell_script, 'r', encoding='utf8') as content:
                 return { 'filename': shell_script, 'content': content.read() }
         return_data = []
         for script in scripts:

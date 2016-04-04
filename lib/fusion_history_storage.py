@@ -96,7 +96,7 @@ class FusionHistoryStorage():
         stats_by_task_id = {}
         for task in task_stats:
             if task['exit_codes'] != '':
-                task['exit_codes'] = task['exit_codes'].split(',')[-20:]
+                task['exit_codes'] = str(task['exit_codes']).split(',')[-20:]
             else:
                 task.pop('exit_codes')
 

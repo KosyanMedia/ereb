@@ -90,6 +90,7 @@ class TaskController():
     def get_task_by_id(self, task_id, with_extra_info=False):
         for task in self.task_scheduler.tasks_list:
             if task['name'] == task_id:
+                task['shell_scripts'] = []
                 if with_extra_info:
                     task['shell_scripts'] = self.try_to_parse_task_shell_script(task['cmd'])
                 return task

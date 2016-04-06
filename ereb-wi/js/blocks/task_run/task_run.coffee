@@ -12,8 +12,9 @@ class TaskRun
       @highlight()
 
   highlight: ->
-    for block_id in ['stdout', 'stderr']      
-      HightlighJS.highlightBlock(document.getElementById(block_id));
+    for block_id in ['stdout', 'stderr']
+      block = document.getElementById(block_id)
+      HightlighJS.highlightBlock(block) if block
 
   fetch: (taskId, taskRunId, callback, useStub=false) ->
     if useStub

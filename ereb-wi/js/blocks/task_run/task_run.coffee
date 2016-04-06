@@ -12,8 +12,7 @@ class TaskRun
       @highlight()
 
   highlight: ->
-    for block_id in ['stdout', 'stderr']
-      block = document.getElementById(textarea_id)
+    for block_id in ['stdout', 'stderr']      
       HightlighJS.highlightBlock(document.getElementById(block_id));
 
   fetch: (taskId, taskRunId, callback, useStub=false) ->

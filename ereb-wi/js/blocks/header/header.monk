@@ -2,6 +2,7 @@
   <div class="collapse navbar-collapse" id="running_button_container">
     <a type="button" href="#/" class="btn navbar-btn"> Home </a>
     <a type="button" href="#/task_list" class="btn navbar-btn"> Task list </a>
+    <a type="button" href="#/failed_tasks" class="btn navbar-btn"> Failed tasks </a>
 
     {% if state == 'running' %}
       <button type="button" id="running_button" class="btn btn-primary navbar-btn btn-success"

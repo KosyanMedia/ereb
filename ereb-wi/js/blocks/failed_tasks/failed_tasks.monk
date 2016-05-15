@@ -1,0 +1,29 @@
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+    <table class="table">
+      <tbody>
+        {% for rows %}
+          <tr>
+            <td> <a href="/#/tasks/{{task_id}}"> {{ task_id }} </a> </td>
+            <td> {{ started_at }} </td>
+            <td>
+              {% if finished_at != 'None' %}
+                {{ finished_at }}
+              {% else %}
+                Running
+              {% endif %}
+            </td>
+            <td>
+              {% if finished_at != 'None' %}
+                {{ exit_code == 0 ? 'Success' : 'Fail' }}
+              {% else %}
+                pid: {{ pid }}
+              {% endif %}
+            </td>
+            <td> <a href="/#/tasks/{{ task_id }}/runs/{{ task_run_id }}"> More </a> </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -10,3 +10,6 @@ clean:
 
 install:
 	$(PYTHON) setup.py install
+
+docker_build:
+	docker build -t aviasales/ereb --force-rm --no-cache .

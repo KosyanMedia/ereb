@@ -5,14 +5,14 @@ Also you need python3. Assuming you have [brew](http://brew.sh/),
 ```sh
 brew install python3
 pip3 install -r requirements.txt
-python3 ereb.py
+python3 bin/ereb
 ```
 or on server
 
 ```sh
 yum install sqlite3 sqlite-devel python3
-pip3 install -r requirements.txt
-python3 ereb.py
+pip3 install -e git://github.com/KosyanMedia/ereb@master#egg=ereb
+ereb
 ```
 
 ## Migration from  crontab
@@ -38,7 +38,7 @@ Token ```%s``` in config will be replaced with your real error message.
 
 Then use *--notify-to* parameter for running ereb.py, for example to use slack do:
 ```sh
-python3 ereb.py --notify-to=slack
+ereb --notify-to=slack
 ```
 
 ## Clean history
@@ -77,8 +77,7 @@ Example monit config
 
 ```
 check process ereb pidfile /PATH/TO/EREB/tmp/ereb.pid
-    start program = "/bin/bash -c 'cd /PATH/TO/EREB && (python3.4 ereb.py --log_file_prefix=./tmp/ereb.log & echo $! > /PATH/TO/EREB/tmp/ereb.pid)'"
-    stop program = "/bin/bash -c '/bin/kill `cat /PATH/TO/EREB/tmp/ereb.pid`'" with timeout 65 seconds
+    start program = "/bin/bash -c 'ereb --log_file_prefix=./tmp/ereb.log & echo $! > /PATH/TO/EREB/tmp/ereb.pid)'"
+    stop program = "/bin/bash -c '/bin/kill `cat /PATH/TO/EREB/tmp/ereb.pid`'"
     group system
 ```
-w

@@ -180,18 +180,6 @@ if __name__ == "__main__":
         ereb_version = 'Unknown version'
         logging.error("Error fetching ereb version from git describe")
 
-    default_wi_config = """
-        window.DEFAULT_CONFIG = {}
-    """.format({
-        'port': options.port,
-        'version': ereb_version
-    })
-
-    default_wi_config_path = './ereb-wi/default_config.js'
-
-    with open(default_wi_config_path, 'w') as f:
-        f.write(default_wi_config)
-
     try:
         with open(options.notifier_config) as notifier_config_file:
             notifier_config = json.load(notifier_config_file)

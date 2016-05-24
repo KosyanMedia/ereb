@@ -6,3 +6,4 @@
 *.pyc
 notifier.json
 /ereb-wi/default_config.js
+/env

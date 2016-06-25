@@ -105,8 +105,10 @@ class TasksScheduler():
             if len(next_tasks) > 0:
                 logging.info('Next run in %s seconds' % str(next_run))
                 task_run_uuid = str(uuid.uuid4())
-                self.planned_task_run_uuids.append(task_run_uuid)
+                self.planned_task_run_uuids.append(task_run_uuid)  # allows to cancel already scheduled tasks
                 logging.info('Planned task %s' % task_run_uuid)
+                # wait until next task needs to be run, and while waiting -
+                # do other stuff in IOLoop (i.e. process web interface requests)
                 yield gen.Task(IOLoop.instance().add_timeout, time.time() + next_run)
                 if task_run_uuid in self.planned_task_run_uuids:
                     logging.info('Now running %s tasks' % len(next_tasks))

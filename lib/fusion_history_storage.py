@@ -10,13 +10,16 @@ import sqlite3
 class FusionHistoryStorage():
     ### Fusion means both file (stdout and stderr) and sqlite storage
 
-    CREATE_TABLES_SQL = '''CREATE TABLE IF NOT EXISTS TASK_RUNS
-        (   task_run_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            started_at TEXT NOT NULL,
-            finished_at TEXT,
-            task_id TEXT,
-            pid INTEGER,
-            exit_code INTEGER );'''
+    CREATE_TABLES_SQL = '''
+        CREATE TABLE IF NOT EXISTS TASK_RUNS
+            (   task_run_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                started_at TEXT NOT NULL,
+                finished_at TEXT,
+                task_id TEXT,
+                pid INTEGER,
+                exit_code INTEGER );
+        CREATE INDEX IF NOT EXISTS task_id ON task_runs (task_id);
+    '''
 
     COLUMNS = ['task_run_id', 'started_at', 'finished_at', 'task_id',
         'pid', 'exit_code']

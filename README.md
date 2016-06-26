@@ -82,3 +82,25 @@ check process ereb pidfile /PATH/TO/EREB/tmp/ereb.pid
     group system
 ```
 w
+
+## Troubleshooting
+
+### My web interface stopped responding
+
+This may happen if you have a big number of tasks and/or their schedule is quite frequent.
+In this case history storage's `task_runs` table (we have `sqlite3` database) gets pretty big
+after a while and causes `task scheduler` component to block the web interface's i/o loop.
+
+There is an [issue](https://github.com/KosyanMedia/ereb/issues/41) already opened up about this
+problem, but until it is resolved you can try cleaning up your `task_runs` table.
+
+To clean up all history data for task runs older than a month, simply log into `sqlite3` (assuming 
+your database file has a standard `var/ereb.db` location):
+
+```
+sqlite3 var/ereb.db
+```
+and run a `DELETE` command:
+```
+DELETE FROM task_runs WHERE started_at < datetime('now', '-1 month');
+```

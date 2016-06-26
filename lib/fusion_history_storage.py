@@ -190,14 +190,19 @@ class FusionHistoryStorage():
         task_path = self.get_task_run_path(task_run)
         if not os.path.isdir(task_path):
             os.makedirs(task_path)
-        self.remove_old_day_dirs(task_run)
+        self.remove_old_history_for_task_id(task_run.task_id, days_limit=30)
 
-    def remove_old_day_dirs(self, task_run, days_limit=30):
-        day_dirs = glob.glob(self.storage_dir + '/' + task_run.task_id + '/*')
+    def remove_old_history_for_task_id(self, task_id, days_limit=30):
+        day_dirs = glob.glob(self.storage_dir + '/' + task_id + '/*')
         if len(day_dirs) > days_limit:
             day_dirs.sort()
             last_day = day_dirs[0]
             shutil.rmtree(last_day)
+        self.sqlite_connection.execute('''
+            delete from task_runs
+            where task_id = '%s' and started_at < datetime('now', '-%d days');
+        ''' % (task_id, days_limit))
+        self.sqlite_connection.commit()
 
     def select_to_dict(self, sql, columns=COLUMNS):
         cursor = self.sqlite_connection.execute(sql)

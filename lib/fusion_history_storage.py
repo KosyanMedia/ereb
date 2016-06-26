@@ -19,6 +19,7 @@ class FusionHistoryStorage():
                 pid INTEGER,
                 exit_code INTEGER );
         CREATE INDEX IF NOT EXISTS task_id ON task_runs (task_id);
+        CREATE INDEX IF NOT EXISTS started_at ON task_runs (started_at);
     '''
 
     COLUMNS = ['task_run_id', 'started_at', 'finished_at', 'task_id',

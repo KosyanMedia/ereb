@@ -10,19 +10,21 @@ import sqlite3
 class FusionHistoryStorage():
     ### Fusion means both file (stdout and stderr) and sqlite storage
 
-    CREATE_TABLES_SQL = '''
+    CREATE_TABLES_SQL = ['''
         CREATE TABLE IF NOT EXISTS TASK_RUNS
             (   task_run_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 started_at TEXT NOT NULL,
                 finished_at TEXT,
                 task_id TEXT,
                 pid INTEGER,
-                exit_code INTEGER );
-        CREATE INDEX IF NOT EXISTS task_id ON task_runs (task_id);
-        CREATE INDEX IF NOT EXISTS started_at ON task_runs (started_at);
-        CREATE INDEX IF NOT EXISTS task_id_started_at ON task_runs (task_id, started_at);
-        CREATE INDEX IF NOT EXISTS finished_at ON task_runs (finished_at);
-    '''
+                exit_code INTEGER );''',
+        "CREATE INDEX IF NOT EXISTS task_id ON task_runs (task_id);",
+        "CREATE INDEX IF NOT EXISTS started_at ON task_runs (started_at);",
+        "CREATE INDEX IF NOT EXISTS task_id_started_at ON task_runs (task_id, started_at);",
+        "CREATE INDEX IF NOT EXISTS finished_at ON task_runs (finished_at);"
+    ]
+
+
 
     COLUMNS = ['task_run_id', 'started_at', 'finished_at', 'task_id',
         'pid', 'exit_code']
@@ -34,7 +36,8 @@ class FusionHistoryStorage():
             os.makedirs(self.storage_dir)
         self.sqlite_connection = sqlite3.connect(self.storage_dir + '/ereb.db')
         logging.info('FusionHistoryStorage => Database connected')
-        self.sqlite_connection.execute(self.CREATE_TABLES_SQL)
+        for sql in self.CREATE_TABLES_SQL:
+            self.sqlite_connection.execute(sql)
         logging.info('FusionHistoryStorage => Tables created')
 
     def get_recent_history(self, limit):

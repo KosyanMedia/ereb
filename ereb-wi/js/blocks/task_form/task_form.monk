@@ -32,7 +32,7 @@
         </p>
         <p>
           <label for="description"> Description </label>
-          <textarea class="form-control" id="description"> {{ data.config.description }} </textarea>
+          <textarea class="form-control" id="description"> {{ config.description }} </textarea>
         </p>
       </div>
       <p>

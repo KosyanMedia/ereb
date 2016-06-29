@@ -33,6 +33,7 @@ class TaskForm
         cron_schedule: $('#cron_schedule').val()
         cmd: $('#cmd').val()
         description: $('#description').val()
+
       @updateTask @taskId, data, (update_status) =>
         @data.notification =
           success: update_status == true

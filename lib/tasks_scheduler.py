@@ -50,9 +50,13 @@ class TasksScheduler():
     @gen.engine
     def check_config(self):
         if self.update_config():
-            logging.info("Config changed!")
-            self.planned_task_run_uuids = []
-            IOLoop.instance().add_callback(self.schedule_next_tasks)
+            self.reschedule_tasks()
+
+    @gen.engine
+    def reschedule_tasks(self):
+        logging.info("Config changed!")
+        self.planned_task_run_uuids = []
+        IOLoop.instance().add_callback(self.schedule_next_tasks)
 
     def get_tasks_config(self):
         # async?

@@ -117,7 +117,7 @@ class TaskController():
         f = open(self.tasks_dir + '/%s.json' % task_id, 'w')
         f.write(json.dumps(task_config))
         f.close()
-        self.task_scheduler.check_config()
+        self.task_scheduler.reschedule_tasks()
         return True
 
     def delete_task_by_id(self, task_id):

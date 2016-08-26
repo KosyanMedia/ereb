@@ -9,14 +9,14 @@ class TaskForm
   render: (@taskId) ->
     @fetch @taskId, (data) =>
       @data = data
-      @data.enabled_state = if data.config.enabled then 'enabled' else 'disabled'
-      for run in @data.runs
-        m1 = moment(run.started_at)
-        if run.finished_at == 'None'
-          m2 = moment.utc()
-        else
-          m2 = moment(run.finished_at)
-        run['duration'] = moment.preciseDiff(m1, m2)
+      if @data.runs
+        for run in @data.runs
+          m1 = moment(run.started_at)
+          if run.finished_at == 'None'
+            m2 = moment.utc()
+          else
+            m2 = moment(run.finished_at)
+          run['duration'] = moment.preciseDiff(m1, m2)
 
       @template.appendTo(@wrapper)
       @template.update @data
@@ -34,10 +34,12 @@ class TaskForm
         cron_schedule: $('#cron_schedule').val()
         cmd: $('#cmd').val()
         description: $('#description').val()
+        group: $('#group').val()
 
       @updateTask @taskId, data, (update_status) =>
         @data.notification =
           success: update_status == true
+        @data.config = data if update_status
         @template.update @data
         delete @data.notification
 

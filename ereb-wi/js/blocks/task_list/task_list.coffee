@@ -10,13 +10,20 @@ class TaskList
 
   render: (taskId, taskRunId) ->
     @fetch taskId, taskRunId, (tasks) =>
+      tasks_by_tab = {}
       for task in tasks
         if task.stats
           task.bar_points = @taskBarPoints(task.stats.exit_codes)
 
+        group = (task.group || 'Default').replace(' ', '_')
+        tasks_by_tab[group] ||= []
+        tasks_by_tab[group].push(task)
+
       @template.appendTo(@wrapper)
       @template.update
-        tasks: tasks
+        tasks_by_tab: tasks_by_tab
+
+      $($('.js-tabs')[0]).tab('show')
 
   taskBarPoints: (exit_codes) =>
     width = 100 / exit_codes.length
@@ -54,6 +61,7 @@ class TaskList
       cron_schedule: @defaultSchedule
       enabled: false
       description: ''
+      group: ''
 
     promise.done (response) ->
       callback()

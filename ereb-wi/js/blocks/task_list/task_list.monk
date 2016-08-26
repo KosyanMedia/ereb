@@ -1,47 +1,61 @@
 <div class="row">
   <div class="col-md-10 col-md-offset-1">
     <h4> Task list </h4>
-    <table class="table">
-      <thead>
-        <tr>
-          <th colspan="2"> Name </th>
-          <th> Status </th>
-          <th> Statistics </th>
-          <th> Avg </th>
-          <th> Min </th>
-          <th> Max </th>
-          <th> Schedule </th>
-          <th> Cmd </th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for tasks %}
-          <tr>
-            <td> <span class="glyphicon glyphicon-{{ enabled ? 'ok' : 'remove' }}"> </span> </td>
-            <td> <a href="#/tasks/{{ name }}"> {{ name }} </a> </td>
-            <td>
-              <div class="progress">
-                {% for bar_points %}
-                  <div style="width: {{ width }}%" class="progress-bar progress-bar-{{ exit_code == 0 ? 'success' : 'danger' }}">
+
+    <ul class="nav nav-tabs" role="tablist">
+    {% for group, tasks of tasks_by_tab %}
+      <li role="presentation"><a class="js-tabs" href="#{{group}}" aria-controls="{{group}}" role="tab" data-toggle="tab">{{ group }}</a></li>
+    {% endfor %}
+    </ul>
+
+    <div class="tab-content">
+    {% for group, tasks of tasks_by_tab %}
+      <div role="tabpanel" class="tab-pane" id="{{group}}">
+        <br>
+        <table class="table">
+          <thead>
+            <tr>
+              <th colspan="2"> Name </th>
+              <th> Status </th>
+              <th> Statistics </th>
+              <th> Avg </th>
+              <th> Min </th>
+              <th> Max </th>
+              <th> Schedule </th>
+              <th> Cmd </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for tasks %}
+              <tr>
+                <td> <span class="glyphicon glyphicon-{{ enabled ? 'ok' : 'remove' }}"> </span> </td>
+                <td> <a href="#/tasks/{{ name }}"> {{ name }} </a> </td>
+                <td>
+                  <div class="progress">
+                    {% for bar_points %}
+                      <div style="width: {{ width }}%" class="progress-bar progress-bar-{{ exit_code == 0 ? 'success' : 'danger' }}">
+                      </div>
+                    {% endfor %}
                   </div>
-                {% endfor %}
-              </div>
-            </td>
-            <td>
-              <div class="ereb_wi--tasks-status">
-                <span> {{ stats.success }} </span> <i class="glyphicon glyphicon-ok-circle"></i>
-                <span> {{ stats.error }} </span> <i class="glyphicon glyphicon-remove-circle"></i>
-              </div>
-            </td>
-            <td> <strong> {{ stats.duration_avg }}s</strong> </td>
-            <td> <strong> {{ stats.duration_min }}s</strong> </td>
-            <td> <strong> {{ stats.duration_max }}s</strong> </td>
-            <td> {{ cron_schedule }} </td>
-            <td> {{ cmd }} </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+                </td>
+                <td>
+                  <div class="ereb_wi--tasks-status">
+                    <span> {{ stats.success }} </span> <i class="glyphicon glyphicon-ok-circle"></i>
+                    <span> {{ stats.error }} </span> <i class="glyphicon glyphicon-remove-circle"></i>
+                  </div>
+                </td>
+                <td> <strong> {{ stats.duration_avg }}s</strong> </td>
+                <td> <strong> {{ stats.duration_min }}s</strong> </td>
+                <td> <strong> {{ stats.duration_max }}s</strong> </td>
+                <td> {{ cron_schedule }} </td>
+                <td> {{ cmd }} </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
+    </div>
   </div>
 </div>
 

@@ -13,7 +13,13 @@
   <div class="col-md-8 col-md-offset-2">
     <form id="task_form">
       <h2> {{ config.name }} </h2>
-      <h4> current state: {{ enabled_state }} </h4>
+      <h4> current state:
+        {% if config.enabled %}
+          enabled
+        {% else %}
+          disabled
+        {% endif %}
+      </h4>
       <div class="form-group">
         <div>
           <input type="hidden" id="task_id" value="{{ config.name }}">
@@ -28,6 +34,11 @@
         <p>
           <label for="cmd"> Cmd </label>
           <textarea class="form-control" id="cmd"> {{ config.cmd }} </textarea>
+        </p>
+        <p>
+          <label for="group"> Group </label>
+          <input type="text" class="form-control" id="group"
+            value="{{ config.group || '' }}" placeholder="Group">
         </p>
         <p>
           <label for="description"> Description </label>

@@ -12,9 +12,8 @@
   {% endif %}
   <div class="col-md-8 col-md-offset-2">
     <form id="task_form">
-      <h2>
-        Current task state: {{ enabled_state }}
-      </h2>
+      <h2> {{ config.name }} </h2>
+      <h4> current state: {{ enabled_state }} </h4>
       <div class="form-group">
         <div>
           <input type="hidden" id="task_id" value="{{ config.name }}">

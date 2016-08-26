@@ -9,6 +9,7 @@ class TaskForm
   render: (@taskId) ->
     @fetch @taskId, (data) =>
       @data = data
+      @data.enabled_state = if data.config.enabled then 'enabled' else 'disabled'
       for run in @data.runs
         m1 = moment(run.started_at)
         if run.finished_at == 'None'

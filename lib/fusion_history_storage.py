@@ -21,7 +21,8 @@ class FusionHistoryStorage():
         "CREATE INDEX IF NOT EXISTS task_id ON task_runs (task_id);",
         "CREATE INDEX IF NOT EXISTS started_at ON task_runs (started_at);",
         "CREATE INDEX IF NOT EXISTS task_id_started_at ON task_runs (task_id, started_at);",
-        "CREATE INDEX IF NOT EXISTS finished_at ON task_runs (finished_at);"
+        "CREATE INDEX IF NOT EXISTS finished_at ON task_runs (finished_at);",
+        "CREATE INDEX IF NOT EXISTS started_at_exit_code ON task_runs (started_at, exit_code);"
     ]
 
 
@@ -48,6 +49,7 @@ class FusionHistoryStorage():
             from task_runs
             where exit_code != 0
             and finished_at != 'None'
+            and started_at < datetime('now', '-1 month')
             order by started_at desc
             limit {}
         '''.format(limit), columns)

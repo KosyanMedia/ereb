@@ -84,8 +84,15 @@ class TaskController():
 
         return sorted(task_list, key=lambda x: x['name'] )
 
-    def get_recent_history(self, limit):
-        return self.history_storage.get_recent_history(limit)
+    def get_dashboard_info(self):
+        dashboard = {}
+        dashboard['recent_fails'] = self.history_storage.get_recent_failed_task_runs(20)
+        dashboard['failed_tasks_for_day'] = self.history_storage.get_most_failed_tasks('-1 day')
+        dashboard['failed_tasks_for_month'] = self.history_storage.get_most_failed_tasks('-1 month')
+        dashboard['slow_tasks_for_day'] = self.history_storage.get_slow_tasks('-1 day')
+        dashboard['slow_tasks_for_month'] = self.history_storage.get_slow_tasks('-1 month')
+
+        return dashboard
 
     def get_task_by_id(self, task_id, with_extra_info=False):
         for task in self.task_scheduler.tasks_list:

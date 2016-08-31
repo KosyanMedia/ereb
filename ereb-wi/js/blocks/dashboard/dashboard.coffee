@@ -8,15 +8,14 @@ class Dashboard
   render: () ->
     @fetch (data) =>
       @template.appendTo(@wrapper)
-      @template.update
-        rows: data
+      @template.update data
 
   fetch: (callback, useStub=false) ->
     if useStub
       stub = require('./stub.coffee')
       callback(stub)
     else
-      url = [window.SERVER_HOST, 'status', 'recent_history'].join('/')
+      url = [window.SERVER_HOST, 'status', 'dashboard'].join('/')
       promise = $.get url
 
       promise.done (response) ->

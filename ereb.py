@@ -127,8 +127,8 @@ class RunnerHandler(tornado.web.RequestHandler):
             result = json.dumps(self.task_controller.get_status())
             self.set_header('Access-Control-Allow-Origin', '*')
             self.write(result)
-        if cmd == 'recent_history':
-            result = json.dumps(self.task_controller.get_recent_history(20))
+        if cmd == 'dashboard':
+            result = json.dumps(self.task_controller.get_dashboard_info())
             self.set_header('Access-Control-Allow-Origin', '*')
             self.write(result)
         if cmd == 'recent_failed_tasks':

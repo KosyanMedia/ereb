@@ -40,13 +40,17 @@ class FusionHistoryStorage():
             self.sqlite_connection.execute(sql)
         logging.info('FusionHistoryStorage => Tables created')
 
-    def get_recent_history(self, limit):
+    def get_recent_failed_task_runs(self, limit):
+        columns = ['task_id', 'task_run_id', 'started_at', 'duration']
         result = self.select_to_dict('''
-            select *
+            select task_id, task_run_id, started_at,
+                strftime('%s', finished_at) - strftime('%s', started_at) as duration
             from task_runs
-            order by task_run_id desc
-            limit %s
-        ''' % limit)
+            where exit_code != 0
+            and finished_at != 'None'
+            order by started_at desc
+            limit {}
+        '''.format(limit), columns)
 
         return result
 
@@ -85,6 +89,32 @@ class FusionHistoryStorage():
         ''' % (task_id, limit))
 
         return result
+
+    def get_most_failed_tasks(self, period='-1 day'):
+        columns = ['task_id', 'cnt']
+        failed_tasks = self.select_to_dict('''
+            select task_id, count(*) as cnt
+            from task_runs
+            where started_at > datetime('now', '%s')
+            and exit_code != 0
+            group by task_id
+            order by cnt desc
+            limit 5
+        ''' % period, columns)
+        return failed_tasks
+
+    def get_slow_tasks(self, period='-1 day'):
+        columns = ['task_id', 'avg']
+        failed_tasks = self.select_to_dict('''
+            select task_id,
+                round(avg(strftime('%s', finished_at) - strftime('%s', started_at)), 2) as duration_avg
+            from task_runs
+            where started_at > datetime('now', '{}')
+            group by task_id
+            order by duration_avg desc
+            limit 5
+        '''.format(period), columns)
+        return failed_tasks
 
     def get_task_list_stats(self):
         columns = ['task_id', 'duration_avg', 'duration_min', 'duration_max',

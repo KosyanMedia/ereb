@@ -63,14 +63,14 @@
 </div>
 
 <div>
-  {% for config.shell_scripts %}
+  {% for i, script of config.shell_scripts %}
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
         <p>
-          <label for="shell_script">Contents for file: {{ filename }} </label>
-          <pre>
+          <a data-toggle="collapse" href="#shell_script{{i}}" for="shell_script">Contents for file: {{ script.filename }} </a>
+          <pre class="collapse" id="shell_script{{i}}">
             <code data-role="shell_script">
-              {{ content }}
+              {{ script.content }}
             </code>
           </pre>
         </p>

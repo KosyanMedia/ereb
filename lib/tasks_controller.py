@@ -10,6 +10,7 @@ from lib.fusion_history_storage import FusionHistoryStorage
 from lib.task_run import TaskRun
 from lib.notifier import Notifier
 from os.path import isfile
+import time
 
 class TaskController():
     SHELL_SCRIPT_RE = r'(\S+\.(sh|rb|py))'
@@ -87,10 +88,7 @@ class TaskController():
     def get_dashboard_info(self):
         dashboard = {}
         dashboard['recent_fails'] = self.history_storage.get_recent_failed_task_runs(20)
-        dashboard['failed_tasks_for_day'] = self.history_storage.get_most_failed_tasks('-1 day')
-        dashboard['failed_tasks_for_month'] = self.history_storage.get_most_failed_tasks('-1 month')
-        dashboard['slow_tasks_for_day'] = self.history_storage.get_slow_tasks('-1 day')
-        dashboard['slow_tasks_for_month'] = self.history_storage.get_slow_tasks('-1 month')
+        dashboard.update(self.history_storage.get_task_stats_for_dashboard())
 
         return dashboard
 

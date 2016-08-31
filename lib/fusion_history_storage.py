@@ -5,7 +5,7 @@ import re
 import logging
 import shutil
 import sqlite3
-
+import time
 
 class FusionHistoryStorage():
     ### Fusion means both file (stdout and stderr) and sqlite storage
@@ -89,34 +89,41 @@ class FusionHistoryStorage():
             order by task_run_id desc
             limit %s
         ''' % (task_id, limit))
-
         return result
 
-    def get_most_failed_tasks(self, period='-1 day'):
-        columns = ['task_id', 'cnt']
+    def get_task_stats_for_dashboard(self):
+        columns = ['task_id', 'duration_avg', 'duration_avg_today', 'fails', 'fails_today']
+        start_time = time.time()
         failed_tasks = self.select_to_dict('''
-            select task_id, count(*) as cnt
-            from task_runs
-            where started_at > datetime('now', '%s')
-            and exit_code != 0
-            group by task_id
-            order by cnt desc
-            limit 5
-        ''' % period, columns)
-        return failed_tasks
+        select
+            task_id,
+            round(avg(strftime('%s', finished_at) - strftime('%s', started_at)), 2) as duration_avg,
 
-    def get_slow_tasks(self, period='-1 day'):
-        columns = ['task_id', 'avg']
-        failed_tasks = self.select_to_dict('''
-            select task_id,
-                round(avg(strftime('%s', finished_at) - strftime('%s', started_at)), 2) as duration_avg
-            from task_runs
-            where started_at > datetime('now', '{}')
+            coalesce((sum(case when started_at > datetime('now', '-1 day') then strftime('%s', finished_at) else 0 end)
+              - sum(case when started_at > datetime('now', '-1 day') then strftime('%s', started_at) else 0 end))
+              / sum(case when started_at > datetime('now', '-1 day') then 1 else 0 end), 0) as duration_avg_today,
+
+            sum(case when exit_code != 0 then 1 else 0 end) as fails,
+            sum(case when exit_code != 0 and started_at > datetime('now', '-1 day') then 1 else 0 end) as fails_today
+
+        from task_runs
+            where started_at > datetime('now', '-1 month')
             group by task_id
-            order by duration_avg desc
-            limit 5
-        '''.format(period), columns)
-        return failed_tasks
+            order by duration_avg desc;
+        ''', columns)
+
+        logging.warn('FusionHistoryStorage :: get_task_stats_for_dashboard sql time %s', time.time() - start_time)
+        # Sqlite3 is single threaded in it takes fucking LONG time to execute 4 queries one by one
+        # that's why
+        # this query is ugly, single and works 4x time faster than previous
+
+        result = {}
+        result['slow_tasks_for_month'] = failed_tasks[:5]
+        result['slow_tasks_for_day'] = sorted(failed_tasks, key=lambda x: x['duration_avg_today'], reverse=True)[:5]
+        result['failed_tasks_for_month'] = sorted(failed_tasks, key=lambda x: x['fails'], reverse=True)[:5]
+        result['failed_tasks_for_day'] = sorted(failed_tasks, key=lambda x: x['fails_today'], reverse=True)[:5]
+
+        return result
 
     def get_task_list_stats(self):
         columns = ['task_id', 'duration_avg', 'duration_min', 'duration_max',

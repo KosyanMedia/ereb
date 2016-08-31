@@ -49,7 +49,7 @@ class FusionHistoryStorage():
             from task_runs
             where exit_code != 0
             and finished_at != 'None'
-            and started_at < datetime('now', '-1 month')
+            and started_at > datetime('now', '-1 month')
             order by started_at desc
             limit {}
         '''.format(limit), columns)

@@ -44,9 +44,9 @@
                     <span> {{ stats.error }} </span> <i class="glyphicon glyphicon-remove-circle"></i>
                   </div>
                 </td>
-                <td> <strong> {{ stats.duration_avg }}s</strong> </td>
-                <td> <strong> {{ stats.duration_min }}s</strong> </td>
-                <td> <strong> {{ stats.duration_max }}s</strong> </td>
+                <td> <abbr title="{{stats.duration_avg}} s" class="text-nowrap"> {{ stats.duration_avg | humanize_time }}</abbr> </td>
+                <td> <abbr title="{{stats.duration_min}} s" class="text-nowrap"> {{ stats.duration_min | humanize_time }}</abbr> </td>
+                <td> <abbr title="{{stats.duration_max}} s" class="text-nowrap"> {{ stats.duration_max | humanize_time }}</abbr> </td>
                 <td> {{ cron_schedule }} </td>
                 <td> {{ cmd }} </td>
               </tr>

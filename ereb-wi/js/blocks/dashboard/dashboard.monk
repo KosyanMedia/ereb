@@ -16,7 +16,7 @@
           <tr>
             <td> <a href="/#/tasks/{{task_id}}"> {{ task_id }} </a> </td>
             <td> {{ started_at }} </td>
-            <td> {{ duration }}s </td>
+            <td><abbr title="{{duration}} s">{{ duration | humanize_time}}</abbr></td>
             <td> <a href="/#/tasks/{{ task_id }}/runs/{{ task_run_id }}"> More </a> </td>
           </tr>
           {% endfor %}
@@ -75,7 +75,7 @@
               {% for slow_tasks_for_day %}
                 <tr>
                   <td> <a href="/#/tasks/{{ task_id }}"> {{ task_id }} </a> </td>
-                  <td> <b> {{ duration_avg_today }}s</b> </td>
+                  <td><abbr title="{{duration_avg_today}} s"> {{ duration_avg_today | humanize_time }} </abbr></td>
                 </tr>
               {% endfor %}
             </tbody>
@@ -88,7 +88,7 @@
               {% for slow_tasks_for_month %}
                 <tr>
                   <td> <a href="/#/tasks/{{ task_id }}"> {{ task_id }} </a> </td>
-                  <td> <b> {{ duration_avg }}s</b> </td>
+                  <td> <abbr title="{{duration_avg}} s"> {{ duration_avg | humanize_time}} </abbr> </td>
                 </tr>
               {% endfor %}
             </tbody>

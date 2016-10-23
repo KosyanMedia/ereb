@@ -5,10 +5,11 @@ from lib.aa_subprocess import AASubprocess
 
 
 class TaskRunner():
-    def __init__(self, taskname, history_storage, notifier):
+    def __init__(self, taskname, history_storage, notifier, on_error_callback):
         self.taskname = taskname
         self.history_storage = history_storage
         self.notifier = notifier
+        self.on_error_callback = on_error_callback
 
     def run_task(self, cmd, timeout=-1):
         logging.info("Runner started, %s with timeout %s", self.taskname, timeout)
@@ -33,10 +34,11 @@ class TaskRunner():
         self.task_run.stderr += data.decode()
         self.history_storage.update_stderr_for_task_run_id(self.task_run)
 
-    def done_callback(self, returncode, expired):
-        self.task_run.state['exit_code'] = returncode
+    def done_callback(self, return_code, expired):
+        self.task_run.state['exit_code'] = return_code
         self.task_run.finalize()
         self.history_storage.update_state_for_task_run(self.task_run)
 
-        if returncode != 0:
+        if return_code != 0:
+            self.on_error_callback(self.taskname, return_code)
             self.notifier.send_failed_task_run(self.task_run)

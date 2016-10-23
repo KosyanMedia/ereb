@@ -19,6 +19,9 @@ class TasksScheduler():
         self.tasks_list = {}
         self.is_task_loop_running = False
         self.planned_task_run_uuids = []
+        self.try_after_fail_tasks = {}
+        self.try_after_fail_tries_count = 5
+        self.try_after_fail_interval = 10 # 6
         self.update_config()
 
     def update_config(self):
@@ -49,9 +52,13 @@ class TasksScheduler():
     def run_task_by_name_and_cmd(self, name, cmd, timeout):
         logging.info('Manual run | Running %s task' % name)
         # try:
-        TaskRunner(name, self.history_storage, self.notifier).run_task(cmd, timeout)
+        TaskRunner(name, self.history_storage, self.notifier, self.on_task_fail_callback).run_task(cmd, timeout)
         # except Exception as e:
         # logging.error('Manual task run error. %s' % e)
+
+    def on_task_fail_callback(self, task_id, return_code):
+        logging.info('ON_ERROR_CALLBACK' + task_id)
+
 
     @gen.engine
     def check_config(self):
@@ -125,7 +132,8 @@ class TasksScheduler():
                     for task in next_tasks:
                         try:
                             logging.info('Running %s task with timeout %s', task['name'], task.get('timeout', -1))
-                            TaskRunner(task['name'], self.history_storage, self.notifier).run_task(task['cmd'], task.get('timeout', -1))
+                            task_runner = TaskRunner(task['name'], self.history_storage, self.notifier, self.on_task_fail_callback)
+                            task_runner.run_task(task['cmd'], task.get('timeout', -1))
                         except Exception as e:
                             logging.exception('Scheduled task run error')
                     self.planned_task_run_uuids.remove(task_run_uuid)

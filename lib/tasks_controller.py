@@ -34,8 +34,11 @@ class TaskController():
         self.process_checking_loop = PeriodicCallback(self.check_dead_processes, 10000)
         self.process_checking_loop.start()
 
-    def running_pids(self):
-        return [x['pid'] for x in self.history_storage.get_currently_running_tasks()]
+    def shutdown_tasks(self, tasks=None):
+        tasks = tasks or self.history_storage.get_currently_running_tasks()
+        for task_state in tasks:
+            task_run = TaskRun.from_state(task_state)
+            task_run.shutdown()
 
     def update_config(self):
         return self.task_scheduler.update_config()

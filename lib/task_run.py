@@ -1,6 +1,23 @@
 import time
 import datetime
+import signal
+import psutil
+import logging
 
+def kill_pid(pid, sig=signal.SIGTERM):
+    try:
+      parent = psutil.Process(pid)
+    except psutil.NoSuchProcess:
+      return
+    children = parent.children(recursive=True)
+    for process in children:
+      process.send_signal(sig)
+      try:
+          process.send_signal(sig)
+      except ProcessLookupError:
+          continue
+      logging.info("couldn't kill process by TERM signal, let's start use KILL")
+      process.send_signal(signal.SIGKILL)
 
 class TaskRun():
     def __init__(self, task_id):
@@ -26,6 +43,9 @@ class TaskRun():
         task_run.state = state
 
         return task_run
+
+    def shutdown(self):
+        kill_pid(self.state['pid'])
 
     def finalize(self):
         finished_at = datetime.datetime.utcnow()

@@ -47,6 +47,9 @@ class TaskRun():
     def shutdown(self):
         kill_pid(self.state['pid'])
 
+    def started_at(self):
+        return datetime.datetime.strptime(self.state['started_at'], '%Y-%m-%d %H:%M:%S')
+
     def finalize(self):
         finished_at = datetime.datetime.utcnow()
         self.state['finished_at'] = finished_at.strftime('%Y-%m-%d %H:%M:%S')

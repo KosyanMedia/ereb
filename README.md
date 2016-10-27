@@ -26,6 +26,27 @@ crontan -l | python3 crontab_converter.py --output_dir=./etc
 to generate tasks from your crontab file.
 **Important!** Check new tasks after that!
 
+## Task config
+
+```json
+{
+    "cmd": "while :; do echo 'Hit CTRL+C'; sleep 1; done",
+    "cron_schedule": "* * * * *",
+    "description": "",
+    "enabled": true,
+    "group": "",
+    "max_running_time_hours": 1,
+    "name": "infinit_loop",
+    "shell_scripts": [],
+    "task_id": "infinit_loop"
+}
+```
+
+### Add max_running_time_hours to config files:
+```bash
+python3 add_max_running_time.py example.json 24
+```
+
 
 ## Notifications
 
@@ -94,7 +115,7 @@ after a while and causes `task scheduler` component to block the web interface's
 There is an [issue](https://github.com/KosyanMedia/ereb/issues/41) already opened up about this
 problem, but until it is resolved you can try cleaning up your `task_runs` table.
 
-To clean up all history data for task runs older than a month, simply log into `sqlite3` (assuming 
+To clean up all history data for task runs older than a month, simply log into `sqlite3` (assuming
 your database file has a standard `var/ereb.db` location):
 
 ```

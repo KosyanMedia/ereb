@@ -27,6 +27,12 @@ class TasksScheduler():
         self.tasks_list = new_config
         return result
 
+    def get_task_config(self, name):
+        for config in self.tasks_list:
+            if config['name'] == name:
+                return config
+        return None
+
     def start(self):
         self.config_checking_loop = PeriodicCallback(self.check_config, 1000)
         self.config_checking_loop.start()

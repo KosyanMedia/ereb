@@ -4,13 +4,14 @@ import psutil
 from tornado.ioloop import PeriodicCallback
 import logging
 import re
+import datetime
 
 from lib.tasks_scheduler import TasksScheduler
 from lib.fusion_history_storage import FusionHistoryStorage
 from lib.task_run import TaskRun
 from lib.notifier import Notifier
 from os.path import isfile
-import time
+
 
 class TaskController():
     SHELL_SCRIPT_RE = r'(\S+\.(sh|rb|py))'
@@ -30,12 +31,15 @@ class TaskController():
         self.task_scheduler = TasksScheduler(tasks_dir=tasks_dir,
             history_storage=self.history_storage,
             notifier=self.notifier)
-        self.check_dead_processes()
-        self.process_checking_loop = PeriodicCallback(self.check_dead_processes, 10000)
+        self.check_processes()
+        self.process_checking_loop = PeriodicCallback(self.check_processes, 10000)
         self.process_checking_loop.start()
 
-    def running_pids(self):
-        return [x['pid'] for x in self.history_storage.get_currently_running_tasks()]
+    def shutdown_tasks(self, tasks=None):
+        tasks = tasks or self.history_storage.get_currently_running_tasks()
+        for task_state in tasks:
+            task_run = TaskRun.from_state(task_state)
+            task_run.shutdown()
 
     def update_config(self):
         return self.task_scheduler.update_config()
@@ -52,15 +56,22 @@ class TaskController():
     def get_status(self):
         return self.task_scheduler.get_status()
 
-    def check_dead_processes(self):
-        logging.info('Checking dead processes')
+    def check_processes(self):
+        logging.info('Checking processes')
         for currently_running_task in self.history_storage.get_currently_running_tasks():
             task_run = TaskRun.from_state(currently_running_task)
 
             if 'pid' in task_run.state:
                 if task_run.state['pid'] != 'None':
                     if psutil.pid_exists(task_run.state['pid']):
-                        logging.info('Task %s with run %s is alive', task_run.task_id, task_run.id)
+                        task_config = self.task_scheduler.get_task_config(task_run.task_id)
+                        max_running_time = task_config.get('max_running_time_hours')
+                        if max_running_time and task_run.started_at() + datetime.timedelta(hours=max_running_time) <= datetime.datetime.utcnow():
+                            task_run.shutdown()
+                            logging.info('Task %s with run %s is killed', task_run.task_id, task_run.id)
+                            self.history_storage.finalize_task_run(task_run)
+                        else:
+                            logging.info('Task %s with run %s is alive', task_run.task_id, task_run.id)
                     else:
                         logging.info('Task %s with run %s is dead already; finalized', task_run.task_id, task_run.id)
                         self.history_storage.finalize_task_run(task_run)

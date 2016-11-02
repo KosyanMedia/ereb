@@ -7,13 +7,17 @@ parser.add_argument("max_running_hours", help="In hours", type=int)
 args = parser.parse_args()
 
 f = open(args.config_name, 'r')
-task_config = json.loads(f.read())
+task_config = json.load(f)
 if isinstance(task_config, list):
     for config in task_config:
         config['max_running_time_hours'] = args.max_running_hours
 else:
-    task_config['max_running_time_hours'] = args.max_running_hours
+    if isinstance(list(task_config.values())[0], dict):
+        for config in task_config.values():
+            config['max_running_time_hours'] = args.max_running_hours
+    else:
+        task_config['max_running_time_hours'] = args.max_running_hours
 f.close()
 f = open(args.config_name, 'r+')
-json.dump(task_config, f)
-print(task_config)
+json.dump(task_config, f, sort_keys=True, indent=2)
+print(json.dumps(task_config, sort_keys=True, indent=2))

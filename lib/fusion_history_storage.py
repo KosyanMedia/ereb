@@ -1,11 +1,10 @@
 import os
-import json
 import glob
-import re
 import logging
 import shutil
 import sqlite3
 import time
+
 
 class FusionHistoryStorage():
     ### Fusion means both file (stdout and stderr) and sqlite storage
@@ -25,11 +24,8 @@ class FusionHistoryStorage():
         "CREATE INDEX IF NOT EXISTS started_at_exit_code ON task_runs (started_at, exit_code);"
     ]
 
-
-
     COLUMNS = ['task_run_id', 'started_at', 'finished_at', 'task_id',
         'pid', 'exit_code']
-
 
     def __init__(self, storage_dir="./var"):
         self.storage_dir = storage_dir
@@ -112,7 +108,7 @@ class FusionHistoryStorage():
             order by duration_avg desc;
         ''', columns)
 
-        logging.warn('FusionHistoryStorage :: get_task_stats_for_dashboard sql time %s', time.time() - start_time)
+        logging.warning('FusionHistoryStorage :: get_task_stats_for_dashboard sql time %s', time.time() - start_time)
         # Sqlite3 is single threaded in it takes fucking LONG time to execute 4 queries one by one
         # that's why
         # this query is ugly, single and works 4x time faster than previous
@@ -151,7 +147,6 @@ class FusionHistoryStorage():
             stats_by_task_id[task['task_id']] = task
 
         return stats_by_task_id
-
 
     def get_detailed_task_run_info(self, task_id, task_run_id):
         task_run = {}

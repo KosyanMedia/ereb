@@ -30,15 +30,15 @@ to generate tasks from your crontab file.
 
 ```json
 {
-    "cmd": "while :; do echo 'Hit CTRL+C'; sleep 1; done",
-    "cron_schedule": "* * * * *",
-    "description": "",
-    "enabled": true,
-    "group": "",
-    "max_running_time_hours": 1,
-    "name": "infinit_loop",
-    "shell_scripts": [],
-    "task_id": "infinit_loop"
+  "cmd": "while :; do echo 'Hit CTRL+C'; sleep 1; done",
+  "cron_schedule": "* * * * *",
+  "description": "",
+  "enabled": true,
+  "group": "",
+  "max_running_time_hours": 1,
+  "name": "infinit_loop",
+  "shell_scripts": [],
+  "task_id": "infinit_loop"
 }
 ```
 

@@ -1,4 +1,3 @@
-import os.path
 from tornado.ioloop import IOLoop
 import tornado.web
 from lib.tasks_controller import TaskController
@@ -8,8 +7,8 @@ from tornado import websocket
 import subprocess
 from functools import partial
 import sys
-import psutil
 import signal
+
 
 class SocketHandler(websocket.WebSocketHandler):
     def initialize(self, task_controller, websocket_clients):
@@ -27,6 +26,7 @@ class SocketHandler(websocket.WebSocketHandler):
     def on_close(self):
         websocket_clients.remove(self)
         logging.info('WebSocket closed, clients: %s' % len(self.websocket_clients))
+
 
 class TasksHandler(tornado.web.RequestHandler):
     def initialize(self, task_controller):
@@ -88,6 +88,8 @@ class TasksHandler(tornado.web.RequestHandler):
 
     def delete(self, task_id, action, task_run_id):
         result = '404'
+        config = json.loads(self.request.body.decode())
+
         if task_id == '' and action == '':
             self.raise_404('Unknown route')
         elif task_id != '':
@@ -150,6 +152,7 @@ class RunnerHandler(tornado.web.RequestHandler):
             self.set_header('Access-Control-Allow-Origin', '*')
             self.write('Success')
 
+
 def shutdown(shutdown_tasks, *args):
     logging.info("shutting down...")
     shutdown_tasks()
@@ -168,7 +171,7 @@ if __name__ == "__main__":
     tornado.options.parse_command_line()
 
     try:
-        ereb_version = subprocess.check_output(["git", "describe"]).decode('utf-8').replace('\n','')
+        ereb_version = subprocess.check_output(["git", "describe"]).decode('utf-8').replace('\n', '')
     except Exception:
         ereb_version = 'Unknown version'
         logging.error("Error fetching ereb version from git describe")
@@ -191,7 +194,6 @@ if __name__ == "__main__":
     except Exception as e:
         logging.info('You can use Slack notifier by create notifier.json')
         notifier_config = {}
-
 
     websocket_clients = []
 

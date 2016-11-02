@@ -11,7 +11,7 @@ from lib.fusion_history_storage import FusionHistoryStorage
 from lib.task_run import TaskRun
 from lib.notifier import Notifier
 from os.path import isfile
-import time
+
 
 class TaskController():
     SHELL_SCRIPT_RE = r'(\S+\.(sh|rb|py))'

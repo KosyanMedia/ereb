@@ -64,14 +64,7 @@ class TaskController():
             if 'pid' in task_run.state:
                 if task_run.state['pid'] != 'None':
                     if psutil.pid_exists(task_run.state['pid']):
-                        task_config = self.task_scheduler.get_task_config(task_run.task_id)
-                        max_running_time = task_config.get('max_running_time_hours')
-                        if max_running_time and task_run.started_at() + datetime.timedelta(hours=max_running_time) <= datetime.datetime.utcnow():
-                            task_run.shutdown()
-                            logging.info('Task %s with run %s is killed', task_run.task_id, task_run.id)
-                            self.history_storage.finalize_task_run(task_run)
-                        else:
-                            logging.info('Task %s with run %s is alive', task_run.task_id, task_run.id)
+                        logging.info('Task %s with run %s is alive', task_run.task_id, task_run.id)
                     else:
                         logging.info('Task %s with run %s is dead already; finalized', task_run.task_id, task_run.id)
                         self.history_storage.finalize_task_run(task_run)
@@ -154,7 +147,7 @@ class TaskController():
     def run_task_by_task_id(self, task_id):
         task = self.get_task_by_id(task_id)
         logging.info('MANUAL RUN | Running %s task' % task['name'])
-        self.task_scheduler.run_task_by_name_and_cmd(task['name'], task['cmd'])
+        self.task_scheduler.run_task_by_name_and_cmd(task['name'], task['cmd'], task.get('timeout', -1))
 
     def get_tasks_config(self):
         return self.task_scheduler.get_tasks_config()

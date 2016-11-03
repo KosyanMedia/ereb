@@ -46,10 +46,10 @@ class TasksScheduler():
         self.is_task_loop_running = False
         self.planned_task_run_uuids = []
 
-    def run_task_by_name_and_cmd(self, name, cmd):
+    def run_task_by_name_and_cmd(self, name, cmd, timeout):
         logging.info('Manual run | Running %s task' % name)
         # try:
-        TaskRunner(name, self.history_storage, self.notifier).run_task(cmd)
+        TaskRunner(name, self.history_storage, self.notifier).run_task(cmd, timeout)
         # except Exception as e:
         # logging.error('Manual task run error. %s' % e)
 
@@ -124,8 +124,8 @@ class TasksScheduler():
                     logging.info('Now running %s tasks' % len(next_tasks))
                     for task in next_tasks:
                         try:
-                            logging.info('Running %s task' % task['name'])
-                            TaskRunner(task['name'], self.history_storage, self.notifier).run_task(task['cmd'])
+                            logging.info('Running %s task with timeout %s', task['name'], task.get('timeout', -1))
+                            TaskRunner(task['name'], self.history_storage, self.notifier).run_task(task['cmd'], task.get('timeout', -1))
                         except Exception as e:
                             logging.exception('Scheduled task run error')
                     self.planned_task_run_uuids.remove(task_run_uuid)

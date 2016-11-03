@@ -35,16 +35,16 @@ to generate tasks from your crontab file.
   "description": "",
   "enabled": true,
   "group": "",
-  "max_running_time_hours": 1,
+  "timeout": 10,
   "name": "infinit_loop",
   "shell_scripts": [],
   "task_id": "infinit_loop"
 }
 ```
 
-### Add max_running_time_hours to config files:
+### Add timeout to config files:
 ```bash
-python3 add_max_running_time.py example.json 24
+python3 add_timeout_to_config.py example.json 24
 ```
 
 

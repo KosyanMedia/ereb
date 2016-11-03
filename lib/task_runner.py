@@ -10,8 +10,8 @@ class TaskRunner():
         self.history_storage = history_storage
         self.notifier = notifier
 
-    def run_task(self, cmd):
-        logging.info("Runner started, %s" % self.taskname)
+    def run_task(self, cmd, timeout=-1):
+        logging.info("Runner started, %s with timeout %s", self.taskname, timeout)
         logging.info("Command: %s" % cmd)
 
         if not self.history_storage.task_valid_to_run(self.taskname):
@@ -21,7 +21,7 @@ class TaskRunner():
         self.history_storage.prepare_task_run(self.task_run)
         self.history_storage.update_state_for_task_run(self.task_run)
 
-        self.proc = AASubprocess(cmd, -1, self.chunk_stdout, self.chunk_stderr, self.done_callback)
+        self.proc = AASubprocess(cmd, timeout, self.chunk_stdout, self.chunk_stderr, self.done_callback, kill_on_timeout=True)
         self.task_run.state['pid'] = self.proc.pid
         self.history_storage.update_state_for_task_run(self.task_run)
 

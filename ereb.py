@@ -88,7 +88,6 @@ class TasksHandler(tornado.web.RequestHandler):
 
     def delete(self, task_id, action, task_run_id):
         result = '404'
-        config = json.loads(self.request.body.decode())
 
         if task_id == '' and action == '':
             self.raise_404('Unknown route')

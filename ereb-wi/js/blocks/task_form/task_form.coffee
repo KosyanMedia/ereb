@@ -27,21 +27,26 @@ class TaskForm
     for el in document.querySelectorAll('[data-role="shell_script"]')
       HightlighJS.highlightBlock(el)
 
+  submitTaskForm: (callback) ->
+    data =
+      cron_schedule: $('#cron_schedule').val()
+      cmd: $('#cmd').val()
+      description: $('#description').val()
+      group: $('#group').val()
+      try_more_on_error: $('#try_more_on_error').is(':checked')
+
+    @updateTask @taskId, data, (update_status) =>
+      @data.notification =
+      success: update_status == true
+      @data.config = data if update_status
+      @template.update @data
+      delete @data.notification
+      callback() if callback
+
   initEvents: () ->
     @template.on 'submit', '#task_form', (e) =>
       e.preventDefault()
-      data =
-        cron_schedule: $('#cron_schedule').val()
-        cmd: $('#cmd').val()
-        description: $('#description').val()
-        group: $('#group').val()
-
-      @updateTask @taskId, data, (update_status) =>
-        @data.notification =
-          success: update_status == true
-        @data.config = data if update_status
-        @template.update @data
-        delete @data.notification
+      @submitTaskForm()
 
     @template.on 'click', '#task_form__delete', (e) =>
       e.preventDefault()
@@ -50,8 +55,9 @@ class TaskForm
 
     @template.on 'click', '#task_form__manual_run', (e) =>
       e.preventDefault()
-      @runTask @taskId, =>
-        @render(@taskId)
+      @submitTaskForm =>
+        @runTask @taskId, =>
+          @render(@taskId)
 
     @template.on 'click', '#task_form__enabled_button', (e) =>
       e.preventDefault()

@@ -41,4 +41,4 @@ class TaskRunner():
 
         if return_code != 0:
             self.on_error_callback(self.taskname, return_code)
-            # self.notifier.send_failed_task_run(self.task_run)
+            self.notifier.send_failed_task_run(self.task_run)

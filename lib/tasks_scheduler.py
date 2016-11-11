@@ -23,7 +23,7 @@ class TasksScheduler():
         self.planned_task_run_uuids = []
         self.try_after_fail_tasks = {}
         self.try_after_fail_tries_count = 2
-        self.try_after_fail_interval = 5 # 6
+        self.try_after_fail_interval = 60 # 6
         self.task_queue_by_timestamp = {}
         self.update_config()
 

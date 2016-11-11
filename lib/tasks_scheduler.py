@@ -20,8 +20,9 @@ class TasksScheduler():
         self.is_task_loop_running = False
         self.planned_task_run_uuids = []
         self.try_after_fail_tasks = {}
-        self.try_after_fail_tries_count = 5
+        self.try_after_fail_tries_count = 2
         self.try_after_fail_interval = 10 # 6
+        self.task_queue_by_timestamp = {}
         self.update_config()
 
     def update_config(self):
@@ -51,14 +52,30 @@ class TasksScheduler():
 
     def run_task_by_name_and_cmd(self, name, cmd, timeout):
         logging.info('Manual run | Running %s task' % name)
-        # try:
-        TaskRunner(name, self.history_storage, self.notifier, self.on_task_fail_callback).run_task(cmd, timeout)
-        # except Exception as e:
-        # logging.error('Manual task run error. %s' % e)
+        try:
+            TaskRunner(name, self.history_storage, self.notifier, self.on_task_fail_callback).run_task(cmd, timeout)
+        except Exception as e:
+            logging.error('Manual task run error. %s' % e)
 
     def on_task_fail_callback(self, task_id, return_code):
-        logging.info('ON_ERROR_CALLBACK' + task_id)
+        if task_id in self.try_after_fail_tasks:
+            self.try_after_fail_tasks[task_id] -= 1
+            if self.try_after_fail_tasks[task_id] == 0:
+                # no more tries
+                self.try_after_fail_tasks.pop(task_id)
+                self.reschedule_tasks()
+            else:
+                next_run = time.time() + self.try_after_fail_interval
+                self.task_queue_by_timestamp[next_run] = [task_id]
 
+                self.reschedule_tasks()
+        else:
+            self.try_after_fail_tasks[task_id] = self.try_after_fail_tries_count
+
+            next_run = time.time() + self.try_after_fail_interval
+            self.task_queue_by_timestamp[next_run] = [task_id]
+
+            self.reschedule_tasks()
 
     @gen.engine
     def check_config(self):
@@ -101,7 +118,7 @@ class TasksScheduler():
 
         return result
 
-    def get_status(self, ):
+    def get_status(self):
         result = {}
         if self.is_task_loop_running:
             result['state'] = 'running'
@@ -141,6 +158,7 @@ class TasksScheduler():
                     IOLoop.instance().add_callback(self.schedule_next_tasks)
                 else:
                     logging.info('Task run %s was cancelled' % task_run_uuid)
+            self.clean_task_queue_by_timestamp()
         else:
             logging.info("TaskRunner stopped")
 
@@ -149,13 +167,30 @@ class TasksScheduler():
         now = time.time()
 
         for task in self.tasks_list:
-            if task.get('enabled', False):
+            if task.get('enabled', False) and task.get('name') not in self.try_after_fail_tasks:
                 next = CronTab(task['cron_schedule']).next(now)
                 if next in tasks_by_schedule:
                     tasks_by_schedule[next].append(task)
                 else:
                     tasks_by_schedule[next] = [task]
+
+        for next_timestamp, tasks in self.task_queue_by_timestamp.items():
+            next = next_timestamp - time.time()
+            for task_id in tasks:
+                filtered_tasks = list(filter(lambda x: x['name'] == task_id, self.tasks_list))
+                if len(filtered_tasks) > 0:
+                    task = filtered_tasks[0]
+                    if next in tasks_by_schedule:
+                        tasks_by_schedule[next].append(task)
+                    else:
+                        tasks_by_schedule[next] = [task]
+
         if len(tasks_by_schedule) > 0:
             return sorted(tasks_by_schedule.items(), key=lambda x: x[0] )[0]
         else:
             return [0, []]
+
+    def clean_task_queue_by_timestamp(self):
+        for next_timestamp in list(self.task_queue_by_timestamp.keys()):
+            if time.time() > next_timestamp:
+                del self.task_queue_by_timestamp[next_timestamp]

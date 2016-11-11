@@ -14,8 +14,6 @@ from os.path import isfile
 
 
 class TaskController():
-    SHELL_SCRIPT_RE = r'(\S+\.(sh|rb|py))'
-
     def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger', notifier_host='hostname', websocket_clients=[], port=8888):
         self.tasks_dir = tasks_dir
         if not os.path.exists(self.tasks_dir):
@@ -97,24 +95,7 @@ class TaskController():
         return dashboard
 
     def get_task_by_id(self, task_id, with_extra_info=False):
-        for task in self.task_scheduler.tasks_list:
-            if task['name'] == task_id:
-                task['shell_scripts'] = []
-                if with_extra_info:
-                    task['shell_scripts'] = self.try_to_parse_task_shell_script(task['cmd'])
-                return task
-        return None
-
-    def try_to_parse_task_shell_script(self, cmd):
-        scripts = list(map(lambda x: x[0], re.findall(self.SHELL_SCRIPT_RE, cmd)))
-        def read_file(shell_script):
-            with open(shell_script, 'r', encoding='utf8') as content:
-                return { 'filename': shell_script, 'content': content.read() }
-        return_data = []
-        for script in scripts:
-            if isfile(script):
-                return_data.append(read_file(script))
-        return return_data
+        return self.task_scheduler.get_task_by_id(task_id, with_extra_info)
 
     def set_task_by_id(self, task_id, task_config):
         # try to update task first

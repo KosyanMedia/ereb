@@ -12,11 +12,13 @@ from lib.task_runner import TaskRunner
 
 
 class TasksScheduler():
+    SHELL_SCRIPT_RE = r'(\S+\.(sh|rb|py))'
+
     def __init__(self, tasks_dir, history_storage, notifier):
         self.tasks_dir = tasks_dir
         self.history_storage = history_storage
         self.notifier = notifier
-        self.tasks_list = {}
+        self.tasks_list = []
         self.is_task_loop_running = False
         self.planned_task_run_uuids = []
         self.try_after_fail_tasks = {}
@@ -59,11 +61,12 @@ class TasksScheduler():
 
     def on_task_fail_callback(self, task_id, return_code):
         def add_failed_task_to_queue(task_id):
-            next_run = time.time() + self.try_after_fail_interval
-            if next_run in self.task_queue_by_timestamp:
-                self.task_queue_by_timestamp[next_run].append(task_id)
-            else:
-                self.task_queue_by_timestamp[next_run] = [task_id]
+            if self.get_task_by_id(task_id).get('try_more_on_error', False):
+                next_run = time.time() + self.try_after_fail_interval
+                if next_run in self.task_queue_by_timestamp:
+                    self.task_queue_by_timestamp[next_run].append(task_id)
+                else:
+                    self.task_queue_by_timestamp[next_run] = [task_id]
 
         if task_id in self.try_after_fail_tasks:
             self.try_after_fail_tasks[task_id] -= 1
@@ -180,20 +183,40 @@ class TasksScheduler():
         for next_timestamp, tasks in self.task_queue_by_timestamp.items():
             next = next_timestamp - time.time()
             for task_id in tasks:
-                filtered_tasks = list(filter(lambda x: x['name'] == task_id, self.tasks_list))
-                if len(filtered_tasks) > 0:
-                    task = filtered_tasks[0]
-                    if next in tasks_by_schedule:
-                        tasks_by_schedule[next].append(task)
-                    else:
-                        tasks_by_schedule[next] = [task]
+                task = self.get_task_by_id(task_id, False)
+                if next in tasks_by_schedule:
+                    tasks_by_schedule[next].append(task)
+                else:
+                    tasks_by_schedule[next] = [task]
 
         if len(tasks_by_schedule) > 0:
             return sorted(tasks_by_schedule.items(), key=lambda x: x[0] )[0]
         else:
             return [0, []]
 
+    def get_task_by_id(self, task_id, with_extra_info=False):
+        for task in self.tasks_list:
+            if task['name'] == task_id:
+                task['shell_scripts'] = []
+                if with_extra_info:
+                    task['shell_scripts'] = self.try_to_parse_task_shell_script(task['cmd'])
+
+                return task
+
+        return None
+
     def clean_task_queue_by_timestamp(self):
         for next_timestamp in list(self.task_queue_by_timestamp.keys()):
             if time.time() > next_timestamp:
                 del self.task_queue_by_timestamp[next_timestamp]
+
+    def try_to_parse_task_shell_script(self, cmd):
+        scripts = list(map(lambda x: x[0], re.findall(self.SHELL_SCRIPT_RE, cmd)))
+        def read_file(shell_script):
+            with open(shell_script, 'r', encoding='utf8') as content:
+                return { 'filename': shell_script, 'content': content.read() }
+        return_data = []
+        for script in scripts:
+            if isfile(script):
+                return_data.append(read_file(script))
+        return return_data

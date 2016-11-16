@@ -1,0 +1,5 @@
+#!/bin/sh
+SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_NAME="$SCRIPTPATH/ereb.py"
+
+/bin/bash -c "cd $SCRIPTPATH && python3 ereb.py"

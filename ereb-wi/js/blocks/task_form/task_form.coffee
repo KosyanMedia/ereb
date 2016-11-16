@@ -37,7 +37,8 @@ class TaskForm
 
     @updateTask @taskId, data, (update_status) =>
       @data.notification =
-      success: update_status == true
+        success: update_status == true
+      data.enabled = @data.config.enabled
       @data.config = data if update_status
       @template.update @data
       delete @data.notification

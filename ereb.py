@@ -8,6 +8,7 @@ import subprocess
 from functools import partial
 import sys
 import signal
+import pkg_resources
 
 
 class SocketHandler(websocket.WebSocketHandler):
@@ -172,11 +173,7 @@ if __name__ == "__main__":
 
     tornado.options.parse_command_line()
 
-    try:
-        ereb_version = subprocess.check_output(["git", "describe"]).decode('utf-8').replace('\n', '')
-    except Exception:
-        ereb_version = 'Unknown version'
-        logging.error("Error fetching ereb version from git describe")
+    ereb_version = version = pkg_resources.require("ereb")[0].version
 
     default_wi_config = """
         window.DEFAULT_CONFIG = {}

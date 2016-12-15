@@ -2,16 +2,20 @@ FROM centos:7
 MAINTAINER Dmitry Kuzmenkov <dmitry@wagh.ru>
 
 ARG USER_ID=1000
-RUN useradd -u $USER_ID box && localedef -c -i en_US -f UTF-8 en_US.UTF-8
+
+RUN useradd -u $USER_ID box && \
+  yum -y install glibc-common && \
+  localedef -i en_US -f UTF-8 en_US.UTF-8 && \
+  yum -y install gcc gcc-c++ make zlib zlib-devel openssl openssl-devel \
+  libxml2 libxml2-devel libxslt libxslt-devel sqlite3 sqlite-devel file && \
+  yum -y clean all && \
+  { for i in /var/lib/yum/yumdb/*/*/checksum_type ; do mv $i $i.old ; cat $i.old > $i ; rm -f $i.old ; done }
+
 ENV LANGUAGE=en_US:en \
   LANG=en_US.UTF-8 \
   LC_ALL=en_US.UTF-8 \
   PYTHONPATH=/home/box/yasen \
   PYTHONIOENCODING=UTF-8
-
-RUN yum -y install gcc gcc-c++ make zlib zlib-devel openssl openssl-devel \
-  libxml2 libxml2-devel libxslt libxslt-devel sqlite3 sqlite-devel && \
-  yum -y clean all
 
 RUN curl -sS https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tgz > python.tgz && \
   gunzip python.tgz && tar xf python.tar && \

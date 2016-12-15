@@ -9,7 +9,7 @@ RUN useradd -u $USER_ID box && \
   yum -y install gcc gcc-c++ make zlib zlib-devel openssl openssl-devel \
   libxml2 libxml2-devel libxslt libxslt-devel sqlite3 sqlite-devel file && \
   yum -y clean all && \
-  { for i in /var/lib/yum/yumdb/*/*/* ; do mv $i $i.old ; cat $i.old > $i ; rm -f $i.old ; done } && \
+  { for i in /var/lib/yum/yumdb/*/*/* ; do mv $i $i.old ; cat $i.old > $i ; rm -f $i.old ; done }
 
 ENV LANGUAGE=en_US:en \
   LANG=en_US.UTF-8 \

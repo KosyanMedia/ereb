@@ -69,20 +69,22 @@ class TasksScheduler():
                 else:
                     self.task_queue_by_timestamp[next_run] = [task_id]
 
-        if task_id in self.try_after_fail_tasks:
-            self.try_after_fail_tasks[task_id] -= 1
-            if self.try_after_fail_tasks[task_id] == 0:
-                # no more tries
-                self.try_after_fail_tasks.pop(task_id)
-                self.reschedule_tasks()
+        task = self.get_task_by_id(task_id, False)
+        if task and task.get('try_more_on_error', False):
+            if task_id in self.try_after_fail_tasks:
+                self.try_after_fail_tasks[task_id] -= 1
+                if self.try_after_fail_tasks[task_id] == 0:
+                    # no more tries
+                    self.try_after_fail_tasks.pop(task_id)
+                    self.reschedule_tasks()
+                else:
+                    add_failed_task_to_queue(task_id)
+                    self.reschedule_tasks()
             else:
+                self.try_after_fail_tasks[task_id] = self.try_after_fail_tries_count
+
                 add_failed_task_to_queue(task_id)
                 self.reschedule_tasks()
-        else:
-            self.try_after_fail_tasks[task_id] = self.try_after_fail_tries_count
-
-            add_failed_task_to_queue(task_id)
-            self.reschedule_tasks()
 
     @gen.engine
     def check_config(self):

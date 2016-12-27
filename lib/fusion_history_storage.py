@@ -88,22 +88,16 @@ class FusionHistoryStorage():
         return result
 
     def get_task_stats_for_dashboard(self):
-        columns = ['task_id', 'duration_avg', 'duration_avg_today', 'fails', 'fails_today']
+        columns = ['task_id', 'duration_avg', 'fails']
         start_time = time.time()
         failed_tasks = self.select_to_dict('''
         select
             task_id,
             round(avg(strftime('%s', finished_at) - strftime('%s', started_at)), 2) as duration_avg,
-
-            coalesce((sum(case when started_at > datetime('now', '-1 day') then strftime('%s', finished_at) else 0 end)
-              - sum(case when started_at > datetime('now', '-1 day') then strftime('%s', started_at) else 0 end))
-              / sum(case when started_at > datetime('now', '-1 day') then 1 else 0 end), 0) as duration_avg_today,
-
-            sum(case when exit_code != 0 then 1 else 0 end) as fails,
-            sum(case when exit_code != 0 and started_at > datetime('now', '-1 day') then 1 else 0 end) as fails_today
+            sum(case when exit_code != 0 then 1 else 0 end) as fails
 
         from task_runs
-            where started_at > datetime('now', '-1 month')
+            where started_at > datetime('now', '-1 day')
             group by task_id
             order by duration_avg desc;
         ''', columns)
@@ -114,10 +108,8 @@ class FusionHistoryStorage():
         # this query is ugly, single and works 4x time faster than previous
 
         result = {}
-        result['slow_tasks_for_month'] = failed_tasks[:5]
-        result['slow_tasks_for_day'] = sorted(failed_tasks, key=lambda x: x['duration_avg_today'], reverse=True)[:5]
-        result['failed_tasks_for_month'] = sorted(failed_tasks, key=lambda x: x['fails'], reverse=True)[:5]
-        result['failed_tasks_for_day'] = sorted(failed_tasks, key=lambda x: x['fails_today'], reverse=True)[:5]
+        result['slow_tasks'] = failed_tasks[:5]
+        result['failed_tasks'] = sorted(failed_tasks, key=lambda x: x['fails'], reverse=True)[:5]
 
         return result
 

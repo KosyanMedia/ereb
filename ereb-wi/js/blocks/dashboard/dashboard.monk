@@ -29,27 +29,13 @@
       <h4> Top5 failed tasks </h4>
       <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active"><a class="js-tabs" href="#dashboard_failed_tasks_day" aria-controls="dashboard_failed_tasks_day" role="tab" data-toggle="tab"> last 24h</a></li>
-        <li role="presentation"><a class="js-tabs" href="#dashboard_failed_tasks_month" aria-controls="dashboard_failed_tasks_month" role="tab" data-toggle="tab"> last month </a></li>
       </ul>
       <br>
       <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="dashboard_failed_tasks_day">
           <table class="table">
             <tbody>
-              {% for failed_tasks_for_day %}
-                <tr>
-                  <td> <a href="/#/tasks/{{ task_id }}"> {{ task_id }} </a> </td>
-                  <td> <b> {{ fails_today }}</b> </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-
-        <div role="tabpanel" class="tab-pane" id="dashboard_failed_tasks_month">
-          <table class="table">
-            <tbody>
-              {% for failed_tasks_for_month %}
+              {% for failed_tasks %}
                 <tr>
                   <td> <a href="/#/tasks/{{ task_id }}"> {{ task_id }} </a> </td>
                   <td> <b> {{ fails }}</b> </td>
@@ -64,7 +50,6 @@
       <h4> Top5 slow tasks </h4>
       <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active"><a class="js-tabs active" href="#dashboard_slow_tasks_day" aria-controls="dashboard_slow_tasks_day" role="tab" data-toggle="tab"> last 24h</a></li>
-        <li role="presentation"><a class="js-tabs" href="#dashboard_slow_tasks_month" aria-controls="dashboard_slow_tasks_month" role="tab" data-toggle="tab"> last month </a></li>
       </ul>
 
       <br>
@@ -72,28 +57,16 @@
         <div role="tabpanel" class="tab-pane active" id="dashboard_slow_tasks_day">
           <table class="table">
             <tbody>
-              {% for slow_tasks_for_day %}
+              {% for slow_tasks %}
                 <tr>
                   <td> <a href="/#/tasks/{{ task_id }}"> {{ task_id }} </a> </td>
-                  <td><abbr title="{{duration_avg_today}} s"> {{ duration_avg_today | humanize_time }} </abbr></td>
+                  <td><abbr title="{{duration_avg}} s"> {{ duration_avg | humanize_time }} </abbr></td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
 
-        <div role="tabpanel" class="tab-pane" id="dashboard_slow_tasks_month">
-          <table class="table">
-            <tbody>
-              {% for slow_tasks_for_month %}
-                <tr>
-                  <td> <a href="/#/tasks/{{ task_id }}"> {{ task_id }} </a> </td>
-                  <td> <abbr title="{{duration_avg}} s"> {{ duration_avg | humanize_time}} </abbr> </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
   </div>

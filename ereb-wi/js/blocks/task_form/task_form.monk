@@ -115,7 +115,7 @@
               {% if finished_at != 'None' %}
                 {{ exit_code == 0 ? 'Success' : 'Fail' }}
               {% else %}
-                pid: {{ pid }}
+                <button id="task_form__task_run_kill" class="btn btn-danger"> Kill </button>
               {% endif %}
             </td>
             <td> <a href="#/tasks/{{ task_id }}/runs/{{ task_run_id }}"> More </a> </td>

@@ -67,6 +67,11 @@ class TaskForm
       @updateTask @taskId, data, =>
         @render(@taskId)
 
+    @template.on 'click', '#task_form__task_run_kill', (e) =>
+      e.preventDefault()
+      @killTask @taskId, =>
+        @render(@taskId)
+
     @template.on 'change', '#cron_schedule', (e) =>
       @data.config.cron_schedule = $('#cron_schedule').val()
       @template.update @data
@@ -76,6 +81,11 @@ class TaskForm
     promise = $.post url, JSON.stringify(data)
     promise.done (response) => callback(true)
     promise.fail (response) => callback(false)
+
+  killTask: (taskId, callback) ->
+    url = [window.SERVER_HOST, 'tasks', taskId, 'shutdown'].join('/')
+    promise = $.get url
+    promise.done (response) => callback()
 
   deleteTask: (taskId, callback) ->
     url = [window.SERVER_HOST, 'tasks', taskId].join('/')

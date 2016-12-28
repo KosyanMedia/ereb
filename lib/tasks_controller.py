@@ -39,6 +39,9 @@ class TaskController():
             task_run = TaskRun.from_state(task_state)
             task_run.shutdown()
 
+    def shutdown_run_for_task_id(self, task_id):
+        TaskRun(task_id).shutdown()
+
     def update_config(self):
         return self.task_scheduler.update_config()
 

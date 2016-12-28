@@ -16,8 +16,14 @@ def kill_pid(pid, sig=signal.SIGTERM):
             process.send_signal(sig)
         except ProcessLookupError:
             continue
-        logging.info("couldn't kill process by TERM signal, let's start use KILL")
-        process.send_signal(signal.SIGKILL)
+        except psutil.NoSuchProcess:
+            continue
+
+        try:
+            logging.info("couldn't kill process by TERM signal, let's start use KILL")
+            process.send_signal(signal.SIGKILL)
+        except psutil.NoSuchProcess:
+            return
 
 
 class TaskRun():

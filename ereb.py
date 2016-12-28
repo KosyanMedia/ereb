@@ -51,6 +51,9 @@ class TasksHandler(tornado.web.RequestHandler):
             elif action == 'run':
                 self.task_controller.run_task_by_task_id(task_id)
                 result = 'task_run'
+            elif action == 'shutdown':
+                self.task_controller.shutdown_run_for_task_id(task_id)
+                result = 'task %s killed' % task_id
             elif action == 'task_runs' and task_run_id != '':
                 detailed_task_run = self.task_controller.get_detailed_task_run_info(task_id, task_run_id)
                 if not detailed_task_run:

@@ -54,7 +54,7 @@ for line in sys.stdin.readlines():
                         path = options.output_dir + '/%s.json' % task_name
 
                     f = open(options.output_dir + '/%s.json' % task_name, 'w')
-                    f.write(json.dumps(task_config))
+                    f.write(json.dumps(task_config, sort_keys=True, indent=4))
                     f.close()
                     logging.warn('Successfully generated  %s/%s.json' % (options.output_dir,task_name))
         except Exception as e:

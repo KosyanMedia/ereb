@@ -111,7 +111,7 @@ class TaskController():
             task_config = task
 
         f = open(self.tasks_dir + '/%s.json' % task_id, 'w')
-        f.write(json.dumps(task_config))
+        f.write(json.dumps(task_config, sort_keys=True, indent=4))
         f.close()
         self.task_scheduler.reschedule_tasks()
         return True

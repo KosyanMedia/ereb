@@ -33,6 +33,7 @@ class TaskForm
       cmd: $('#cmd').val()
       description: $('#description').val()
       group: $('#group').val()
+      timeout: $('#timeout').val()
       try_more_on_error: $('#try_more_on_error').is(':checked')
 
     @updateTask @taskId, data, (update_status) =>

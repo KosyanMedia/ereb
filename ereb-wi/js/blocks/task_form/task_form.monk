@@ -36,8 +36,13 @@
       </div>
       <div class="form-group">
         <label for="group"> Group </label>
-        <input type="text" class="form-control" id="group"
+        <input type="text" class="form-control task_form__group" id="group"
           value="{{ config.group || '' }}" placeholder="Group">
+      </div>
+      <div class="form-group">
+        <label for="timeout"> Timeout (seconds, default 21600 == 6 hours, -1 for unlimited) </label>
+        <input type="text" class="form-control task_form__timeout" id="timeout"
+          value="{{ config.timeout || '21600' }}" placeholder="Timeout (seconds)">
       </div>
       <div class="form-group">
         <label for="description"> Description </label>

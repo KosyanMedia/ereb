@@ -14,6 +14,7 @@ class TaskRunner():
     def run_task(self, cmd, timeout=-1):
         logging.info("Runner started, %s with timeout %s", self.taskname, timeout)
         logging.info("Command: %s" % cmd)
+        timeout = int(timeout)
 
         if not self.history_storage.task_valid_to_run(self.taskname):
             raise FileExistsError('%s task is in progress' % self.taskname)

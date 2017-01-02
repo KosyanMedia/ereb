@@ -40,7 +40,10 @@ class TaskController():
             task_run.shutdown()
 
     def shutdown_run_for_task_id(self, task_id):
-        TaskRun(task_id).shutdown()
+        tasks = self.history_storage.get_currently_running_tasks()
+        for task_state in tasks:
+            if task_state['task_id'] == task_id:
+                TaskRun.from_state(task_state).shutdown()
 
     def update_config(self):
         return self.task_scheduler.update_config()

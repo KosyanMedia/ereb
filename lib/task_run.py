@@ -24,6 +24,7 @@ def kill_pid(pid, sig=signal.SIGTERM):
             process.send_signal(signal.SIGKILL)
         except psutil.NoSuchProcess:
             return
+    parent.send_signal(sig)
 
 
 class TaskRun():

@@ -21,13 +21,12 @@ class SocketHandler(websocket.WebSocketHandler):
         return True
 
     def open(self):
-        pass
-        # websocket_clients.append(self)
-        # logging.info('WebSocket opened, clients: %s' % len(self.websocket_clients))
-        # self.write_message(self.task_controller.get_status())
+        self.websocket_clients.append(self)
+        logging.info('WebSocket opened, clients: %s' % len(self.websocket_clients))
+        self.write_message(self.task_controller.get_status())
 
     def on_close(self):
-        # websocket_clients.remove(self)
+        self.websocket_clients.remove(self)
         logging.info('WebSocket closed, clients: %s' % len(self.websocket_clients))
 
 

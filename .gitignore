@@ -5,7 +5,10 @@
 *.pyo
 *.pyc
 notifier.json
-/ereb-wi/default_config.js
+/ereb/ereb-wi/default_config.js
 /env
 /build/*
 /dist/*
+/ereb/etc
+/ereb/var
+/ereb.egg-info/PKG-INFO

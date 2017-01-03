@@ -1,3 +1,3 @@
 
-        window.DEFAULT_CONFIG = {'port': 8888, 'version': 'N/A'}
+        window.DEFAULT_CONFIG = {'version': 'N/A', 'port': 8888}
     

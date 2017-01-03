@@ -1,7 +1,7 @@
 import logging
 
-from task_run import TaskRun
-from aa_subprocess import AASubprocess
+from ereb.task_run import TaskRun
+from ereb.aa_subprocess import AASubprocess
 
 
 class TaskRunner():

@@ -7,10 +7,10 @@ import re
 import datetime
 from os.path import isfile
 
-from tasks_scheduler import TasksScheduler
-from fusion_history_storage import FusionHistoryStorage
-from task_run import TaskRun
-from notifier import Notifier
+from ereb.tasks_scheduler import TasksScheduler
+from ereb.fusion_history_storage import FusionHistoryStorage
+from ereb.task_run import TaskRun
+from ereb.notifier import Notifier
 
 
 class TaskController():

@@ -1,0 +1,4 @@
+
+      [console_scripts]
+      ereb = ereb.erebd:main
+      

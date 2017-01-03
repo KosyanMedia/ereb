@@ -8,8 +8,9 @@ from functools import partial
 import sys
 import signal
 import pkg_resources
+import os
 
-from tasks_controller import TaskController
+from ereb.tasks_controller import TaskController
 
 class SocketHandler(websocket.WebSocketHandler):
     def initialize(self, task_controller, websocket_clients):
@@ -20,12 +21,13 @@ class SocketHandler(websocket.WebSocketHandler):
         return True
 
     def open(self):
-        websocket_clients.append(self)
-        logging.info('WebSocket opened, clients: %s' % len(self.websocket_clients))
-        self.write_message(self.task_controller.get_status())
+        pass
+        # websocket_clients.append(self)
+        # logging.info('WebSocket opened, clients: %s' % len(self.websocket_clients))
+        # self.write_message(self.task_controller.get_status())
 
     def on_close(self):
-        websocket_clients.remove(self)
+        # websocket_clients.remove(self)
         logging.info('WebSocket closed, clients: %s' % len(self.websocket_clients))
 
 
@@ -163,11 +165,14 @@ def shutdown(shutdown_tasks, *args):
     sys.exit(0)
 
 if __name__ == "__main__":
+    main()
+
+def main():
     from tornado.options import define, options
     define("port", default=8888, type=int, help="port to listen on")
-    define("tasks_dir", default="./etc", type=str, help="directory with tasks config files")
-    define("history_dir", default="./var", type=str, help="directory for history storage")
-    define("notifier_config", default="./notifier.json", type=str, help="notifier json config")
+    define("tasks_dir", default=os.path.dirname(os.path.realpath(__file__)) + "/etc", type=str, help="directory with tasks config files")
+    define("history_dir", default=os.path.dirname(os.path.realpath(__file__)) + "/var", type=str, help="directory for history storage")
+    define("notifier_config", default=os.path.dirname(os.path.realpath(__file__)) + "/notifier.json", type=str, help="notifier json config")
     define("notify_to", default="logger", type=str, help="notifications channel")
     define("notifier_host", default="hostname", type=str, help="host for links in notifications")
 
@@ -183,7 +188,7 @@ if __name__ == "__main__":
         'version': ereb_version
     })
 
-    default_wi_config_path = './ereb-wi/default_config.js'
+    default_wi_config_path = os.path.dirname(os.path.realpath(__file__)) + '/ereb-wi/default_config.js'
 
     with open(default_wi_config_path, 'w') as f:
         f.write(default_wi_config)
@@ -215,7 +220,7 @@ if __name__ == "__main__":
         (r"/tasks/?([^/]*)/?([^/]*)/?([^/]*)$", TasksHandler, dict(task_controller=task_controller)),
         (r"/status/?(.*)$", RunnerHandler, dict(task_controller=task_controller)),
         (r'/ws', SocketHandler, dict(task_controller=task_controller, websocket_clients=websocket_clients)),
-        (r"/(.*)", tornado.web.StaticFileHandler, {"path": "./ereb-wi", "default_filename": "index.html"})
+        (r"/(.*)", tornado.web.StaticFileHandler, {"path": os.path.dirname(os.path.realpath(__file__)) + "/ereb-wi", "default_filename": "index.html"})
     ], gzip=True)
 
     signal.signal(signal.SIGTERM, partial(shutdown, task_controller.shutdown_tasks))

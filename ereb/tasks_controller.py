@@ -5,12 +5,12 @@ from tornado.ioloop import PeriodicCallback
 import logging
 import re
 import datetime
-
-from lib.tasks_scheduler import TasksScheduler
-from lib.fusion_history_storage import FusionHistoryStorage
-from lib.task_run import TaskRun
-from lib.notifier import Notifier
 from os.path import isfile
+
+from tasks_scheduler import TasksScheduler
+from fusion_history_storage import FusionHistoryStorage
+from task_run import TaskRun
+from notifier import Notifier
 
 
 class TaskController():

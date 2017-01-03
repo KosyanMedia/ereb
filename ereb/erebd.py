@@ -1,6 +1,5 @@
 from tornado.ioloop import IOLoop
 import tornado.web
-from lib.tasks_controller import TaskController
 import json
 import logging
 from tornado import websocket
@@ -10,6 +9,7 @@ import sys
 import signal
 import pkg_resources
 
+from tasks_controller import TaskController
 
 class SocketHandler(websocket.WebSocketHandler):
     def initialize(self, task_controller, websocket_clients):
@@ -173,7 +173,8 @@ if __name__ == "__main__":
 
     tornado.options.parse_command_line()
 
-    ereb_version = version = pkg_resources.require("ereb")[0].version
+    # ereb_version = version = pkg_resources.require("ereb")[0].version
+    ereb_version = "N/A"
 
     default_wi_config = """
         window.DEFAULT_CONFIG = {}

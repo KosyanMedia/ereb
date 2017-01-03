@@ -1,7 +1,7 @@
 import logging
 
-from lib.task_run import TaskRun
-from lib.aa_subprocess import AASubprocess
+from task_run import TaskRun
+from aa_subprocess import AASubprocess
 
 
 class TaskRunner():

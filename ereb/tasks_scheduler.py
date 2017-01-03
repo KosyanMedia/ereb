@@ -9,7 +9,7 @@ from tornado import gen
 import logging
 from os.path import isfile
 
-from lib.task_runner import TaskRunner
+from task_runner import TaskRunner
 
 
 class TasksScheduler():

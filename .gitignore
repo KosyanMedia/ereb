@@ -11,4 +11,4 @@ notifier.json
 /dist/*
 /ereb/etc
 /ereb/var
-/ereb.egg-info/PKG-INFO
+/ereb.egg-info/*

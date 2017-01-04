@@ -1,5 +1,4 @@
 MANIFEST.in
-ereb
 setup.py
 ereb/__init__.py
 ereb/aa_subprocess.py

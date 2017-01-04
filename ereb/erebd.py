@@ -163,9 +163,6 @@ def shutdown(shutdown_tasks, *args):
     IOLoop.current().stop()
     sys.exit(0)
 
-if __name__ == "__main__":
-    main()
-
 def main():
     from tornado.options import define, options
     define("port", default=8888, type=int, help="port to listen on")
@@ -177,8 +174,7 @@ def main():
 
     tornado.options.parse_command_line()
 
-    # ereb_version = version = pkg_resources.require("ereb")[0].version
-    ereb_version = "N/A"
+    ereb_version = version = pkg_resources.require("ereb")[0].version
 
     default_wi_config = """
         window.DEFAULT_CONFIG = {}
@@ -228,3 +224,6 @@ def main():
 
     application.listen(options.port)
     IOLoop.instance().start()
+
+if __name__ == "__main__":
+    main()

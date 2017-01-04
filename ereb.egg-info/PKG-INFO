@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: ereb
-Version: 0.16.19
+Version: 0.16.21
 Summary: Tornado based cron with web interface, JSON API and history
 Home-page: https://github.com/KosyanMedia/ereb
 Author: Alex Shaikhaleev

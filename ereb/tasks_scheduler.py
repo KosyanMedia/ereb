@@ -62,12 +62,11 @@ class TasksScheduler():
 
     def on_task_fail_callback(self, task_id, return_code):
         def add_failed_task_to_queue(task_id):
-            if self.get_task_by_id(task_id).get('try_more_on_error', False):
-                next_run = time.time() + self.try_after_fail_interval
-                if next_run in self.task_queue_by_timestamp:
-                    self.task_queue_by_timestamp[next_run].append(task_id)
-                else:
-                    self.task_queue_by_timestamp[next_run] = [task_id]
+            next_run = time.time() + self.try_after_fail_interval
+            if next_run in self.task_queue_by_timestamp:
+                self.task_queue_by_timestamp[next_run].append(task_id)
+            else:
+                self.task_queue_by_timestamp[next_run] = [task_id]
 
         task = self.get_task_by_id(task_id, False)
         if task and task.get('try_more_on_error', False):
@@ -176,7 +175,7 @@ class TasksScheduler():
         now = time.time()
 
         for task in self.tasks_list:
-            if task.get('enabled', False) and task.get('name') not in self.try_after_fail_tasks:
+            if task.get('enabled', False):
                 next = CronTab(task['cron_schedule']).next(now)
                 if next in tasks_by_schedule:
                     tasks_by_schedule[next].append(task)

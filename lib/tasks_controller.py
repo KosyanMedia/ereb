@@ -100,6 +100,9 @@ class TaskController():
 
         return dashboard
 
+    def recent_failed_tasks(self, ammout=100):
+        return self.history_storage.get_recent_failed_task_runs(ammout)
+
     def get_task_by_id(self, task_id, with_extra_info=False):
         return self.task_scheduler.get_task_by_id(task_id, with_extra_info)
 

@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: ereb
+Version: 0.16.22
+Summary: Tornado based cron with web interface, JSON API and history
+Home-page: https://github.com/KosyanMedia/ereb
+Author: Alex Shaikhaleev
+Author-email: nimdraug.sael@gmail.com
+License: MIT
+Description: UNKNOWN
+Keywords: tornado web cron
+Platform: UNKNOWN

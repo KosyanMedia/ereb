@@ -11,7 +11,7 @@ It has:
 - Slack notifications
 - Tyler The Creator as a logo
 
-[screenshot]
+![ereb](https://cloud.githubusercontent.com/assets/1700932/21672416/0a92d7c0-d355-11e6-9fd2-4ce8ca31aabc.png)
 
 And the best thing about ereb: it really works and made already thousands task runs on our servers.
 

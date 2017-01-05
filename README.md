@@ -1,19 +1,62 @@
-## How to
+# Hey, it's Ereb
 
-First off, you need fresh node and npm to develop ereb. Go to [nodejs.org](http://nodejs.org/) and follow installation instructions.
-Also you need python3. Assuming you have [brew](http://brew.sh/),
-```sh
-brew install python3
-pip3 install -r requirements.txt
-python3 ereb.py
-```
-or on server
+Basically, it's easy installable cron with web interface. Just `pip3 install ereb && ereb` and open `localhost:8888`
+Ereb is *not* based on system crond, it works with own scheduler written using Tornado.
+It has:
+- JSON API
+- stderr, stdout of each task run
+- historical data about slowest and most failing tasks
+- no memory leaks (hope so, but uptime >months without memory leak is normal)
+- crond syntax
+- Slack notifications
+- Tyler The Creator as a logo
 
-```sh
-yum install sqlite3 sqlite-devel python3
-pip3 install -r requirements.txt
-python3 ereb.py
+[screenshot]
+
+And the best thing about ereb: it really works and made already thousands task runs on our servers.
+
+# How to install
+
+`pip3 install ereb`
+
+# JSON api
+
+get `/status` => info about next runs
+get `/tasks` => tasks list
+get `/tasks/foo` => extended info about *foo* task with recent task runs
+post `/tasks/foo` => update *foo* task config
+get `/tasks/foo/task_runs/%id%` => get task run %id% info for *foo* task
+get `/tasks/foo/run` => manual run of *foo* task
+get `/tasks/foo/shutdown` => kill currenly running *foo* task
+
+# Development
+
+## Backend development
+First you do
+`pip3 install -r requirements.txt`
+
+then
+
+`python3 ereb/erebd.py`
+
+# UI development
+
+For js app building you need webpack (and nodejs of course)
+You can use webpack-dev-server, so
 ```
+cd ereb/ereb-wi
+npm install
+npm install -g webpack
+npm install -g webpack-dev-server
+
+webpack-dev-server
+```
+
+And your live-reloadable app will be served on `localhost:8080`
+
+After work done, you have to make production build with
+`cd ereb/ereb-wi && webpack -p`
+and commit changes to repo :)
 
 ## Migration from  crontab
 
@@ -26,7 +69,7 @@ crontan -l | python3 crontab_converter.py --output_dir=./etc
 to generate tasks from your crontab file.
 **Important!** Check new tasks after that!
 
-## Task config
+## Task config example
 
 ```json
 {
@@ -36,17 +79,11 @@ to generate tasks from your crontab file.
   "enabled": true,
   "group": "",
   "timeout": 10,
-  "name": "infinit_loop",
+  "name": "infinite_loop",
   "shell_scripts": [],
-  "task_id": "infinit_loop"
+  "task_id": "infinite_loop"
 }
 ```
-
-### Add timeout to config files:
-```bash
-python3 add_timeout_to_config.py example.json 24
-```
-
 
 ## Notifications
 
@@ -68,41 +105,16 @@ python3 ereb.py --notify-to=slack
 rm -rf var/
 ```
 
-## Web interface
+## Monit
 
-### Development
-It's webpack based app
-so, first make
-```sh
-cd ./ereb-wi
-npm install
-```
-
-For development mode:
-```sh
-webpack-dev-server
-```
-Don't to make production build after. Just
-```sh
-webpack -p
-```
-and look to *./build* folder
-
-### Production
-
-ereb-wi is served by tornado by default at */* route
-
-### Monit
-
-Example monit config
+Example monit config (for ereb installed via pip)
 
 ```
 check process ereb pidfile /PATH/TO/EREB/tmp/ereb.pid
-    start program = "/bin/bash -c 'cd /PATH/TO/EREB && (python3.4 ereb.py --log_file_prefix=./tmp/ereb.log & echo $! > /PATH/TO/EREB/tmp/ereb.pid)'"
+    start program = "ereb & echo $! > /PATH/TO/EREB/tmp/ereb.pid"
     stop program = "/bin/bash -c '/bin/kill `cat /PATH/TO/EREB/tmp/ereb.pid`'" with timeout 65 seconds
     group system
 ```
-w
 
 ## Troubleshooting
 

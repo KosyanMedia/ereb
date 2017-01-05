@@ -1,1 +1,2 @@
-ereb/erebd.py
+from ereb.erebd import main
+main()

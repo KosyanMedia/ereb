@@ -35,4 +35,4 @@ RUN chown -hR box:box /home/box
 USER box
 STOPSIGNAL SIGTERM
 EXPOSE 8888
-ENTRYPOINT ["python3", "ereb.py"]
+ENTRYPOINT ["python3", "ereb/erebd.py"]

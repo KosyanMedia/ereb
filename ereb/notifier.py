@@ -24,17 +24,22 @@ class Notifier():
         if self.cmd:
             if self.notify_to.startswith('slack_api'):
                 info =  task_run.log_info(lines_count=self.cmd.get('include_strings', 2))
-                msg = {
-                        'pretext': 'Failed task',
-                        'title': info['task_id'],
-                        'title_link': link,
-                        'text': self.cmd.get('text', 'Failed task {task_id}').format(**info),
-                        'fallback': message,
-                        'short': True,
-                        'color': 'danger',
-                        'mrkdwn_in': ['text', 'pretext']
+                slack_payload = {
+                        'attachments': [{
+                            'pretext': 'Failed task',
+                            'title': info['task_id'],
+                            'title_link': link,
+                            'text': self.cmd.get('text', 'Failed task {task_id}').format(**info),
+                            'fallback': message,
+                            'short': True,
+                            'color': 'danger',
+                            'mrkdwn_in': ['text', 'pretext']
+                        }]
                     }
-                requests.post(self.cmd['webhook_url'], json={'attachments': [msg]})
+                channel = self.cmd.get('channel', False)
+                if channel:
+                    slack_payload['channel'] = channel
+                response = requests.post(self.cmd['webhook_url'], json=slack_payload)
             else:
                 if "http" in self.cmd:
                     link = urllib.parse.quote(link)

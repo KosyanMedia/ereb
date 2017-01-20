@@ -62,3 +62,20 @@ class TaskRun():
         finished_at = datetime.datetime.utcnow()
         self.state['finished_at'] = finished_at.strftime('%Y-%m-%d %H:%M:%S')
         self.state['current'] = 'finished'
+
+    def log_info(self, lines_count=2):
+        def get_trimmed_text(txt, lines_count=2):
+            splitted = list(filter(None, txt.split('\n')))
+            return {'first': '\n'.join(splitted[:lines_count]), 'last': '\n'.join(splitted[-lines_count:])}
+
+        stdout = get_trimmed_text(self.stdout, lines_count)
+        stderr = get_trimmed_text(self.stderr, lines_count)
+        return {
+            'stdout_first': stdout['first'],
+            'stdout_last': stdout['last'],
+            'stderr_first': stderr['first'],
+            'stderr_last': stderr['last'],
+            'run_time': str(datetime.datetime.utcnow() - self.started_at()),
+            'exit_code': self.state['exit_code'],
+            'task_id': self.task_id
+        }

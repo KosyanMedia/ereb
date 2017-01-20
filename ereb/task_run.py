@@ -66,7 +66,10 @@ class TaskRun():
     def log_info(self, lines_count=2):
         def get_trimmed_text(txt, lines_count=2):
             splitted = list(filter(None, txt.split('\n')))
-            return {'first': '\n'.join(splitted[:lines_count]), 'last': '\n'.join(splitted[-lines_count:])}
+            data = {'first': '\n'.join(splitted[:lines_count])}
+            del splitted[:lines_count]
+            data['last'] = '\n'.join(splitted[-lines_count:])
+            return data
 
         stdout = get_trimmed_text(self.stdout, lines_count)
         stderr = get_trimmed_text(self.stderr, lines_count)

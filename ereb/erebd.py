@@ -164,9 +164,9 @@ def shutdown(shutdown_tasks, *args):
 def main():
     from tornado.options import define, options
     define("port", default=8888, type=int, help="port to listen on")
-    define("tasks_dir", default=os.path.dirname(os.path.realpath(__file__)) + "/etc", type=str, help="directory with tasks config files")
-    define("history_dir", default=os.path.dirname(os.path.realpath(__file__)) + "/var", type=str, help="directory for history storage")
-    define("notifier_config", default=os.path.dirname(os.path.realpath(__file__)) + "/notifier.json", type=str, help="notifier json config")
+    define("tasks_dir", default=os.path.dirname(os.path.realpath(__file__)) + "/../etc", type=str, help="directory with tasks config files")
+    define("history_dir", default=os.path.dirname(os.path.realpath(__file__)) + "/../var", type=str, help="directory for history storage")
+    define("notifier_config", default=os.path.dirname(os.path.realpath(__file__)) + "/../notifier.json", type=str, help="notifier json config")
     define("notify_to", default="logger", type=str, help="notifications channel")
     define("notifier_host", default="hostname", type=str, help="host for links in notifications")
 

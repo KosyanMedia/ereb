@@ -40,6 +40,8 @@ class Notifier():
                 if channel:
                     slack_payload['channel'] = channel
                 response = requests.post(self.cmd['webhook_url'], json=slack_payload)
+                if response.status_code != 200:
+                    logging.error('Notifications Slack API error: %s' % response.text)
             else:
                 if "http" in self.cmd:
                     link = urllib.parse.quote(link)

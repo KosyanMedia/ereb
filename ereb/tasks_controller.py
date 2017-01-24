@@ -6,12 +6,13 @@ import logging
 import re
 import datetime
 from os.path import isfile
-
+from io import StringIO, BytesIO
 from ereb.tasks_scheduler import TasksScheduler
 from ereb.fusion_history_storage import FusionHistoryStorage
 from ereb.task_run import TaskRun
 from ereb.notifier import Notifier
 
+import pygal
 
 class TaskController():
     def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger', notifier_host='hostname', websocket_clients=[], port=8888):
@@ -141,3 +142,16 @@ class TaskController():
 
     def validate_config(self, config):
         return self.task_scheduler.validate_config(config)
+
+    def chart(self, task_id):
+        hist = self.history_storage.runs_history(task_id)
+
+        # http://localhost:8888/tasks/sadsad/chart
+        # import pdb; pdb.set_trace()
+        line_chart = pygal.Line()
+        line_chart.show_legend = False
+        line_chart.show_x_labels = False
+        line_chart.show_y_labels=False
+
+        line_chart.add('Others',  hist)
+        return line_chart.render()

@@ -251,3 +251,17 @@ class FusionHistoryStorage():
     def write_to_file(self, path, content):
         with open(path, 'w') as f:
             f.write(content)
+
+    def runs_history(self, task_id):
+        sql = """
+        SELECT strftime('%s', finished_at) - strftime('%s', started_at) as duration
+        from task_runs
+        where finished_at != 'None'
+        and task_id = ?
+        order by started_at asc;
+        """
+        ret_val = []
+        rows = self.sqlite_connection.execute(sql, (task_id, ))
+        for row in rows:
+            ret_val.append(row[0])
+        return ret_val

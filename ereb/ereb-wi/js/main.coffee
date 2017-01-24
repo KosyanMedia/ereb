@@ -6,10 +6,11 @@ $(document).ready ->
   header = new Header(document.getElementById('header'))
   dashboard = new Dashboard(document.getElementById('page_content'))
   taskList = new TaskList(document.getElementById('page_content'))
+  taskCharts = new TaskCharts(document.getElementById('page_content'))
   failedTasks = new FailedTasks(document.getElementById('page_content'))
   taskForm = new TaskForm(document.getElementById('page_content'))
   taskRun = new TaskRun(document.getElementById('page_content'))
-
+  console.log('taskCharts', taskCharts)
   routes =
     '/': () ->
       $('#page_content').html('')
@@ -17,6 +18,9 @@ $(document).ready ->
     '/task_list': ->
       $('#page_content').html('')
       taskList.render()
+    '/task_charts': ->
+      $('#page_content').html('')
+      taskCharts.render()
     '/failed_tasks': ->
       $('#page_content').html('')
       failedTasks.render()

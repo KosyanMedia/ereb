@@ -60,6 +60,9 @@ class TasksHandler(tornado.web.RequestHandler):
                     self.raise_404('Task run %s/%s not found' % (task_id, task_run_id))
                 else:
                     result = json.dumps(detailed_task_run)
+            elif action == 'chart':
+                 self.set_header("Content-Type", "image/svg+xml")
+                 result = self.task_controller.chart(task_id)
 
         self.set_header('Access-Control-Allow-Origin', '*')
         self.write(result)

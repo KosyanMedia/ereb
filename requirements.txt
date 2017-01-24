@@ -2,3 +2,4 @@ tornado==4.3
 crontab
 psutil
 requests
+pygal

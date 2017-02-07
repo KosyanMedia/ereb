@@ -23,12 +23,12 @@ RUN curl -sS https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tgz > python.t
   rm -fr Python-3.5.1 && rm -f python.tar
 
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py > get-pip.py && \
-  python3 get-pip.py && rm -f get-pip.py && pip3 install --upgrade pip
+  python3 get-pip.py && rm -f get-pip.py && pip3 install --upgrade pip && \
+  mkdir /home/box/ereb
 
-RUN pip3 install --no-cache-dir --src /home/box/pip_src \
-  tornado==4.3 crontab psutil
+COPY requirements.txt /home/box/ereb/requirements.txt
+RUN pip3 install --no-cache-dir --src /home/box/pip_src -r /home/box/ereb/requirements.txt
 
-RUN mkdir /home/box/ereb
 COPY . /home/box/ereb
 WORKDIR /home/box/ereb
 RUN chown -hR box:box /home/box

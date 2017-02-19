@@ -17,7 +17,12 @@ And the best thing about ereb: it really works and made already thousands task r
 
 # How to install
 
-`pip3 install ereb`
+Under `root`:
+```
+pip3 install ereb
+```
+
+*Note: This will install `ereb` to `/usr/local/bin/ereb`.*
 
 # JSON api
 
@@ -110,11 +115,35 @@ rm -rf var/
 Example monit config (for ereb installed via pip)
 
 ```
-check process ereb pidfile /PATH/TO/EREB/tmp/ereb.pid
-    start program = "ereb & echo $! > /PATH/TO/EREB/tmp/ereb.pid"
-    stop program = "/bin/bash -c '/bin/kill `cat /PATH/TO/EREB/tmp/ereb.pid`'" with timeout 65 seconds
+check process ereb pidfile /var/run/ereb/ereb.pid
+    start program = "/etc/init.d/ereb start"
+    stop program = "/etc/init.d/ereb stop"
     group system
 ```
+Don't forget to create `/etc/init.d/ereb`:
+```
+#!/bin/bash
+
+PIDFILE=/var/run/ereb/ereb.pid
+
+case $1 in
+   start)
+       # as a detached process
+       /usr/local/bin/ereb >> /var/log/ereb/ereb.log 2>&1 &
+       # Get its PID and store it
+       echo $! > ${PIDFILE}
+   ;;
+   stop)
+      kill `cat ${PIDFILE}`
+      # Now that it's killed, don't forget to remove the PID file
+      rm ${PIDFILE}
+   ;;
+   *)
+      echo "usage: ereb {start|stop}" ;;
+esac
+exit 0
+```
+*Note: Now you can see `ereb` log in `/var/log/ereb/ereb.log`.*
 
 ## Troubleshooting
 

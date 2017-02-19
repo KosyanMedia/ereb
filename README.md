@@ -143,6 +143,11 @@ case $1 in
 esac
 exit 0
 ```
+And ofcourse, don't forget to
+```
+mkdir /var/run/ereb
+mkdir /var/log/ereb
+```
 *Note: Now you can see `ereb` log in `/var/log/ereb/ereb.log`.*
 
 ## Troubleshooting

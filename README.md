@@ -22,7 +22,73 @@ Under `root`:
 pip3 install ereb
 ```
 
-*Note: This will install `ereb` to `/usr/local/bin/ereb`.*
+This will install `ereb` to `/usr/local/bin/ereb`.
+
+## For Debian/Ubuntu users
+
+If you want to properly install ereb so that it starts on system start, make use of systemd.
+1. Create a proper init script: `vim /etc/init.d/ereb`:
+```
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          ereb
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start ereb at boot time
+# Description:       Ereb is a cool crontab with web interface.
+### END INIT INFO
+
+PIDFILE=/var/run/ereb.pid
+
+case $1 in
+   start)
+       # as a detached process
+       /usr/local/bin/ereb >> /var/log/ereb.log 2>&1 &
+       # Get its PID and store it
+       echo $! > ${PIDFILE}
+   ;;
+   stop)
+      kill `cat ${PIDFILE}`
+      # Now that it's killed, don't forget to remove the PID file
+      rm ${PIDFILE}
+   ;;
+   *)
+      echo "usage: ereb {start|stop}" ;;
+esac
+exit 0
+```
+2. Create a systemd unit: `vim /lib/systemd/system/ereb.service`:
+```
+[Unit]
+SourcePath=/etc/init.d/ereb
+Description=Easy installable cron with web interface
+
+[Service]
+Type=forking
+PIDFile=/var/run/ereb.pid
+Restart=always
+TimeoutSec=5min
+IgnoreSIGPIPE=no
+KillMode=process
+GuessMainPID=no
+RemainAfterExit=yes
+ExecStart=/etc/init.d/ereb start
+ExecStop=/etc/init.d/ereb stop
+```
+3. Place the unit under `multi-user` target:
+```
+ln -s /lib/systemd/system/ereb.service /etc/systemd/system/multi-user.target.wants/ereb.service
+```
+4. Enable the service so that it starts on boot:
+```
+systemctl enable ereb.service
+```
+
+Now you can try to `reboot` your server and make sure that `ps aux | grep ereb | grep -v grep` shows up running ereb instance.
+
+Read more on <https://www.digitalocean.com/community/tutorials/systemd-essentials-working-with-services-units-and-the-journal>
 
 # JSON api
 

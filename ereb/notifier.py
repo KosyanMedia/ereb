@@ -61,6 +61,7 @@ class Notifier():
         return subprocess.Popen("hostname", shell=True, stdout=subprocess.PIPE).stdout.read().decode().replace('\n', '')
 
     def websocket_send_status(self, message):
-        logging.info('websocket_send_status')
-        for client in self.websocket_clients:
-            client.write_message(message)
+        if len(self.websocket_clients) > 0:
+            logging.info('websocket_send_status')
+            for client in self.websocket_clients:
+                client.write_message(message)

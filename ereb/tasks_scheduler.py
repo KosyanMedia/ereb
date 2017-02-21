@@ -30,9 +30,24 @@ class TasksScheduler():
 
     def update_config(self):
         new_config = self.get_tasks_config()
-        result = new_config != self.tasks_list
-        self.tasks_list = new_config
-        return result
+        old_tasks_by_id = {}
+        new_tasks_by_id = {}
+        for old_task in self.tasks_list:
+            old_tasks_by_id[old_task['name']] = {
+                'cron_schedule': old_task.get('cron_schedule'),
+                'cmd': old_task.get('cmd'),
+                'try_more_on_error': old_task.get('try_more_on_error')
+            }
+        for new_task in new_config:
+            new_tasks_by_id[new_task['name']] = {
+                'cron_schedule': new_task.get('cron_schedule'),
+                'cmd': new_task.get('cmd'),
+                'try_more_on_error': new_task.get('try_more_on_error')
+            }
+
+        if new_tasks_by_id != old_tasks_by_id:
+            self.tasks_list = new_config
+            return True
 
     def get_task_config(self, name):
         for config in self.tasks_list:
@@ -41,7 +56,7 @@ class TasksScheduler():
         return None
 
     def start(self):
-        self.config_checking_loop = PeriodicCallback(self.check_config, 1000)
+        self.config_checking_loop = PeriodicCallback(self.check_config, 1 * 1000)
         self.config_checking_loop.start()
         self.start_task_loop()
 
@@ -88,11 +103,12 @@ class TasksScheduler():
     @gen.engine
     def check_config(self):
         if self.update_config():
+            logging.info("Config changed")
             self.reschedule_tasks()
 
     @gen.engine
     def reschedule_tasks(self):
-        logging.info("Config changed!")
+        logging.info("Recheduling tasks!")
         self.planned_task_run_uuids = []
         IOLoop.instance().add_callback(self.schedule_next_tasks)
 
@@ -141,7 +157,7 @@ class TasksScheduler():
     @gen.engine
     def schedule_next_tasks(self):
         if self.is_task_loop_running:
-            logging.info("TaskRunner running")
+            logging.info("Tasks loop started")
             self.notifier.websocket_send_status(self.get_status())
             next_run, next_tasks = self.get_next_tasks()
             if len(next_tasks) > 0:
@@ -160,12 +176,12 @@ class TasksScheduler():
                             task_runner = TaskRunner(task['name'], self.history_storage, self.notifier, self.on_task_fail_callback)
                             task_runner.run_task(task['cmd'], task.get('timeout', -1))
                         except Exception as e:
-                            logging.exception('Scheduled task run error')
+                            logging.exception('Scheduled task run error %s' % task['name'])
                     self.planned_task_run_uuids.remove(task_run_uuid)
                     logging.info('Run and removed task run %s' % task_run_uuid)
                     IOLoop.instance().add_callback(self.schedule_next_tasks)
                 else:
-                    logging.info('Task run %s was cancelled' % task_run_uuid)
+                    logging.info('Task %s run %s was cancelled for ' % (task['name'], task_run_uuid))
             self.clean_task_queue_by_timestamp()
         else:
             logging.info("TaskRunner stopped")

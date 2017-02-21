@@ -27,7 +27,7 @@ This will install `ereb` to `/usr/local/bin/ereb`.
 ## For Debian/Ubuntu users
 
 If you want to properly install ereb so that it starts on system start, make use of systemd.
-1. Create a proper init script: `vim /etc/init.d/ereb`:
+ 1. Create a proper init script: `vim /etc/init.d/ereb`:
 ```
 #!/bin/bash
 ### BEGIN INIT INFO
@@ -59,7 +59,7 @@ case $1 in
 esac
 exit 0
 ```
-2. Create a systemd unit: `vim /lib/systemd/system/ereb.service`:
+ 2. Create a systemd unit: `vim /lib/systemd/system/ereb.service`:
 ```
 [Unit]
 SourcePath=/etc/init.d/ereb
@@ -77,11 +77,11 @@ RemainAfterExit=yes
 ExecStart=/etc/init.d/ereb start
 ExecStop=/etc/init.d/ereb stop
 ```
-3. Place the unit under `multi-user` target:
+ 3. Place the unit under `multi-user` target:
 ```
 ln -s /lib/systemd/system/ereb.service /etc/systemd/system/multi-user.target.wants/ereb.service
 ```
-4. Enable the service so that it starts on boot:
+ 4. Enable the service so that it starts on boot:
 ```
 systemctl enable ereb.service
 ```

@@ -14,7 +14,10 @@ from ereb.notifier import Notifier
 
 
 class TaskController():
-    def __init__(self, tasks_dir="etc", history_dir="./var", notifier_config={}, notify_to='logger', notifier_host='hostname', websocket_clients=[], port=8888):
+
+    def __init__(self, tasks_dir="etc", history_dir="./var",
+                 notifier_config={}, notify_to='logger', notifier_host='hostname',
+                 websocket_clients=[], port=8888):
         self.tasks_dir = tasks_dir
         if not os.path.exists(self.tasks_dir):
             os.makedirs(self.tasks_dir)
@@ -22,13 +25,13 @@ class TaskController():
         self.websocket_clients = websocket_clients
         self.history_storage = FusionHistoryStorage(history_dir)
         self.notifier = Notifier(notifier_config=notifier_config,
-            notify_to=notify_to,
-            websocket_clients=websocket_clients,
-            host=notifier_host,
-            port=port)
+                                 notify_to=notify_to,
+                                 websocket_clients=websocket_clients,
+                                 host=notifier_host,
+                                 port=port)
         self.task_scheduler = TasksScheduler(tasks_dir=tasks_dir,
-            history_storage=self.history_storage,
-            notifier=self.notifier)
+                                             history_storage=self.history_storage,
+                                             notifier=self.notifier)
         self.check_processes()
         self.process_checking_loop = PeriodicCallback(self.check_processes, 10000)
         self.process_checking_loop.start()
@@ -74,7 +77,8 @@ class TaskController():
                         self.history_storage.finalize_task_run(task_run)
                         # FIXME: Prolly it's now working. DO SOMETHING
                 else:
-                    logging.info('Task %s with run %s is in unknown state, no pid; finalized', task_run.task_id, task_run.id)
+                    logging.info('Task %s with run %s is in unknown state, no pid; finalized',
+                                 task_run.task_id, task_run.id)
                     self.history_storage.finalize_task_run(task_run)
                     # FIXME: Prolly it's now working. DO SOMETHING
 
@@ -91,7 +95,7 @@ class TaskController():
                 if task['name'] in task_stats:
                     task['stats'] = task_stats.get(task['name'])
 
-        return sorted(task_list, key=lambda x: x['name'] )
+        return sorted(task_list, key=lambda x: x['name'])
 
     def get_dashboard_info(self):
         dashboard = {}
@@ -130,6 +134,14 @@ class TaskController():
 
     def get_detailed_task_run_info(self, task_id, task_run_id):
         return self.history_storage.get_detailed_task_run_info(task_id, task_run_id)
+
+    def get_stdout_for_task_run_id(self, task_id, task_run_id):
+        detailed_task = self.history_storage.get_detailed_task_run_info(task_id, task_run_id, content_size_limit=False)
+        return detailed_task['stdout']
+
+    def get_stderr_for_task_run_id(self, task_id, task_run_id):
+        detailed_task = self.history_storage.get_detailed_task_run_info(task_id, task_run_id, content_size_limit=False)
+        return detailed_task['stderr']
 
     def run_task_by_task_id(self, task_id):
         task = self.get_task_by_id(task_id)

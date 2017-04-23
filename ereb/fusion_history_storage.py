@@ -7,7 +7,8 @@ import time
 
 
 class FusionHistoryStorage():
-    ### Fusion means both file (stdout and stderr) and sqlite storage
+    # Fusion means both file (stdout and stderr) and sqlite storage
+    STDOUT_LINES_LIMIT = 50
 
     CREATE_TABLES_SQL = ['''
         CREATE TABLE IF NOT EXISTS TASK_RUNS
@@ -17,15 +18,15 @@ class FusionHistoryStorage():
                 task_id TEXT,
                 pid INTEGER,
                 exit_code INTEGER );''',
-        "CREATE INDEX IF NOT EXISTS task_id ON task_runs (task_id);",
-        "CREATE INDEX IF NOT EXISTS started_at ON task_runs (started_at);",
-        "CREATE INDEX IF NOT EXISTS task_id_started_at ON task_runs (task_id, started_at);",
-        "CREATE INDEX IF NOT EXISTS finished_at ON task_runs (finished_at);",
-        "CREATE INDEX IF NOT EXISTS started_at_exit_code ON task_runs (started_at, exit_code);"
-    ]
+                         "CREATE INDEX IF NOT EXISTS task_id ON task_runs (task_id);",
+                         "CREATE INDEX IF NOT EXISTS started_at ON task_runs (started_at);",
+                         "CREATE INDEX IF NOT EXISTS task_id_started_at ON task_runs (task_id, started_at);",
+                         "CREATE INDEX IF NOT EXISTS finished_at ON task_runs (finished_at);",
+                         "CREATE INDEX IF NOT EXISTS started_at_exit_code ON task_runs (started_at, exit_code);"
+                         ]
 
     COLUMNS = ['task_run_id', 'started_at', 'finished_at', 'task_id',
-        'pid', 'exit_code']
+               'pid', 'exit_code']
 
     def __init__(self, storage_dir="./var"):
         self.storage_dir = storage_dir
@@ -115,7 +116,7 @@ class FusionHistoryStorage():
 
     def get_task_list_stats(self):
         columns = ['task_id', 'duration_avg', 'duration_min', 'duration_max',
-            'success', 'error', 'exit_codes']
+                   'success', 'error', 'exit_codes']
         task_stats = self.select_to_dict('''
             select  task_id,
             round(avg(strftime('%s', finished_at) - strftime('%s', started_at)), 2) as duration_avg,
@@ -132,7 +133,7 @@ class FusionHistoryStorage():
         stats_by_task_id = {}
         for task in task_stats:
             if task['exit_codes'] != '':
-                task['exit_codes'] = str(task['exit_codes']).split(',')[-20:]
+                task['exit_codes'] = str(task['exit_codes']).split(',')[-self.STDOUT_LINES_LIMIT:]
             else:
                 task.pop('exit_codes')
 
@@ -140,7 +141,7 @@ class FusionHistoryStorage():
 
         return stats_by_task_id
 
-    def get_detailed_task_run_info(self, task_id, task_run_id):
+    def get_detailed_task_run_info(self, task_id, task_run_id, content_size_limit=True):
         task_run = {}
         task_run['state'] = self.select_to_dict('''
             select *
@@ -155,7 +156,11 @@ class FusionHistoryStorage():
             file_path = '/'.join([task_run_path, x])
             if os.path.isfile(file_path):
                 with open(task_run_path + '/' + x) as file_content:
-                    task_run[x] = file_content.read()
+                    lines = file_content.read().split("\n")
+                    if content_size_limit:
+                        task_run[x] = "\n".join(lines[-50:])
+                    else:
+                        task_run[x] = "\n".join(lines)
             else:
                 task_run[x] = ''
 
@@ -246,7 +251,6 @@ class FusionHistoryStorage():
             result.append(r)
 
         return result
-
 
     def write_to_file(self, path, content):
         with open(path, 'w') as f:

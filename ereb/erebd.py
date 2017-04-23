@@ -12,7 +12,9 @@ import os
 
 from ereb.tasks_controller import TaskController
 
+
 class SocketHandler(websocket.WebSocketHandler):
+
     def initialize(self, task_controller, websocket_clients):
         self.task_controller = task_controller
         self.websocket_clients = websocket_clients
@@ -31,6 +33,7 @@ class SocketHandler(websocket.WebSocketHandler):
 
 
 class TasksHandler(tornado.web.RequestHandler):
+
     def initialize(self, task_controller):
         self.task_controller = task_controller
 
@@ -60,6 +63,18 @@ class TasksHandler(tornado.web.RequestHandler):
                     self.raise_404('Task run %s/%s not found' % (task_id, task_run_id))
                 else:
                     result = json.dumps(detailed_task_run)
+            elif action == 'task_run_stdout' and task_run_id != '':
+                task_run_stdout = self.task_controller.get_stdout_for_task_run_id(task_id, task_run_id)
+                if not task_run_stdout:
+                    self.raise_404('Stdout %s/%s not found' % (task_id, task_run_id))
+                else:
+                    result = json.dumps(task_run_stdout)
+            elif action == 'task_run_stderr' and task_run_id != '':
+                task_run_stderr = self.task_controller.get_stderr_for_task_run_id(task_id, task_run_id)
+                if not task_run_stderr:
+                    self.raise_404('Stderr for %s/%s not found' % (task_id, task_run_id))
+                else:
+                    result = json.dumps(task_run_stderr)
 
         self.set_header('Access-Control-Allow-Origin', '*')
         self.write(result)
@@ -123,6 +138,7 @@ class TasksHandler(tornado.web.RequestHandler):
 
 
 class RunnerHandler(tornado.web.RequestHandler):
+
     def initialize(self, task_controller):
         self.task_controller = task_controller
 
@@ -161,12 +177,16 @@ def shutdown(shutdown_tasks, *args):
     IOLoop.current().stop()
     sys.exit(0)
 
+
 def main():
     from tornado.options import define, options
     define("port", default=8888, type=int, help="port to listen on")
-    define("tasks_dir", default=os.path.dirname(os.path.realpath(__file__)) + "/../etc", type=str, help="directory with tasks config files")
-    define("history_dir", default=os.path.dirname(os.path.realpath(__file__)) + "/../var", type=str, help="directory for history storage")
-    define("notifier_config", default=os.path.dirname(os.path.realpath(__file__)) + "/../notifier.json", type=str, help="notifier json config")
+    define("tasks_dir", default=os.path.dirname(os.path.realpath(__file__)) +
+           "/../etc", type=str, help="directory with tasks config files")
+    define("history_dir", default=os.path.dirname(os.path.realpath(__file__)) +
+           "/../var", type=str, help="directory for history storage")
+    define("notifier_config", default=os.path.dirname(os.path.realpath(__file__)) +
+           "/../notifier.json", type=str, help="notifier json config")
     define("notify_to", default="logger", type=str, help="notifications channel")
     define("notifier_host", default="hostname", type=str, help="host for links in notifications")
 
@@ -213,7 +233,8 @@ def main():
         (r"/tasks/?([^/]*)/?([^/]*)/?([^/]*)$", TasksHandler, dict(task_controller=task_controller)),
         (r"/status/?(.*)$", RunnerHandler, dict(task_controller=task_controller)),
         (r'/ws', SocketHandler, dict(task_controller=task_controller, websocket_clients=websocket_clients)),
-        (r"/(.*)", tornado.web.StaticFileHandler, {"path": os.path.dirname(os.path.realpath(__file__)) + "/ereb-wi", "default_filename": "index.html"})
+        (r"/(.*)", tornado.web.StaticFileHandler,
+         {"path": os.path.dirname(os.path.realpath(__file__)) + "/ereb-wi", "default_filename": "index.html"})
     ], gzip=True)
 
     signal.signal(signal.SIGTERM, partial(shutdown, task_controller.shutdown_tasks))

@@ -12,7 +12,8 @@
 <div class="row">
   <div class="col-md-8 col-md-offset-2">
     {% if stdout %}
-      <label> stdout: </label>
+      <label> stdout (preview last 50 lines): </label>
+      <a target="_blank" href="/tasks/{{state.task_id}}/task_run_stdout/{{state.task_run_id}}"> download full stdout</a>
       <pre>
         <code id="stdout">
           {{ stdout }}
@@ -23,7 +24,8 @@
     {% endif %}
 
     {% if stderr %}
-      <label> stderr: </label>
+      <label> stderr (preview last 50 lines): </label>
+      <a href="/tasks/{{state.task_id}}/task_run_stderr/{{state.task_run_id}}"> download full stderr</a>
       <pre>
         <code id="stderr">
           {{ stderr }}

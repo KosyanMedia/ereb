@@ -68,13 +68,13 @@ class TasksHandler(tornado.web.RequestHandler):
                 if not task_run_stdout:
                     self.raise_404('Stdout %s/%s not found' % (task_id, task_run_id))
                 else:
-                    result = json.dumps(task_run_stdout)
+                    result = task_run_stdout
             elif action == 'task_run_stderr' and task_run_id != '':
                 task_run_stderr = self.task_controller.get_stderr_for_task_run_id(task_id, task_run_id)
                 if not task_run_stderr:
                     self.raise_404('Stderr for %s/%s not found' % (task_id, task_run_id))
                 else:
-                    result = json.dumps(task_run_stderr)
+                    result = task_run_stderr
 
         self.set_header('Access-Control-Allow-Origin', '*')
         self.write(result)

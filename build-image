@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+version=$1
+if [[ -z "$version" ]]; then
+  echo 'Usage '$0' [version]'
+  exit 1
+fi
+
+docker build -t aviasales/ereb:$version -f Dockerfile .
+

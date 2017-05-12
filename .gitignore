@@ -12,3 +12,5 @@ notifier.json
 /ereb/etc
 /ereb/var
 /ereb.egg-info/*
+.env/
+.idea/

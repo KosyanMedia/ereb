@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from tornado.process import Subprocess
 from tornado.iostream import PipeIOStream
 
@@ -40,10 +42,13 @@ class AASubprocess(Subprocess):
         stdout = Subprocess.STREAM if stdout_chunk_callback else None
         stderr = Subprocess.STREAM if stderr_chunk_callback else None
 
-        Subprocess.__init__(self, command, stdin=stdin, stdout=stdout, stderr=stderr, io_loop=io_loop, shell=True)
+        Subprocess.__init__(
+            self, command, stdin=stdin, stdout=stdout, stderr=stderr,
+            io_loop=io_loop, shell=True)
 
         self.aa_process_expired = False
-        self.aa_terminate_timeout = self.io_loop.call_later(timeout, self.aa_timeout_callback) if timeout > 0 else None
+        self.aa_terminate_timeout = self.io_loop.call_later(
+            timeout, self.aa_timeout_callback) if timeout > 0 else None
 
         self.set_exit_callback(self.aa_exit_callback)
 
@@ -56,8 +61,10 @@ class AASubprocess(Subprocess):
 
             def on_stdout_chunk(data):
                 stdout_chunk_callback(data)
+
                 if not output_stream.closed():
-                    output_stream.read_bytes(102400, on_stdout_chunk, None, True)
+                    output_stream.read_bytes(
+                        102400, on_stdout_chunk, None, True)
 
             output_stream.read_bytes(102400, on_stdout_chunk, None, True)
 
@@ -66,8 +73,10 @@ class AASubprocess(Subprocess):
 
             def on_stderr_chunk(data):
                 stdout_chunk_callback(data)
+
                 if not stderr_stream.closed():
-                    stderr_stream.read_bytes(102400, on_stderr_chunk, None, True)
+                    stderr_stream.read_bytes(
+                        102400, on_stderr_chunk, None, True)
 
             stderr_stream.read_bytes(102400, on_stderr_chunk, None, True)
 
@@ -76,11 +85,14 @@ class AASubprocess(Subprocess):
             self.proc.kill()
         else:
             self.proc.terminate()
+
         self.aa_process_expired = True
 
     def aa_exit_callback(self, status):
         if self.aa_terminate_timeout:
             self.io_loop.remove_timeout(self.aa_terminate_timeout)
+
         # need to post this call to make sure it is processed AFTER all outputs
         if self.aa_exit_process_callback:
-            self.io_loop.add_callback(self.aa_exit_process_callback, status, self.aa_process_expired)
+            self.io_loop.add_callback(
+                self.aa_exit_process_callback, status, self.aa_process_expired)

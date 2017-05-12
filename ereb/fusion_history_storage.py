@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import os
 import glob
 import logging
@@ -218,7 +220,8 @@ class FusionHistoryStorage():
         ''' % (task_run.task_id, task_run.state['started_at']))
         self.sqlite_connection.commit()
 
-        task_run_id = str(list(self.sqlite_connection.execute('select last_insert_rowid();'))[0][0])
+        task_run_id = str(list(self.sqlite_connection.execute(
+            'select last_insert_rowid();'))[0][0])
 
         task_run.id = task_run_id
 

@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import json
 import argparse
 
@@ -8,6 +10,7 @@ args = parser.parse_args()
 
 f = open(args.config_name, 'r')
 task_config = json.load(f)
+
 if isinstance(task_config, list):
     for config in task_config:
         config['timeout'] = args.task_timeout
@@ -17,7 +20,9 @@ else:
             config['timeout'] = args.task_timeout
     else:
         task_config['timeout'] = args.task_timeout
+
 f.close()
+
 f = open(args.config_name, 'r+')
 json.dump(task_config, f, sort_keys=True, indent=2)
 print(json.dumps(task_config, sort_keys=True, indent=2))

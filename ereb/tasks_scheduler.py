@@ -1,18 +1,21 @@
+# coding: utf-8
+
 import time
 import json
 import glob
 import re
 import uuid
+import logging
+from os.path import isfile
+
 from crontab import CronTab
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado import gen
-import logging
-from os.path import isfile
 
 from ereb.task_runner import TaskRunner
 
 
-class TasksScheduler():
+class TasksScheduler:
     SHELL_SCRIPT_RE = r'(\S+\.(sh|rb|py))'
 
     def __init__(self, tasks_dir, history_storage, notifier):
@@ -24,7 +27,7 @@ class TasksScheduler():
         self.planned_task_run_uuids = []
         self.try_after_fail_tasks = {}
         self.try_after_fail_tries_count = 2
-        self.try_after_fail_interval = 60 # 6
+        self.try_after_fail_interval = 60   # 6
         self.task_queue_by_timestamp = {}
         self.update_config()
 
@@ -56,7 +59,8 @@ class TasksScheduler():
         return None
 
     def start(self):
-        self.config_checking_loop = PeriodicCallback(self.check_config, 1 * 1000)
+        self.config_checking_loop = PeriodicCallback(
+            self.check_config, 1 * 1000)
         self.config_checking_loop.start()
         self.start_task_loop()
 
@@ -70,23 +74,29 @@ class TasksScheduler():
 
     def run_task_by_name_and_cmd(self, name, cmd, timeout):
         logging.info('Manual run | Running %s task' % name)
+
         try:
-            TaskRunner(name, self.history_storage, self.notifier, self.on_task_fail_callback).run_task(cmd, timeout)
+            TaskRunner(
+                name, self.history_storage, self.notifier,
+                self.on_task_fail_callback).run_task(cmd, timeout)
         except Exception as e:
             logging.error('Manual task run error. %s' % e)
 
     def on_task_fail_callback(self, task_id, return_code):
         def add_failed_task_to_queue(task_id):
             next_run = time.time() + self.try_after_fail_interval
+
             if next_run in self.task_queue_by_timestamp:
                 self.task_queue_by_timestamp[next_run].append(task_id)
             else:
                 self.task_queue_by_timestamp[next_run] = [task_id]
 
         task = self.get_task_by_id(task_id, False)
+
         if task and task.get('try_more_on_error', False):
             if task_id in self.try_after_fail_tasks:
                 self.try_after_fail_tasks[task_id] -= 1
+
                 if self.try_after_fail_tasks[task_id] == 0:
                     # no more tries
                     self.try_after_fail_tasks.pop(task_id)
@@ -95,7 +105,9 @@ class TasksScheduler():
                     add_failed_task_to_queue(task_id)
                     self.reschedule_tasks()
             else:
-                self.try_after_fail_tasks[task_id] = self.try_after_fail_tries_count
+                self.try_after_fail_tasks.update({
+                    task_id: self.try_after_fail_tries_count
+                })
 
                 add_failed_task_to_queue(task_id)
                 self.reschedule_tasks()
@@ -104,11 +116,13 @@ class TasksScheduler():
     def check_config(self):
         if self.update_config():
             logging.info("Config changed")
+
             self.reschedule_tasks()
 
     @gen.engine
     def reschedule_tasks(self):
         logging.info("Recheduling tasks!")
+
         self.planned_task_run_uuids = []
         IOLoop.instance().add_callback(self.schedule_next_tasks)
 
@@ -116,11 +130,13 @@ class TasksScheduler():
         # async?
         regexp = re.compile('.+\/(.+).json', re.IGNORECASE)
         config = []
+
         for f in glob.glob(self.tasks_dir + '/*.json'):
             try:
                 task_name = regexp.search(f).group(1)
                 with open(f) as config_file:
                     c = json.load(config_file)
+
                 if self.validate_config(c):
                     c['name'] = task_name
                     config.append(c)
@@ -144,6 +160,7 @@ class TasksScheduler():
 
     def get_status(self):
         result = {}
+
         if self.is_task_loop_running:
             result['state'] = 'running'
         else:
@@ -160,28 +177,51 @@ class TasksScheduler():
             logging.info("Tasks loop started")
             self.notifier.websocket_send_status(self.get_status())
             next_run, next_tasks = self.get_next_tasks()
+
             if len(next_tasks) > 0:
                 logging.info('Next run in %s seconds' % str(next_run))
+
                 task_run_uuid = str(uuid.uuid4())
-                self.planned_task_run_uuids.append(task_run_uuid)  # allows to cancel already scheduled tasks
+
+                # allows to cancel already scheduled tasks
+                self.planned_task_run_uuids.append(task_run_uuid)
+
                 logging.info('Planned task %s' % task_run_uuid)
+
                 # wait until next task needs to be run, and while waiting -
-                # do other stuff in IOLoop (i.e. process web interface requests)
-                yield gen.Task(IOLoop.instance().add_timeout, time.time() + next_run)
+                # do other stuff in IOLoop (i.e. process web interface
+                # requests)
+
+                yield gen.Task(
+                    IOLoop.instance().add_timeout, time.time() + next_run)
+
                 if task_run_uuid in self.planned_task_run_uuids:
                     logging.info('Now running %s tasks' % len(next_tasks))
+
                     for task in next_tasks:
                         try:
-                            logging.info('Running %s task with timeout %s', task['name'], task.get('timeout', -1))
-                            task_runner = TaskRunner(task['name'], self.history_storage, self.notifier, self.on_task_fail_callback)
-                            task_runner.run_task(task['cmd'], task.get('timeout', -1))
+                            logging.info(
+                                'Running %s task with timeout %s',
+                                task['name'], task.get('timeout', -1))
+
+                            task_runner = TaskRunner(
+                                task['name'], self.history_storage,
+                                self.notifier, self.on_task_fail_callback)
+                            task_runner.run_task(
+                                task['cmd'], task.get('timeout', -1))
                         except Exception as e:
-                            logging.exception('Scheduled task run error %s' % task['name'])
+                            logging.exception(
+                                'Scheduled task run error %s' % task['name'])
+
                     self.planned_task_run_uuids.remove(task_run_uuid)
+
                     logging.info('Run and removed task run %s' % task_run_uuid)
+
                     IOLoop.instance().add_callback(self.schedule_next_tasks)
                 else:
-                    logging.info('Task %s run %s was cancelled for ' % (task['name'], task_run_uuid))
+                    logging.info('Task %s run %s was cancelled for ' % (
+                        task['name'], task_run_uuid))
+
             self.clean_task_queue_by_timestamp()
         else:
             logging.info("TaskRunner stopped")
@@ -193,6 +233,7 @@ class TasksScheduler():
         for task in self.tasks_list:
             if task.get('enabled', False):
                 next = CronTab(task['cron_schedule']).next(now)
+
                 if next in tasks_by_schedule:
                     tasks_by_schedule[next].append(task)
                 else:
@@ -200,6 +241,7 @@ class TasksScheduler():
 
         for next_timestamp, tasks in self.task_queue_by_timestamp.items():
             next = next_timestamp - time.time()
+
             for task_id in tasks:
                 task = self.get_task_by_id(task_id, False)
                 if next in tasks_by_schedule:
@@ -208,7 +250,7 @@ class TasksScheduler():
                     tasks_by_schedule[next] = [task]
 
         if len(tasks_by_schedule) > 0:
-            return sorted(tasks_by_schedule.items(), key=lambda x: x[0] )[0]
+            return sorted(tasks_by_schedule.items(), key=lambda x: x[0])[0]
         else:
             return [0, []]
 
@@ -216,8 +258,11 @@ class TasksScheduler():
         for task in self.tasks_list:
             if task['name'] == task_id:
                 task['shell_scripts'] = []
+
                 if with_extra_info:
-                    task['shell_scripts'] = self.try_to_parse_task_shell_script(task['cmd'])
+                    task.update({
+                        'shell_scripts': self.try_to_parse_task_shell_script(
+                            task['cmd'])})
 
                 return task
 
@@ -229,12 +274,17 @@ class TasksScheduler():
                 del self.task_queue_by_timestamp[next_timestamp]
 
     def try_to_parse_task_shell_script(self, cmd):
-        scripts = list(map(lambda x: x[0], re.findall(self.SHELL_SCRIPT_RE, cmd)))
+        scripts = list(
+            map(lambda x: x[0], re.findall(self.SHELL_SCRIPT_RE, cmd)))
+
         def read_file(shell_script):
             with open(shell_script, 'r', encoding='utf8') as content:
-                return { 'filename': shell_script, 'content': content.read() }
+                return {'filename': shell_script, 'content': content.read()}
+
         return_data = []
+
         for script in scripts:
             if isfile(script):
                 return_data.append(read_file(script))
+
         return return_data

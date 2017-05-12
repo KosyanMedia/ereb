@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import datetime
 import signal
 import psutil
@@ -9,9 +11,12 @@ def kill_pid(pid, sig=signal.SIGTERM):
         parent = psutil.Process(pid)
     except psutil.NoSuchProcess:
         return
+
     children = parent.children(recursive=True)
+
     for process in children:
         process.send_signal(sig)
+
         try:
             process.send_signal(sig)
         except ProcessLookupError:
@@ -20,14 +25,17 @@ def kill_pid(pid, sig=signal.SIGTERM):
             continue
 
         try:
-            logging.info("couldn't kill process by TERM signal, let's start use KILL")
+            logging.info(
+                "couldn't kill process by TERM signal, let's start use KILL")
+
             process.send_signal(signal.SIGKILL)
         except psutil.NoSuchProcess:
             return
+
     parent.send_signal(sig)
 
 
-class TaskRun():
+class TaskRun:
     def __init__(self, task_id):
         started_at = datetime.datetime.utcnow()
         self.task_id = task_id
@@ -56,7 +64,8 @@ class TaskRun():
         kill_pid(self.state['pid'])
 
     def started_at(self):
-        return datetime.datetime.strptime(self.state['started_at'], '%Y-%m-%d %H:%M:%S')
+        return datetime.datetime.strptime(
+            self.state['started_at'], '%Y-%m-%d %H:%M:%S')
 
     def finalize(self):
         finished_at = datetime.datetime.utcnow()
@@ -67,12 +76,16 @@ class TaskRun():
         def get_trimmed_text(txt, lines_count=2):
             splitted = list(filter(None, txt.split('\n')))
             data = {'first': '\n'.join(splitted[:lines_count])}
+
             del splitted[:lines_count]
+
             data['last'] = '\n'.join(splitted[-lines_count:])
+
             return data
 
         stdout = get_trimmed_text(self.stdout, lines_count)
         stderr = get_trimmed_text(self.stderr, lines_count)
+
         return {
             'stdout_first': stdout['first'],
             'stdout_last': stdout['last'],

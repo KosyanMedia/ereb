@@ -8,6 +8,7 @@ from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado import gen
 import logging
 from os.path import isfile
+from datadog import statsd
 
 from ereb.task_runner import TaskRunner
 
@@ -15,16 +16,17 @@ from ereb.task_runner import TaskRunner
 class TasksScheduler():
     SHELL_SCRIPT_RE = r'(\S+\.(sh|rb|py))'
 
-    def __init__(self, tasks_dir, history_storage, notifier):
+    def __init__(self, tasks_dir, history_storage, notifier, datadog_metrics):
         self.tasks_dir = tasks_dir
         self.history_storage = history_storage
         self.notifier = notifier
+        self.datadog_metrics = datadog_metrics
         self.tasks_list = []
         self.is_task_loop_running = False
         self.planned_task_run_uuids = []
         self.try_after_fail_tasks = {}
         self.try_after_fail_tries_count = 2
-        self.try_after_fail_interval = 60 # 6
+        self.try_after_fail_interval = 60  # 6
         self.task_queue_by_timestamp = {}
         self.update_config()
 
@@ -71,7 +73,9 @@ class TasksScheduler():
     def run_task_by_name_and_cmd(self, name, cmd, timeout):
         logging.info('Manual run | Running %s task' % name)
         try:
-            TaskRunner(name, self.history_storage, self.notifier, self.on_task_fail_callback).run_task(cmd, timeout)
+            task_runner = TaskRunner(name, self.history_storage, self.notifier,
+                                     self.on_task_fail_callback, self.datadog_metrics)
+            task_runner.run_task(cmd, timeout)
         except Exception as e:
             logging.error('Manual task run error. %s' % e)
 
@@ -173,8 +177,9 @@ class TasksScheduler():
                     for task in next_tasks:
                         try:
                             logging.info('Running %s task with timeout %s', task['name'], task.get('timeout', -1))
-                            task_runner = TaskRunner(task['name'], self.history_storage, self.notifier, self.on_task_fail_callback)
-                            task_runner.run_task(task['cmd'], task.get('timeout', -1))
+                            task_runner = TaskRunner(task['name'], self.history_storage,
+                                                     self.notifier, self.on_task_fail_callback, self.datadog_metrics)
+                            task_runner.run_task(task['cmd'], task.get('`timeout', -1))
                         except Exception as e:
                             logging.exception('Scheduled task run error %s' % task['name'])
                     self.planned_task_run_uuids.remove(task_run_uuid)
@@ -208,7 +213,7 @@ class TasksScheduler():
                     tasks_by_schedule[next] = [task]
 
         if len(tasks_by_schedule) > 0:
-            return sorted(tasks_by_schedule.items(), key=lambda x: x[0] )[0]
+            return sorted(tasks_by_schedule.items(), key=lambda x: x[0])[0]
         else:
             return [0, []]
 
@@ -232,7 +237,7 @@ class TasksScheduler():
         scripts = list(map(lambda x: x[0], re.findall(self.SHELL_SCRIPT_RE, cmd)))
         def read_file(shell_script):
             with open(shell_script, 'r', encoding='utf8') as content:
-                return { 'filename': shell_script, 'content': content.read() }
+                return {'filename': shell_script, 'content': content.read()}
         return_data = []
         for script in scripts:
             if isfile(script):

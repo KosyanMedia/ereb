@@ -189,9 +189,11 @@ def main():
            "/../notifier.json", type=str, help="notifier json config")
     define("notify_to", default="logger", type=str, help="notifications channel")
     define("notifier_host", default="hostname", type=str, help="host for links in notifications")
+    define("datadog_metrics", default=False, help="send metrics to datadog")
 
     tornado.options.parse_command_line()
 
+    datadog_metrics = True if options.datadog_metrics else False
     ereb_version = version = pkg_resources.require("ereb")[0].version
 
     default_wi_config = """
@@ -222,10 +224,12 @@ def main():
         notify_to=options.notify_to,
         notifier_host=options.notifier_host,
         port=options.port,
-        websocket_clients=websocket_clients
-    )
+        websocket_clients=websocket_clients,
+        datadog_metrics=datadog_metrics)
 
     logging.info("Starting EREB on http://{}:{}".format('0.0.0.0', options.port))
+    if datadog_metrics:
+        logging.info("Sending metrics to Datadog enabled")
 
     task_controller.start()
 

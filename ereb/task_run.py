@@ -28,14 +28,16 @@ def kill_pid(pid, sig=signal.SIGTERM):
 
 
 class TaskRun():
+
     def __init__(self, task_id):
-        started_at = datetime.datetime.utcnow()
+        self.started_at = datetime.datetime.utcnow()
+        self.finished_at = None
         self.task_id = task_id
         self.id = None
 
         self.state = {
             'current': 'running',
-            'started_at': started_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'started_at': self.started_at.strftime('%Y-%m-%d %H:%M:%S'),
             'finished_at': None,
             'pid': None,
             'exit_code': None,
@@ -59,8 +61,8 @@ class TaskRun():
         return datetime.datetime.strptime(self.state['started_at'], '%Y-%m-%d %H:%M:%S')
 
     def finalize(self):
-        finished_at = datetime.datetime.utcnow()
-        self.state['finished_at'] = finished_at.strftime('%Y-%m-%d %H:%M:%S')
+        self.finished_at = datetime.datetime.utcnow()
+        self.state['finished_at'] = self.finished_at.strftime('%Y-%m-%d %H:%M:%S')
         self.state['current'] = 'finished'
 
     def log_info(self, lines_count=2):

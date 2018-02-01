@@ -197,7 +197,7 @@ class TasksScheduler():
 
         for task in self.tasks_list:
             if task.get('enabled', False):
-                next = CronTab(task['cron_schedule']).next(now)
+                next = CronTab(task['cron_schedule']).next(now, default_utc=False)
                 if next in tasks_by_schedule:
                     tasks_by_schedule[next].append(task)
                 else:

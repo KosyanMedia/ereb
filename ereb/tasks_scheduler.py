@@ -9,6 +9,7 @@ from tornado import gen
 import logging
 from os.path import isfile
 from datadog import statsd
+from datetime import datetime
 
 from ereb.task_runner import TaskRunner
 
@@ -81,7 +82,7 @@ class TasksScheduler():
 
     def on_task_fail_callback(self, task_id, return_code):
         def add_failed_task_to_queue(task_id):
-            next_run = time.time() + self.try_after_fail_interval
+            next_run = datetime.utcnow() + self.try_after_fail_interval
             if next_run in self.task_queue_by_timestamp:
                 self.task_queue_by_timestamp[next_run].append(task_id)
             else:
@@ -171,7 +172,7 @@ class TasksScheduler():
                 logging.info('Planned task %s' % task_run_uuid)
                 # wait until next task needs to be run, and while waiting -
                 # do other stuff in IOLoop (i.e. process web interface requests)
-                yield gen.Task(IOLoop.instance().add_timeout, time.time() + next_run)
+                yield gen.Task(IOLoop.instance().add_timeout, datetime.utcnow() + next_run)
                 if task_run_uuid in self.planned_task_run_uuids:
                     logging.info('Now running %s tasks' % len(next_tasks))
                     for task in next_tasks:
@@ -193,18 +194,18 @@ class TasksScheduler():
 
     def get_next_tasks(self):
         tasks_by_schedule = {}
-        now = time.time()
+        now = datetime.utcnow()
 
         for task in self.tasks_list:
             if task.get('enabled', False):
-                next = CronTab(task['cron_schedule']).next(now, default_utc=False)
+                next = CronTab(task['cron_schedule']).next(now)
                 if next in tasks_by_schedule:
                     tasks_by_schedule[next].append(task)
                 else:
                     tasks_by_schedule[next] = [task]
 
         for next_timestamp, tasks in self.task_queue_by_timestamp.items():
-            next = next_timestamp - time.time()
+            next = next_timestamp - datetime.utcnow()
             for task_id in tasks:
                 task = self.get_task_by_id(task_id, False)
                 if next in tasks_by_schedule:
@@ -230,7 +231,7 @@ class TasksScheduler():
 
     def clean_task_queue_by_timestamp(self):
         for next_timestamp in list(self.task_queue_by_timestamp.keys()):
-            if time.time() > next_timestamp:
+            if datetime.utcnow() > next_timestamp:
                 del self.task_queue_by_timestamp[next_timestamp]
 
     def try_to_parse_task_shell_script(self, cmd):

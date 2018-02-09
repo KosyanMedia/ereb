@@ -148,6 +148,11 @@ class TaskController():
         logging.info('MANUAL RUN | Running %s task' % task['name'])
         self.task_scheduler.run_task_by_name_and_cmd(task['name'], task['cmd'], task.get('timeout', -1))
 
+    def run_generic_task(self, name, cmd, timeout):
+        logging.info('GENERIC RUN | %s | %s | %s' % (name, cmd, timeout))
+        _name = "__generic_" + name
+        self.task_scheduler.run_task_by_name_and_cmd(_name, cmd, timeout)
+
     def get_tasks_config(self):
         return self.task_scheduler.get_tasks_config()
 

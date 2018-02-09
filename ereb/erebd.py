@@ -32,6 +32,17 @@ class SocketHandler(websocket.WebSocketHandler):
         logging.info('WebSocket closed, clients: %s' % len(self.websocket_clients))
 
 
+class GenericTasksHandler(tornado.web.RequestHandler):
+
+    def initialize(self, task_controller):
+        self.task_controller = task_controller
+
+    def post(self):
+        params = json.loads(self.request.body.decode())
+        self.task_controller.run_generic_task(params['name'], params['cmd'], params['timeout'])
+        self.write('ok')
+
+
 class TasksHandler(tornado.web.RequestHandler):
 
     def initialize(self, task_controller):
@@ -235,6 +246,7 @@ def main():
 
     application = tornado.web.Application([
         (r"/tasks/?([^/]*)/?([^/]*)/?([^/]*)$", TasksHandler, dict(task_controller=task_controller)),
+        (r"/generic_tasks/run", GenericTasksHandler, dict(task_controller=task_controller)),
         (r"/status/?(.*)$", RunnerHandler, dict(task_controller=task_controller)),
         (r'/ws', SocketHandler, dict(task_controller=task_controller, websocket_clients=websocket_clients)),
         (r"/(.*)", tornado.web.StaticFileHandler,

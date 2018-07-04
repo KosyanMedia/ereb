@@ -80,7 +80,7 @@ class TaskRun():
             'stdout_last': stdout['last'],
             'stderr_first': stderr['first'],
             'stderr_last': stderr['last'],
-            'run_time': str(datetime.datetime.utcnow() - self.started_at()),
+            'run_time': str(datetime.datetime.utcnow() - self.started_at),
             'exit_code': self.state['exit_code'],
             'task_id': self.task_id
         }

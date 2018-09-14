@@ -240,6 +240,21 @@ class FusionHistoryStorage():
         ''' % (task_id, days_limit))
         self.sqlite_connection.commit()
 
+    def last_fails(self, task_id):
+        task_runs = self.select_to_dict('''
+            select *
+            from task_runs
+            where task_id = '%s'
+            order by started_at desc
+        ''' % task_id)
+        result = 0
+        for task_run in task_runs:
+            if task_run['exit_code'] == 0:
+                return result
+            else:
+                result += 1
+        return result
+
     def select_to_dict(self, sql, columns=COLUMNS):
         cursor = self.sqlite_connection.execute(sql)
         result = []

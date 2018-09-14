@@ -70,12 +70,12 @@ class TasksScheduler():
         self.is_task_loop_running = False
         self.planned_task_run_uuids = []
 
-    def run_task_by_name_and_cmd(self, name, cmd, timeout):
+    def run_task_by_name_and_cmd(self, name, cmd, timeout, fails_before_notify=0):
         logging.info('Manual run | Running %s task' % name)
         try:
             task_runner = TaskRunner(name, self.history_storage, self.notifier,
                                      self.on_task_fail_callback, self.datadog_metrics)
-            task_runner.run_task(cmd, timeout)
+            task_runner.run_task(cmd, timeout, fails_before_notify)
         except Exception as e:
             logging.error('Manual task run error. %s' % e)
 
@@ -179,7 +179,8 @@ class TasksScheduler():
                             logging.info('Running %s task with timeout %s', task['name'], task.get('timeout', -1))
                             task_runner = TaskRunner(task['name'], self.history_storage,
                                                      self.notifier, self.on_task_fail_callback, self.datadog_metrics)
-                            task_runner.run_task(task['cmd'], task.get('`timeout', -1))
+                            task_runner.run_task(task['cmd'], task.get('timeout', -1),
+                                                 task.get('fails_before_notify', 0))
                         except Exception as e:
                             logging.exception('Scheduled task run error %s' % task['name'])
                     self.planned_task_run_uuids.remove(task_run_uuid)
@@ -235,6 +236,7 @@ class TasksScheduler():
 
     def try_to_parse_task_shell_script(self, cmd):
         scripts = list(map(lambda x: x[0], re.findall(self.SHELL_SCRIPT_RE, cmd)))
+
         def read_file(shell_script):
             with open(shell_script, 'r', encoding='utf8') as content:
                 return {'filename': shell_script, 'content': content.read()}

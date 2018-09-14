@@ -146,7 +146,8 @@ class TaskController():
     def run_task_by_task_id(self, task_id):
         task = self.get_task_by_id(task_id)
         logging.info('MANUAL RUN | Running %s task' % task['name'])
-        self.task_scheduler.run_task_by_name_and_cmd(task['name'], task['cmd'], task.get('timeout', -1))
+        self.task_scheduler.run_task_by_name_and_cmd(
+            task['name'], task['cmd'], task.get('timeout', -1), task.get('fails_before_notify', 0))
 
     def run_generic_task(self, name, cmd, timeout):
         logging.info('GENERIC RUN | %s | %s | %s' % (name, cmd, timeout))

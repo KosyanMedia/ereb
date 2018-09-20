@@ -2,6 +2,8 @@ import subprocess
 import urllib.parse
 import logging
 import requests
+
+
 class Notifier():
     def __init__(self, notifier_config, notify_to='logger', websocket_clients=[], host='hostname', port=8888):
         self.notify_to = notify_to
@@ -20,22 +22,22 @@ class Notifier():
             logging.exception("Notifier error:")
             self.cmd = None
 
-    def error(self, link, message, task_run):
+    def error(self, link, message, task_run, fails):
         if self.cmd:
             if self.notify_to.startswith('slack_api'):
-                info =  task_run.log_info(lines_count=self.cmd.get('include_strings', 2))
+                info = task_run.log_info(fails, lines_count=self.cmd.get('include_strings', 2))
                 slack_payload = {
-                        'attachments': [{
-                            'pretext': 'Failed task',
-                            'title': info['task_id'],
-                            'title_link': link,
-                            'text': self.cmd.get('text', 'Failed task {task_id}').format(**info),
-                            'fallback': message,
-                            'short': True,
-                            'color': 'danger',
-                            'mrkdwn_in': ['text', 'pretext']
-                        }]
-                    }
+                    'attachments': [{
+                        'pretext': 'Failed task',
+                        'title': info['task_id'],
+                        'title_link': link,
+                        'text': self.cmd.get('text', 'Failed task {task_id}').format(**info),
+                        'fallback': message,
+                        'short': True,
+                        'color': 'danger',
+                        'mrkdwn_in': ['text', 'pretext']
+                    }]
+                }
                 channel = self.cmd.get('channel', False)
                 if channel:
                     slack_payload['channel'] = channel
@@ -52,10 +54,13 @@ class Notifier():
         else:
             logging.warning("Notifications are turned off")
 
-    def send_failed_task_run(self, task_run):
+    def send_failed_task_run(self, task_run, fails):
         link = "http://{0}:{1}/#/tasks/{2}/runs/{3}".format(self.hostname, self.port, task_run.task_id, task_run.id)
-        message = "Task {0} failed".format(task_run.task_id)
-        self.error(link, message, task_run)
+        if fails > 1:
+            message = "Task {0} failed {1} times".format(task_run.task_id, str(fails))
+        else:
+            message = "Task {0} failed".format(task_run.task_id)
+        self.error(link, message, task_run, fails)
 
     def get_hostname(self):
         return subprocess.Popen("hostname", shell=True, stdout=subprocess.PIPE).stdout.read().decode().replace('\n', '')

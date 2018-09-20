@@ -14,7 +14,7 @@ class TaskRunner():
         self.on_error_callback = on_error_callback
         self.datadog_metrics = datadog_metrics
 
-    def run_task(self, cmd, timeout=-1):
+    def run_task(self, cmd, timeout=-1, fails_before_notify=0):
         logging.info("Runner started, %s with timeout %s", self.task_id, timeout)
         logging.info("Command: %s" % cmd)
         timeout = int(timeout)
@@ -23,6 +23,7 @@ class TaskRunner():
             raise FileExistsError('%s task is in progress' % self.task_id)
 
         self.task_run = TaskRun(self.task_id)
+        self.fails_before_notify = int(fails_before_notify)
         self.history_storage.prepare_task_run(self.task_run)
         self.history_storage.update_state_for_task_run(self.task_run)
 
@@ -49,5 +50,7 @@ class TaskRunner():
             statsd.gauge('ereb.%s' % self.task_id, task_time)
 
         if return_code != 0:
-            self.on_error_callback(self.task_id, return_code)
-            self.notifier.send_failed_task_run(self.task_run)
+            last_fails = self.history_storage.last_fails(self.task_id)
+            if self.fails_before_notify == 0 or (last_fails % self.fails_before_notify == 0):
+                self.on_error_callback(self.task_id, return_code)
+                self.notifier.send_failed_task_run(self.task_run, last_fails)

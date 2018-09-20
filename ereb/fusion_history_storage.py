@@ -172,7 +172,6 @@ class FusionHistoryStorage():
         self.update_state_for_task_run(task_run)
 
     def get_task_run_path(self, task_run):
-        print(task_run.id)
         return '/'.join([
             self.storage_dir,
             task_run.task_id,

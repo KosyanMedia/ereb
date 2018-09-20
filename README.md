@@ -147,3 +147,10 @@ and run a `DELETE` command:
 ```
 DELETE FROM task_runs WHERE started_at < datetime('now', '-1 month');
 ```
+
+### Releasing to pip
+
+```
+python3 setup.py sdist
+twine upload RELEASE
+```

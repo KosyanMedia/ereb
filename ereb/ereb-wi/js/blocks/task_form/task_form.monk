@@ -45,7 +45,7 @@
           value="{{ config.timeout || '21600' }}" placeholder="Timeout (seconds)">
       </div>
       <div class="form-group">
-        <label for="timeout"> Fails before notify </label>
+        <label for="timeout"> Notify each N fail </label>
         <input type="text" class="form-control task_form__fails_before_notify" id="fails_before_notify"
           value="{{ config.fails_before_notify || '0' }}" placeholder="Fails before notify">
       </div>

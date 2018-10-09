@@ -1,8 +1,8 @@
 {
   "logger": "echo '%s'",
-  "slack": "curl -X POST https://slack.com/api/chat.postMessage -d 'token=xoxb-60977247990-k4g3FPKi7xVhtBpKPZODboOo&channel=analalerts&username=ereb_bot&parse=full&link_names=1&icon_emoji=:sgusch_crazy:&attachments=[{\"text\": \"%s :piska: \",\"fallback\": \"%s\",\"short\":true,\"color\":\"danger\"}]' --silent > /dev/null",
+  "slack": "curl -X POST https://slack.com/api/chat.postMessage -d 'token=foo&channel=alerts&username=ereb_bot&parse=full&link_names=1&icon_emoji=:sgusch_crazy:&attachments=[{\"text\": \"%s :piska: \",\"fallback\": \"%s\",\"short\":true,\"color\":\"danger\"}]' --silent > /dev/null",
   "slack_api": {
-    "webhook_url": "https://hooks.slack.com/services/A03AELDU5/B1SUYQ7KP/oALWxt7JqH5KXc36DjsLZvvm",
+    "webhook_url": "https://hooks.slack.com/services/blabla",
     "text": "Run time: *{run_time}, last *{fails}* failed!*\nExit code: *{exit_code}*\nstdout: ```{stdout_first}\n....\n{stdout_last}```\nstderr: ```{stderr_first}\n....\n{stderr_last}```",
     "include_strings": 3
   }

@@ -22,7 +22,7 @@ And the best thing about ereb: it really works and made already thousands task r
 # Generic task run
 
 It is possible to run generic command without creating new task.
-POST requiest to `generic_tasks/run` with `name`, `cmd` and `timeout` params.
+POST request to `generic_tasks/run` with `name`, `cmd` and `timeout` params.
 Example:
 ```
 curl -v -X POST 'http://localhost:8888/generic_tasks/run' -d '{"name": "foo", "cmd": "echo bar", "timeout": 60 }'

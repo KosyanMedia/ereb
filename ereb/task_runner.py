@@ -7,12 +7,12 @@ from datadog import statsd
 
 class TaskRunner():
 
-    def __init__(self, task_id, history_storage, notifier, on_error_callback, datadog_metrics):
+    def __init__(self, task_id, history_storage, notifier, on_error_callback, datadog_config):
         self.task_id = task_id
         self.history_storage = history_storage
         self.notifier = notifier
         self.on_error_callback = on_error_callback
-        self.datadog_metrics = datadog_metrics
+        self.datadog_config = datadog_config
 
     def run_task(self, cmd, timeout=-1, fails_before_notify=0):
         logging.info("Runner started, %s with timeout %s", self.task_id, timeout)
@@ -45,9 +45,9 @@ class TaskRunner():
         self.task_run.finalize()
         self.history_storage.update_state_for_task_run(self.task_run)
 
-        if self.datadog_metrics:
+        if self.datadog_config['enabled']:
             task_time = (self.task_run.finished_at - self.task_run.started_at).seconds
-            statsd.gauge('ereb.%s' % self.task_id, task_time)
+            self.datadog_config['statsd_client'].gauge('ereb.%s' % self.task_id, task_time, tags=[self.datadog_config['tag']])
 
         if return_code != 0:
             last_fails = self.history_storage.last_fails(self.task_id)

@@ -9,6 +9,7 @@ import sys
 import signal
 import pkg_resources
 import os
+from tornado.options import define, options
 
 from ereb.tasks_controller import TaskController
 
@@ -189,7 +190,6 @@ def shutdown(shutdown_tasks, *args):
 
 
 def main():
-    from tornado.options import define, options
     define("port", default=8888, type=int, help="port to listen on")
     define("tasks_dir", default=os.path.dirname(os.path.realpath(__file__)) +
            "/../etc", type=str, help="directory with tasks config files")
@@ -200,10 +200,27 @@ def main():
     define("notify_to", default="logger", type=str, help="notifications channel")
     define("notifier_host", default="hostname", type=str, help="host for links in notifications")
     define("datadog_metrics", default=False, help="send metrics to datadog")
+    define("datadog_agent_host", default="localhost", help="host where datadog agent is running")
+    define("datadog_agent_port", default=8125, help="port where datadog agent is running")
+    define("datadog_tag", default="default", help="value for special `ereb:%datadog_tag%` tag in datadog metrics, sent with every event")
 
     tornado.options.parse_command_line()
 
+    datadog_config = {
+        'enabled': False
+    }
+    if options.datadog_metrics:
+        from datadog import initialize, statsd
+        initialize(statsd_host=options.datadog_agent_host, statsd_port=options.datadog_agent_port)
+        datadog_config = {
+            'enabled': True,
+            'statsd_client': statsd,
+            'tag': "ereb:%s" % options.datadog_tag
+        }
+
     datadog_metrics = True if options.datadog_metrics else False
+
+
     ereb_version = version = pkg_resources.require("ereb")[0].version
 
     default_wi_config = """
@@ -235,7 +252,7 @@ def main():
         notifier_host=options.notifier_host,
         port=options.port,
         websocket_clients=websocket_clients,
-        datadog_metrics=datadog_metrics)
+        datadog_config=datadog_config)
 
     logging.info("Starting EREB on http://{}:{}".format('0.0.0.0', options.port))
     if datadog_metrics:

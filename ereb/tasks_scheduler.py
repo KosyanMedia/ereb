@@ -16,11 +16,11 @@ from ereb.task_runner import TaskRunner
 class TasksScheduler():
     SHELL_SCRIPT_RE = r'(\S+\.(sh|rb|py))'
 
-    def __init__(self, tasks_dir, history_storage, notifier, datadog_metrics):
+    def __init__(self, tasks_dir, history_storage, notifier, datadog_config):
         self.tasks_dir = tasks_dir
         self.history_storage = history_storage
         self.notifier = notifier
-        self.datadog_metrics = datadog_metrics
+        self.datadog_config = datadog_config
         self.tasks_list = []
         self.is_task_loop_running = False
         self.planned_task_run_uuids = []
@@ -74,7 +74,7 @@ class TasksScheduler():
         logging.info('Manual run | Running %s task' % name)
         try:
             task_runner = TaskRunner(name, self.history_storage, self.notifier,
-                                     self.on_task_fail_callback, self.datadog_metrics)
+                                     self.on_task_fail_callback, self.datadog_config)
             task_runner.run_task(cmd, timeout, fails_before_notify)
         except Exception as e:
             logging.error('Manual task run error. %s' % e)
@@ -178,7 +178,7 @@ class TasksScheduler():
                         try:
                             logging.info('Running %s task with timeout %s', task['name'], task.get('timeout', -1))
                             task_runner = TaskRunner(task['name'], self.history_storage,
-                                                     self.notifier, self.on_task_fail_callback, self.datadog_metrics)
+                                                     self.notifier, self.on_task_fail_callback, self.datadog_config)
                             task_runner.run_task(task['cmd'], task.get('timeout', -1),
                                                  task.get('fails_before_notify', 0))
                         except Exception as e:

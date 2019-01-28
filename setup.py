@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='ereb',
     description='Tornado based cron with web interface, JSON API and history',
-    version='1.0.4',
+    version='1.1.0',
     url='https://github.com/KosyanMedia/ereb',
     author='Alex Shaikhaleev',
     author_email='nimdraug.sael@gmail.com',

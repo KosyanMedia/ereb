@@ -19,6 +19,23 @@ And the best thing about ereb: it really works and made already thousands task r
 
 `pip3 install ereb`
 
+# Config flags
+```
+--datadog-agent-host             host where datadog agent is running (default
+                                   localhost)
+--datadog-agent-port             port where datadog agent is running (default
+                                   8125)
+--datadog-metrics                send metrics to datadog (default False)
+--datadog-tag                    value for special `ereb:%datadog_tag%` tag
+                                   in datadog metrics, sent with every event
+--history-dir                    directory for history storage (default ./var)
+--notifier-config                notifier json config (default ./notifier.json)
+--notifier-host                  host for links in notifications (default hostname)
+--notify-to                      notifications channel (default logger)
+--port                           port to listen on (default 8888)
+--tasks-dir                      directory with tasks config files (default ./etc)
+```
+
 # Generic task run
 
 It is possible to run generic command without creating new task.

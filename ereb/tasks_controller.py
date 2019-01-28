@@ -17,7 +17,7 @@ class TaskController():
 
     def __init__(self, tasks_dir="etc", history_dir="./var",
                  notifier_config={}, notify_to='logger', notifier_host='hostname',
-                 websocket_clients=[], port=8888, datadog_metrics=False):
+                 websocket_clients=[], port=8888, datadog_config={}):
         self.tasks_dir = tasks_dir
         if not os.path.exists(self.tasks_dir):
             os.makedirs(self.tasks_dir)
@@ -31,7 +31,7 @@ class TaskController():
                                  port=port)
         self.task_scheduler = TasksScheduler(tasks_dir=tasks_dir,
                                              history_storage=self.history_storage,
-                                             notifier=self.notifier, datadog_metrics=datadog_metrics)
+                                             notifier=self.notifier, datadog_config=datadog_config)
         self.check_processes()
         self.process_checking_loop = PeriodicCallback(self.check_processes, 10000)
         self.process_checking_loop.start()

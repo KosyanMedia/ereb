@@ -46,7 +46,6 @@ class TaskRunner():
         self.history_storage.update_state_for_task_run(self.task_run)
 
         if self.datadog_config['enabled']:
-            print('send real metric to %s' % self.datadog_config['statsd_client'])
             task_time = (self.task_run.finished_at - self.task_run.started_at).seconds
             self.datadog_config['statsd_client'].gauge('ereb.%s' % self.task_id, task_time, tags=[self.datadog_config['tag']])
 

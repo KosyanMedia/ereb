@@ -1,5 +1,7 @@
 # Hey, it's Ereb
 
+[![PyPI version](https://badge.fury.io/py/ereb.svg)](https://badge.fury.io/py/ereb)
+
 Basically, it's easy installable cron with web interface. Just `pip3 install ereb && ereb` and open `localhost:8888`
 Ereb is *not* based on system crond, it works with own scheduler written using Tornado.
 It has:

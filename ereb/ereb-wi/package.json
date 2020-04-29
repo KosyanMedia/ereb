@@ -17,7 +17,7 @@
     "director": "^1.2.8",
     "file-loader": "^0.8.4",
     "highlight.js": "^9.2.0",
-    "jquery": "^2.1.4",
+    "jquery": "^3.5.0",
     "moment": "^2.10.3",
     "monkberry": "^3.8.0",
     "monkberry-events": "^3.8.0",

@@ -9,7 +9,7 @@ setup(
     author_email='nimdraug.sael@gmail.com',
     keywords='tornado web cron',
     packages=['ereb'],
-    install_requires=['tornado==4.3', 'crontab==0.22', 'psutil', 'requests', 'datadog'],
+    install_requires=['tornado==6.3.2', 'crontab==0.22', 'psutil', 'requests', 'datadog'],
     include_package_data=True,
     license='MIT',
     entry_points="""
